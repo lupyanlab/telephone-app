@@ -1,0 +1,10 @@
+.playing {
+    background: -webkit-radial-gradient(80% 25%, circle closest-side, #FF0000, #EEE 100%, #EEE 100%, #FFFFFF);
+    background: -moz-radial-gradient(80% 25%, circle closest-side, #FF0000, #EEE 100%, #EEE 100%, #FFFFFF);
+    background: radial-gradient(80% 25%, circle closest-side, #FF0000, #EEE 100%, #EEE 100%, #FFFFFF);
+}
+.recording {
+    background: -webkit-radial-gradient(80% 75%, circle closest-side, #FF0000, #EEE 100%, #EEE 100%, #FFFFFF);
+    background: -moz-radial-gradient(80% 75%, circle closest-side, #FF0000, #EEE 100%, #EEE 100%, #FFFFFF);
+    background: radial-gradient(80% 75%, circle closest-side, #FF0000, #EEE 100%, #EEE 100%, #FFFFFF);
+}

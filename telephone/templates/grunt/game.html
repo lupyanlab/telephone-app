@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block styling %}
+    <link href="{% static "grunt/css/recorder.css" %}" rel="stylesheet" type="text/css">
+{% endblock styling %}
+
+{% block header %}
+    <nav>
+        <ul class="nav nav-pills pull-right">
+            <li id="share" role="presentation"><a href="#">Share Mic</a></li>
+        </ul>
+    </nav>
+    <h3 id="game" class="text-muted">{{ form.game }}</h3>
+{% endblock header %}
+
+{% block jumbotron %}
+    <p id="status" class="lead">{{ form.status }}</p>
+    <img id="phone" src="{% static "logo/telephone-game.png" %}" border="0" width="311" height="414" orgWidth="600" orgHeight="800" usemap="#in-out-map" alt="" />
+    <map id="in-out-map">
+        <area shape="rect" id="play" coords="173,22,307,191" style="outline:none;" />
+        <area shape="rect" id="record" coords="172,225,305,390" style="outline:none;" />
+    </map>
+    <audio id="sound" src="{{ form.parent_url }}"></audio>
+    <form id="entry" method="post" action="{{ form.game.get_absolute_url }}" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.chain.as_hidden }}
+        {{ form.parent.as_hidden }}
+        {{ form.content.as_hidden }}
+
+        <p id="message" class="lead bg-danger">
+            {% if form.content.errors %}
+                {{ form.content.errors.as_text|cut:"* "}}
+            {% endif %}
+        </p>
+
+        <input type="submit" value="Send" id="submit" class="btn btn-lg btn-primary"/>
+    </form>
+{% endblock jumbotron %}
+
+{% block footer %}
+{% endblock footer %}
+
+{% block javascript %}
+    <script type="text/javascript" src="{% static "grunt/js/recorderjs/recorder.js" %}"></script>
+    <script type="text/javascript" src="{% static "grunt/js/audiorecorder.js" %}"></script>
+    <script type="text/javascript" src="{% static "grunt/js/ajax.js" %}"></script>
+    <script>
+// recorderjs uses javascript workers that require a full path
+var cfg = { workerPath: "{% static "grunt/js/recorderjs/recorderWorker.js" %}" };
+
+function updateValues( response ) {
+
+    // Update the relevant parts of the page given the JSON response
+
+    $( "#id_chain" ).val(response.chain);
+    $( "#id_parent" ).val(response.parent);
+    $( "#sound" ).attr("src", response.url);
+    $( "#status" ).text(response.status);
+
+    updateMessage();
+
+}
+
+function postEntry( blob ) {
+
+    // Post the entry via AJAX.
+    //
+    // Grab the data in the form, put it in a FormData object,
+    // append the blob, and submit it. Possible responses are:
+    // (1) -- valid form   -- new url
+    // (2)                 -- values for next entry
+    // (3) -- invalid form -- error message(s)
+
+    var entryForm = document.getElementById("entry");
+    var formData = new FormData(entryForm);
+    formData.append("content", blob);
+
+    $.ajax({
+        url: "{% url "play_game" pk=form.game.pk %}",
+        type: "POST",
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(response) {
+
+            // The server responds with the URL of the completion page
+            // or the values to update for the next entry.
+
+            console.log("received");
+
+            if (response.complete) {
+                window.location.replace(response.complete);
+            } else {
+                updateValues(response);
+            }
+
+        },
+        error: function(xhr, msg, err) {
+            updateMessage("There was a problem processing your entry");
+        }
+    });
+}
+    </script>
+{% endblock javascript %}

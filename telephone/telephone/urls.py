@@ -55,6 +55,7 @@ urlpatterns = patterns('',
 
     url(r'^dashboard/$', view=dashboard, name='dashboard'),
     url(r'^subscribe/$', view='subscribers.views.subscribe_view', name='subscribe'),
+    url(r'^grunt/$', include('grunt.urls')),
 )
 
 # Route for media files in local development.
