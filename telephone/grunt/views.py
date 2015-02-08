@@ -82,7 +82,7 @@ class PlayGameView(View):
                 return render(request, self.template_name, {'form': form})
         except Cluster.DoesNotExist:
             if request.is_ajax():
-                return HttpResponse(json.dumps(form.as_redirect(),
+                return HttpResponse(json.dumps(form.as_redirect()),
                     content_type = 'application/json')
             else:
                 return redirect('complete', pk = game.pk)
