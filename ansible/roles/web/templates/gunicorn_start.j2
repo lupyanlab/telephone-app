@@ -1,0 +1,44 @@
+#!/bin/bash
+
+NAME="{{ application_name }}"
+DJANGODIR={{ application_path }}
+SOCKFILE={{ virtualenv_path }}/run/gunicorn.sock
+USER={{ gunicorn_user }}
+GROUP={{ gunicorn_group }}
+NUM_WORKERS={{ gunicorn_num_workers }}
+
+# Set this to 0 for unlimited requests. During development, you might want to
+# set this to 1 to automatically restart the process on each request (i.e. your
+# code will be reloaded on every request).
+MAX_REQUESTS={{ gunicorn_max_requests }}
+
+echo "Starting $NAME as `whoami`"
+
+# Activate the virtual environment.
+cd $DJANGODIR
+source ../../bin/activate
+
+# Set additional environment variables.
+source ../../bin/postactivate
+
+# Create the run directory if it doesn't exist.
+RUNDIR=$(dirname $SOCKFILE)
+test -d $RUNDIR || mkdir -p $RUNDIR
+
+{% if newrelic_license_key is defined %}
+# Set the path to the newrelic config file
+NEW_RELIC_CONFIG_FILE={{ virtualenv_path }}/bin/newrelic.ini
+export NEW_RELIC_CONFIG_FILE
+{% endif %}
+
+# Programs meant to be run under supervisor should not daemonize themselves
+# (do not use --daemon).
+exec {% if newrelic_license_key is defined %}newrelic-admin run-program {% endif %}python manage.py run_gunicorn \
+		--settings={{ django_settings_file }} \
+ 		--name $NAME \
+  		--workers $NUM_WORKERS \
+  		--max-requests $MAX_REQUESTS \
+        --timeout 180 \
+  		--user=$USER --group=$GROUP \
+  		--log-level=debug \
+  		--bind=unix:$SOCKFILE

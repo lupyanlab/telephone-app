@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block rootcontainer %}
+<div class="container">
+  <div class="row">
+    {% block breadcrumbs %}{% endblock %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="page-header">
+                    {% block heading %}{% endblock %}
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-8">
+                {% block content %}{% endblock %}
+            </div>
+            <div class="col-md-4">
+                {% block extrapanelsbefore %}{% endblock %}
+
+                <!-- Tags panel -->
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title"><span class="fa fa-tags"></span> <strong>Tags</strong></h3>
+                    </div>
+                    <div class="panel-body">
+                        {% for tag in blog_tags %}
+                        <ul>
+                            <li class="fa fa-tag"> <a href="{% url 'blog_tag_list_view' tag.name %}">{{ tag.name }}</a></li>
+                        </ul>
+                        {% endfor %}
+                        <a href="{% url 'blog_list_view' %}">See all posts...</a>
+                    </div>
+                </div>
+                <!-- End Tags panel -->
+
+                <!-- Twitter widget -->
+                <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/glucosetracker"  data-widget-id="488451006829588480">Tweets by @glucosetracker</a>
+                <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+                <!-- End Twitter widget -->
+
+                {% block extrapanelsafter %}{% endblock %}
+            </div>
+        </div>
+    </div>
+  </div>
+</div><!-- /.container -->
+{% endblock %}
+
+{% block extrajsexternal %}
+    <!-- Go to www.addthis.com/dashboard to customize your tools -->
+    <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid={{ addthis_publisher_id }}"></script>
+{% endblock %}

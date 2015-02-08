@@ -1,0 +1,49 @@
+---
+
+# Database settings.
+db_user: glucosetracker
+db_name: glucosetracker
+db_password: password
+
+
+# Gunicorn settings.
+gunicorn_num_workers: 1
+
+# Setting this to 1 will restart the Gunicorn process each time
+# you make a request, basically reloading the code. Very handy
+# when developing. Set to 0 for unlimited requests (default).
+gunicorn_max_requests: 1
+
+
+# Nginx settings.
+nginx_server_name: 192.168.33.10
+ssl_src_dir: ssl_self_signed
+ssl_dest_dir: /etc/ssl
+ssl_key_password: password
+
+
+# SMTP settings.
+smtp_host: smtp.gmail.com
+smtp_user: admin@example.com
+smtp_password: mypassword
+
+
+# Application settings.
+django_settings_file: settings.local
+
+load_random_glucose_data: yes
+test_user: jsmith
+
+aws_access_key_id: na
+aws_secret_access_key: na
+
+twitter_api_key: na
+twitter_api_secret: na
+twitter_access_token: na
+twitter_token_secret: na
+
+django_secret_key: akr2icmg1n8%z^3fe3c+)5d0(t^cy-2_25rrl35a7@!scna^1#
+
+run_django_syncdb: yes
+run_django_south_migration: yes
+run_django_collectstatic: yes

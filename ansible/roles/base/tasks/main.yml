@@ -1,0 +1,30 @@
+---
+
+- name: Ensure bash, OpenSSl, and libssl are the latest versions
+  apt: name={{ item }} update_cache={{ update_apt_cache }} state=latest
+  with_items:
+    - bash
+    - openssl
+    - libssl-dev
+    - libssl-doc
+  tags: packages
+
+- name: Install base packages
+  apt: name={{ item }} update_cache={{ update_apt_cache }} force=yes state=installed
+  with_items:
+    - build-essential
+    - ntp
+    - htop
+    - git
+    - python-dev
+    - python-pip
+    - python-pycurl
+    - ipython
+    - supervisor
+  tags: packages
+
+- name: Install packages via pip
+  pip: name={{ item }}
+  with_items:
+    - virtualenv
+  tags: packages
