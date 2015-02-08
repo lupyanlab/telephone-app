@@ -105,10 +105,10 @@ MIDDLEWARE_CLASSES = (
     'axes.middleware.FailedLoginMiddleware',
 )
 
-ROOT_URLCONF = 'glucosetracker.urls'
+ROOT_URLCONF = 'telephone.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
-WSGI_APPLICATION = 'glucosetracker.wsgi.application'
+WSGI_APPLICATION = 'telephone.wsgi.application'
 
 TEMPLATE_DIRS = (
     os.path.join(PROJECT_ROOT, 'templates'),
