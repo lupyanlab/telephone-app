@@ -3,7 +3,9 @@ logger = logging.getLogger(__name__)
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.http import JsonResponse
+# from django.http import JsonResponse
+from django.http import HttpResponse
+import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 from django.views.generic import View, DetailView, ListView
@@ -74,12 +76,14 @@ class PlayGameView(View):
         try:
             form = self.get_form(game, receipts)
             if request.is_ajax():
-                return JsonResponse(form.as_context())
+                return HttpResponse(json.dumps(form.as_context()),
+                        content_type = 'application/json')
             else:
                 return render(request, self.template_name, {'form': form})
         except Cluster.DoesNotExist:
             if request.is_ajax():
-                return JsonResponse(form.as_redirect())
+                return HttpResponse(json.dumps(form.as_redirect(),
+                    content_type = 'application/json')
             else:
                 return redirect('complete', pk = game.pk)
 
@@ -93,6 +97,7 @@ def clear_view(request, pk):
 
     if request.is_ajax():
         game = Game.objects.get(pk = pk)
-        return JsonResponse({'complete': game.get_absolute_url()})
+        return HttpResponse(json.dumps({'complete': game.get_absolute_url()}),
+            content_type = 'application/json')
     else:
         return redirect('game', pk = pk)
