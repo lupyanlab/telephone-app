@@ -1,37 +1,30 @@
-import shutil
-import subprocess
-import tempfile
 
 from django.conf import settings
 from django.core.files import File
-from django.core.files.storage import FileSystemStorage
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from model_mommy import mommy
 from unipath import Path
 
-import grunt.models
 from grunt.forms import EntryForm
 from grunt.models import Game, Chain, Entry
 
+TEST_MEDIA_ROOT = Path(settings.MEDIA_ROOT + '-test')
+
+@override_settings(MEDIA_ROOT = TEST_MEDIA_ROOT)
 class FormTests(TestCase):
 
     def setUp(self):
-        self.temp_dir = tempfile.mkdtemp()
-        self._orig_storage = grunt.models.storage
-        grunt.models.storage = FileSystemStorage(self.temp_dir)
-
         self.chain = mommy.make(Chain)
         self.entry = mommy.make(Entry, chain = self.chain)
 
     def tearDown(self):
-        shutil.rmtree(self.temp_dir)
-        grunt.models.storage = self._orig_storage
+        TEST_MEDIA_ROOT.rmtree()
 
     @property
     def _wav(self):
         # something that can be passed in the wav_file field of Entry objects
-        sound = Path(settings.TEST_MEDIA_DIR, 'test-audio.wav')
+        sound = Path(settings.APP_DIR, 'grunt/tests/media/test-audio.wav')
         return File(open(sound, 'r'))
 
 class EntryFormTests(FormTests):

@@ -1,22 +1,20 @@
 from django.core.exceptions import ValidationError
-from django.core.files.storage import FileSystemStorage
 from django.core.urlresolvers import reverse
 from django.db import models
 
 from .handlers import chain_dir
 
-storage = FileSystemStorage()
-
 class Game(models.Model):
     """ Games comprise one or more Clusters """
-    _order = [
+    cluster_order_choices  = [
         ('SEQ', 'sequential'),
         ('RND', 'random'),
     ]
-    name = models.CharField(max_length = 30, blank = True, null = True)
-    order = models.CharField(max_length = 3, choices = _order, default = 'SEQ')
-    completion_code = models.CharField(max_length = 20,
-                                       blank = True, null = True)
+    name = models.CharField(blank = True, null = True, max_length = 30)
+    order = models.CharField(choices = cluster_order_choices, default = 'SEQ',
+                             max_length = 3)
+    completion_code = models.CharField(blank = True, null = True,
+                             max_length = 20)
 
     def get_absolute_url(self):
         """ Viewing a game is synonymous with playing the game.
@@ -66,14 +64,13 @@ class Game(models.Model):
         return clusters[0]
 
     def dir(self):
+        """
+        game.dir() is used as the name of the directory to hold all clusters,
+        chains, and entries in this game.
+        """
         return 'game-{pk}'.format(pk = self.pk)
 
     def __str__(self):
-        """ The string representation of the game
-
-        str(game) is used as the name of the directory to hold all clusters,
-        chains, and entries in this game.
-        """
         return self.name or self.dir()
 
 class Seed(models.Model):
@@ -83,7 +80,7 @@ class Seed(models.Model):
     entry of new chains as needed.
     """
     name = models.CharField(unique = True, max_length = 30)
-    content = models.FileField(upload_to = 'seeds/', storage = storage)
+    content = models.FileField(upload_to = 'seeds/')
 
     def __str__(self):
         """ The string representation of the seed
@@ -111,13 +108,14 @@ class Cluster(models.Model):
     TODO:
     - add a field for chain depth
     """
-    _method = [
+    chain_selection_choices = [
         ('SRT', 'shortest'),
         ('RND', 'random')
     ]
     game = models.ForeignKey(Game)
     seed = models.ForeignKey(Seed)
-    method = models.CharField(max_length = 3, choices = _method, default='SRT')
+    method = models.CharField(choices = chain_selection_choices, default='SRT',
+                              max_length = 3)
 
     def pick_chain(self):
         """ Select a chain.
@@ -251,7 +249,7 @@ class Entry(models.Model):
     """ Entries are file uploads situated in a particular Chain """
     chain = models.ForeignKey(Chain)
     parent = models.ForeignKey('self', null = True, blank = True)
-    content = models.FileField(upload_to = chain_dir, storage = storage)
+    content = models.FileField(upload_to = chain_dir)
     generation = models.IntegerField(default = 0, editable = False)
 
     def full_clean(self, *args, **kwargs):

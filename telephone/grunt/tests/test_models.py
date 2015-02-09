@@ -1,38 +1,23 @@
-import shutil
-import subprocess
-import tempfile
 
 from django.conf import settings
 from django.core.files import File
 from django.core.files.storage import FileSystemStorage
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from unipath import Path
-from unittest import skip
 from model_mommy import mommy
 
-import grunt.models
 from grunt.models import Game, Seed, Cluster, Chain, Entry
 
+TEST_MEDIA_ROOT = Path(settings.MEDIA_ROOT + '-test')
+
+@override_settings(MEDIA_ROOT = TEST_MEDIA_ROOT)
 class ModelTests(TestCase):
 
-    def setUp(self):
-        """
-        I think this storage manipulation might be all bullshit because the
-        way things are set up now everything must be servable immediately so
-        everything needs to be in the media root in order to do anything at
-        all.
-        """
-        self.temp_dir = tempfile.mkdtemp()
-        self._orig_storage = grunt.models.storage
-        grunt.models.storage = FileSystemStorage(self.temp_dir)
-
     def tearDown(self):
-        shutil.rmtree(self.temp_dir)
-        grunt.models.storage = self._orig_storage
-
+        TEST_MEDIA_ROOT.rmtree()
 
 class GameTests(ModelTests):
 
@@ -57,9 +42,9 @@ class GameTests(ModelTests):
         game = Game.objects.create()
         self.assertEquals(str(game), 'game-{}'.format(game.pk))
 
-        # But names can be provided
-        name_game = Game.objects.create(name = 'The Name')
-        self.assertEquals(str(name_game), 'The Name')
+        # but human-readable names can be provided
+        name_game = Game.objects.create(name = 'The Game Name')
+        self.assertEquals(str(name_game), 'The Game Name')
 
     def test_game_dir(self):
         """ Game data are stored relative to MEDIA_ROOT """
@@ -68,16 +53,11 @@ class GameTests(ModelTests):
         game.save()
         self.assertEquals(game.dir(), 'game-{pk}'.format(pk = game.pk))
 
-        name_game = Game(name = 'The Name')
-        name_game.full_clean()
-        name_game.save()
-        self.assertEquals(name_game.dir(), 'game-{}'.format(name_game.pk))
-
 class SeedTests(ModelTests):
 
     def setUp(self):
         super(SeedTests, self).setUp()
-        filepath = Path(settings.TEST_MEDIA_DIR, 'test-audio.wav')
+        filepath = Path(settings.APP_DIR, 'grunt/tests/media/test-audio.wav')
         self.content = File(open(filepath, 'rb'))
 
     def test_make_a_seed(self):
@@ -103,9 +83,8 @@ class SeedTests(ModelTests):
         valid.full_clean()  # should not raise
 
     def test_seed_str(self):
-        """ Seeds are named """
-        seed = Seed.objects.create(name = 'seed', content = self.content)
-        self.assertEquals(str(seed), 'seed')
+        seed = Seed.objects.create(name = 'valid-name', content = self.content)
+        self.assertEquals(str(seed), 'valid-name')
 
     def test_seed_names_are_unique(self):
         """ Seeds can't have the same name """
@@ -127,7 +106,7 @@ class SeedTests(ModelTests):
         """ Seeds are saved to their own directory """
         seed = Seed(name = 'seed', content = self.content)
         seed.save()
-        self.assertRegexpMatches(seed.content.url, r'/seeds/')
+        self.assertRegexpMatches(seed.content.url, r'/media/seeds/')
 
     def test_seed_files_are_saved_as_wav(self):
         """ In the grunt app all seeds are .wav files """
@@ -153,7 +132,7 @@ class ClusterTests(ModelTests):
         cluster.save()
 
     def test_cluster_requirements(self):
-        """ A game, a seed, and a receipt are all required for validation """
+        """ A game and a seed are required for validation """
         empty_cluster = Cluster()
         try:
             empty_cluster.full_clean()
@@ -176,13 +155,6 @@ class ClusterTests(ModelTests):
             game = self.game, seed = self.seed,
         )
         self.assertEquals(str(cluster), str(self.seed))
-
-    def test_cluster_dir(self):
-        cluster = Cluster.objects.create(
-            game = self.game, seed = self.seed
-        )
-        self.assertEquals(cluster.dir(), str(self.seed))
-
 
 class ChainTests(ModelTests):
 
@@ -280,8 +252,8 @@ class EntryTests(ModelTests):
         self.chain = mommy.make(Chain)
         mommy.make(Entry, chain = self.chain)
 
-        test_file = Path(settings.TEST_MEDIA_DIR, 'test-audio.wav')
-        self.content = File(open(test_file, 'rb'))
+        filepath = Path(settings.APP_DIR, 'grunt/tests/media/test-audio.wav')
+        self.content = File(open(filepath, 'rb'))
 
     def make_entry(self, save = True):
         entry = Entry(

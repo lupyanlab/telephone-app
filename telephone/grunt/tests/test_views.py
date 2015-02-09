@@ -1,47 +1,39 @@
-import tempfile
-import shutil
-import subprocess
 
 from django.conf import settings
 from django.core.files import File
-from django.core.files.storage import FileSystemStorage
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
-from model_mommy import mommy
 from unipath import Path
+from model_mommy import mommy
 
-import grunt.models
 from grunt.forms import EntryForm
 from grunt.models import Game, Seed, Cluster, Chain, Entry
 
+TEST_MEDIA_ROOT = Path(settings.MEDIA_ROOT + '-test')
+
+override_settings(MEDIA_ROOT = TEST_MEDIA_ROOT)
 class ViewTests(TestCase):
 
-    def setUp(self):
-        self.temp_dir = tempfile.mkdtemp()
-        self._orig_storage = grunt.models.storage
-        grunt.models.storage = FileSystemStorage(self.temp_dir)
-
     def tearDown(self):
-        shutil.rmtree(self.temp_dir)
-        grunt.models.storage = self._orig_storage
+        TEST_MEDIA_ROOT.rmtree()
 
     @property
     def _wav(self):
         # something that can be passed in the wav_file field of Entry objects
-        sound = Path(settings.TEST_MEDIA_DIR, 'test-audio.wav')
+        sound = Path(settings.APP_DIR, 'grunt/tests/media/test-audio.wav')
         return File(open(sound, 'r'))
 
 class GameListTests(ViewTests):
 
     def test_home_page_renders_game_list_template(self):
         """ Make sure the home page is linked up to the list template """
-        response = self.client.get('/')
+        response = self.client.get('/grunt/')
         self.assertTemplateUsed(response, 'grunt/list.html')
 
     def test_games_show_up_on_home_page(self):
         """ Games should be listed on the home page """
         expected_games = mommy.make(Game, _quantity = 10)
-        response = self.client.get('/')
+        response = self.client.get('/grunt/')
         visible_games = response.context['game_list']
         self.assertListEqual(expected_games, list(visible_games))
 
@@ -87,7 +79,7 @@ class SingleClusterTests(ViewTests):
         entries_before_post = Entry.objects.count()
         self.client.post(self.game_url, self.get_post_data())
         self.assertEquals(Entry.objects.count(), entries_before_post + 1)
-        
+
 
     def test_post_adds_receipt_to_session(self):
         """ Posting an entry redirects when there are no other clusters """
@@ -185,5 +177,5 @@ class ConfirmationPageTests(ViewTests):
     def test_confirmation_page_puts_game_in_context(self):
         """ The confirmation page should fetch the game and render it """
         game = mommy.make(Game)
-        response = self.client.get('/{}/complete/'.format(game.pk))
+        response = self.client.get('/grunt/{}/complete/'.format(game.pk))
         self.assertEquals(response.context['game'], game)
