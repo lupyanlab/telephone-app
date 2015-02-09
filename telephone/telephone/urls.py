@@ -3,7 +3,7 @@ from django.conf.urls import patterns, include, url
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 urlpatterns = patterns('',
-    url(r'^', include('grunt.urls')),
+    url(r'^grunt/', include('grunt.urls')),
 )
 
 # Route for media files in local development.
