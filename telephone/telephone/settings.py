@@ -8,9 +8,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.7/ref/settings/
 """
 
-# import os
+from os import environ
 from unipath import Path
-BASE_DIR = Path(__file__).ancestor(2)
+BASE_DIR = Path(__file__).ancestor(3)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
@@ -27,10 +27,11 @@ ALLOWED_HOSTS = []
 
 
 # Application definition
+
 APP_DIR = Path(BASE_DIR, 'telephone')
 
 TEMPLATE_DIRS = (
-    os.path.join(APP_DIR, 'templates'),
+    Path(APP_DIR, 'templates'),
 )
 
 INSTALLED_APPS = (
@@ -68,7 +69,7 @@ DATABASES = {
         'NAME': 'telephone',
         'USER': 'telephone',
         'PASSWORD': 'password',
-        'HOST': os.environ.get('POSTGRESQL_HOST', 'localhost'),
+        'HOST': environ.get('POSTGRESQL_HOST', 'localhost'),
         'PORT': '',
     }
 }
@@ -92,7 +93,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-STATIC_ROOT = Path(BASE, 'static')  # will likely vary
+STATIC_ROOT = Path(BASE_DIR, 'static')  # will likely vary
 
 STATICFILES_DIRS = (
     Path(APP_DIR, 'telephone', 'static'),
@@ -169,8 +170,8 @@ def gen_small_str(max_length, percentage = 0.75):
     new_length = int(max_length * percentage)
     result = list(choice(string.ascii_letters) for _ in range(new_length))
     return u''.join(result)
-gen_string.required = ['max_length']
+gen_small_str.required = ['max_length']
 
 MOMMY_CUSTOM_FIELDS_GEN = {
-    'django.db.models.fields.CharField': gen_string,
+    'django.db.models.fields.CharField': gen_small_str,
 }
