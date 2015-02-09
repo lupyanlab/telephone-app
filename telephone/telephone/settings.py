@@ -15,16 +15,19 @@ BASE_DIR = Path(__file__).ancestor(3)
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
 
+from local_settings import LOCATION
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'v**w_+36aa+cd%#8%07a59b3&x#k9b%0id+ffr7e3c#8h24%mr'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-TEMPLATE_DEBUG = True
-
-ALLOWED_HOSTS = []
-
+if LOCATION == 'local':
+    DEBUG = True
+    TEMPLATE_DEBUG = True
+    ALLOWED_HOSTS = []
+elif LOCATION == 'dev':
+    DEBUG = False
+    TEMPLATE_DEBUG = False
+    ALLOWED_HOSTS = ['grunt.pedmiston.xyz', ]
 
 # Application definition
 
