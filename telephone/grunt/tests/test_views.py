@@ -11,7 +11,7 @@ from grunt.models import Game, Seed, Cluster, Chain, Entry
 
 TEST_MEDIA_ROOT = Path(settings.MEDIA_ROOT + '-test')
 
-override_settings(MEDIA_ROOT = TEST_MEDIA_ROOT)
+@override_settings(MEDIA_ROOT = TEST_MEDIA_ROOT)
 class ViewTests(TestCase):
 
     def tearDown(self):
@@ -124,8 +124,6 @@ class MultiClusterTests(ViewTests):
                 'parent': entry.parent.pk,
                 'content': self._wav}
 
-class MultiClusterGetTests(MultiClusterTests):
-
     def conjure_session(self, receipts = []):
         self.client.get(self.game_url)
         session = self.client.session
@@ -143,8 +141,6 @@ class MultiClusterGetTests(MultiClusterTests):
         initial_cluster = Chain.objects.get(pk = initial['chain']).cluster
 
         self.assertEquals(initial_cluster, self.clusters[1])
-
-class MultiCusterPostTests(MultiClusterTests):
 
     def test_post_new_entry_to_db_with_multiple_clusters(self):
         """ Posting an entry should be the same with multiple clusters """
