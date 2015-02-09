@@ -1,3 +1,7 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import Game, Seed, Cluster, Chain, Entry
+
+@admin.register(Game, Seed, Cluster, Chain, Entry)
+class GameAdmin(admin.ModelAdmin):
+    pass
