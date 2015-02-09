@@ -80,16 +80,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.static',
     'django.core.context_processors.tz',
     'django.contrib.messages.context_processors.messages',
-
-    # Used by Grappelli
     'django.core.context_processors.request',
-
-    # 3rd-party context processors
-    'stickymessages.context_processors.latest_sticky_message',
-
-    # GlucoseTracker context processors
-    'core.context_processors.third_party_tracking_ids',
-    'core.context_processors.site_info',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -98,11 +89,6 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    # Uncomment the next line for simple clickjacking protection:
-    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
-    # 3rd-party middlewares
-    'axes.middleware.FailedLoginMiddleware',
 )
 
 ROOT_URLCONF = 'telephone.urls'
@@ -115,36 +101,14 @@ TEMPLATE_DIRS = (
 )
 
 INSTALLED_APPS = (
-    # Grappelli custom admin, needs to be defined before the admin app.
-    'grappelli',
-
+    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.admin',
-    'django.contrib.humanize',
-    'django.contrib.sitemaps',
-
-    # 3rd-party apps
-    'axes',
-    'compressor',
-    'crispy_forms',
-    'gunicorn',
-    'redactor',
-    'south',
-    'stickymessages',
-    'taggit',
-    'storages',
 
     # Local apps
-    'accounts',
-    'blogs',
-    'core',
-    'glucoses',
-    'subscribers',
     'grunt',
 )
 

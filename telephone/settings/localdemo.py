@@ -5,7 +5,7 @@ from local import *
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'glucosetracker.sqlite',
+        'NAME': 'telephone.sqlite',
         'USER': '',
         'PASSWORD': '',
         'HOST': '',
