@@ -29,7 +29,7 @@ elif LOCATION == 'dev':
 SECRET_KEY = 'v**w_+36aa+cd%#8%07a59b3&x#k9b%0id+ffr7e3c#8h24%mr'
 
 # Application definition
-BASE_DIR = Path(__file__).ancestor(3)
+BASE_DIR = Path(__file__).ancestor(2)
 APP_DIR = Path(BASE_DIR, 'grunt')
 
 TEMPLATE_DIRS = (
@@ -58,9 +58,9 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'core.urls'
+ROOT_URLCONF = 'urls'
 
-WSGI_APPLICATION = 'core.wsgi.application'
+WSGI_APPLICATION = 'wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
@@ -98,7 +98,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = Path(BASE_DIR, 'static')  # will likely vary
 
 STATICFILES_DIRS = (
-    Path(APP_DIR, 'core', 'static'),
+    Path(APP_DIR, 'static'),
     Path(APP_DIR, 'telephone', 'static'),
 )
 
