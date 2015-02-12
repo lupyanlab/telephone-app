@@ -98,7 +98,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = Path(BASE_DIR, 'static')  # will likely vary
 
 STATICFILES_DIRS = (
-    Path(APP_DIR, 'grunt', 'static'),
+    Path(APP_DIR, 'core', 'static'),
     Path(APP_DIR, 'telephone', 'static'),
 )
 
