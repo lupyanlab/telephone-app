@@ -6,8 +6,8 @@ from django.test import TestCase, override_settings
 from unipath import Path
 from model_mommy import mommy
 
-from grunt.forms import EntryForm
-from grunt.models import Game, Seed, Cluster, Chain, Entry
+from telephone.forms import EntryForm
+from telephone.models import Game, Seed, Cluster, Chain, Entry
 
 TEST_MEDIA_ROOT = Path(settings.MEDIA_ROOT + '-test')
 
@@ -20,20 +20,20 @@ class ViewTests(TestCase):
     @property
     def _wav(self):
         # something that can be passed in the wav_file field of Entry objects
-        sound = Path(settings.APP_DIR, 'grunt/tests/media/test-audio.wav')
+        sound = Path(settings.APP_DIR, 'telephone/tests/media/test-audio.wav')
         return File(open(sound, 'r'))
 
 class GameListTests(ViewTests):
 
     def test_home_page_renders_game_list_template(self):
         """ Make sure the home page is linked up to the list template """
-        response = self.client.get('/games/')
-        self.assertTemplateUsed(response, 'grunt/list.html')
+        response = self.client.get('/telephone/')
+        self.assertTemplateUsed(response, 'telephone/list.html')
 
     def test_games_show_up_on_home_page(self):
         """ Games should be listed on the home page """
         expected_games = mommy.make(Game, _quantity = 10)
-        response = self.client.get('/games/')
+        response = self.client.get('/telephone/')
         visible_games = response.context['game_list']
         self.assertListEqual(expected_games, list(visible_games))
 
@@ -173,5 +173,5 @@ class ConfirmationPageTests(ViewTests):
     def test_confirmation_page_puts_game_in_context(self):
         """ The confirmation page should fetch the game and render it """
         game = mommy.make(Game)
-        response = self.client.get('/games/{}/complete/'.format(game.pk))
+        response = self.client.get('/telephone/{}/complete/'.format(game.pk))
         self.assertEquals(response.context['game'], game)

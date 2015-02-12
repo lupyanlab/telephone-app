@@ -12,8 +12,8 @@ class AjaxTests(FunctionalTests):
             '$( "<input>", {id: "tmpInput", type: "file"}).appendTo("body");'
         )
 
-        filepath = Path(settings.APP_DIR, 'grunt/tests/media/test-audio.wav')
-        browser.find_element_by_id('tmpInput').send_keys(filepath)
+        fpath = Path(settings.APP_DIR, 'telephone/tests/media/test-audio.wav')
+        browser.find_element_by_id('tmpInput').send_keys(fpath)
 
         browser.execute_script('''
             file = document.getElementById("tmpInput").files[0];

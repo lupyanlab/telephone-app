@@ -6,8 +6,8 @@ from django.test import TestCase, override_settings
 from model_mommy import mommy
 from unipath import Path
 
-from grunt.forms import EntryForm
-from grunt.models import Game, Chain, Entry
+from telephone.forms import EntryForm
+from telephone.models import Game, Chain, Entry
 
 TEST_MEDIA_ROOT = Path(settings.MEDIA_ROOT + '-test')
 
@@ -24,7 +24,7 @@ class FormTests(TestCase):
     @property
     def _wav(self):
         # something that can be passed in the wav_file field of Entry objects
-        sound = Path(settings.APP_DIR, 'grunt/tests/media/test-audio.wav')
+        sound = Path(settings.APP_DIR, 'telephone/tests/media/test-audio.wav')
         return File(open(sound, 'r'))
 
 class EntryFormTests(FormTests):

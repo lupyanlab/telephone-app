@@ -8,7 +8,7 @@ from django.test import TestCase, override_settings
 from model_mommy import mommy
 from unipath import Path
 
-from grunt.models import Game, Seed, Cluster, Chain, Entry
+from telephone.models import Game, Seed, Cluster, Chain, Entry
 
 TEST_MEDIA_ROOT = Path(settings.MEDIA_ROOT + '-test')
 
@@ -56,8 +56,8 @@ class SeedTests(ModelTests):
 
     def setUp(self):
         super(SeedTests, self).setUp()
-        filepath = Path(settings.APP_DIR, 'grunt/tests/media/test-audio.wav')
-        self.content = File(open(filepath, 'rb'))
+        fpath = Path(settings.APP_DIR, 'telephone/tests/media/test-audio.wav')
+        self.content = File(open(fpath, 'rb'))
 
     def test_make_a_seed(self):
         """ Make a seed """
@@ -108,7 +108,7 @@ class SeedTests(ModelTests):
         self.assertRegexpMatches(seed.content.url, r'/media/seeds/')
 
     def test_seed_files_are_saved_as_wav(self):
-        """ In the grunt app all seeds are .wav files """
+        """ In the telephone app all seeds are .wav files """
         seed = Seed(name = 'seed', content = self.content)
         seed.save()
         seed_content_url = Path(seed.content.url)
@@ -251,8 +251,8 @@ class EntryTests(ModelTests):
         self.chain = mommy.make(Chain)
         mommy.make(Entry, chain = self.chain)
 
-        filepath = Path(settings.APP_DIR, 'grunt/tests/media/test-audio.wav')
-        self.content = File(open(filepath, 'rb'))
+        fpath = Path(settings.APP_DIR, 'telephone/tests/media/test-audio.wav')
+        self.content = File(open(fpath, 'rb'))
 
     def make_entry(self, save = True):
         entry = Entry(
@@ -324,7 +324,7 @@ class EntryTests(ModelTests):
         self.assertRegexpMatches(entry.content.url, self.chain.dir())
 
     def test_entry_files_are_saved_as_wav(self):
-        """ In the grunt app all entries are .wav files """
+        """ In the telephone app all entries are .wav files """
         entry = self.make_entry(save = True)
 
         entry_content_url = Path(entry.content.url)

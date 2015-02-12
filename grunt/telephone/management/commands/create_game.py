@@ -4,7 +4,7 @@ from django.conf import settings
 from django.core.files import File
 from django.core.management.base import BaseCommand, CommandError
 
-from grunt.models import Game, Seed, Cluster, Chain, Entry
+from telephone.models import Game, Seed, Cluster, Chain, Entry
 from .create_seed import create_seed
 
 class Command(BaseCommand):

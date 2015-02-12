@@ -6,7 +6,7 @@ from django.views.generic import RedirectView
 
 urlpatterns = patterns('',
     url(r'^$', RedirectView.as_view(pattern_name = 'game_list')),
-    url(r'^games/', include('grunt.urls')),
+    url(r'^telephone/', include('telephone.urls')),
     url(r'^admin/', include(admin.site.urls)),
 )
 

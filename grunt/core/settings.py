@@ -10,15 +10,11 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 
 from os import environ
 from unipath import Path
-BASE_DIR = Path(__file__).ancestor(3)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
 
 from local_settings import LOCATION
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'v**w_+36aa+cd%#8%07a59b3&x#k9b%0id+ffr7e3c#8h24%mr'
 
 if LOCATION == 'local':
     DEBUG = True
@@ -29,9 +25,12 @@ elif LOCATION == 'dev':
     TEMPLATE_DEBUG = False
     ALLOWED_HOSTS = ['grunt.pedmiston.xyz', ]
 
-# Application definition
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = 'v**w_+36aa+cd%#8%07a59b3&x#k9b%0id+ffr7e3c#8h24%mr'
 
-APP_DIR = Path(BASE_DIR, 'telephoneapp')
+# Application definition
+BASE_DIR = Path(__file__).ancestor(3)
+APP_DIR = Path(BASE_DIR, 'grunt')
 
 TEMPLATE_DIRS = (
     Path(APP_DIR, 'templates'),
@@ -46,7 +45,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
 
     # Local apps
-    'grunt',
+    'telephone',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -59,9 +58,9 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'telephone.urls'
+ROOT_URLCONF = 'core.urls'
 
-WSGI_APPLICATION = 'telephone.wsgi.application'
+WSGI_APPLICATION = 'core.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
@@ -69,8 +68,8 @@ WSGI_APPLICATION = 'telephone.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'telephoneapp',
-        'USER': 'telephoneapp',
+        'NAME': 'grunt',
+        'USER': 'grunt',
         'PASSWORD': 'password',
         'HOST': environ.get('POSTGRESQL_HOST', 'localhost'),
         'PORT': '',
@@ -99,8 +98,8 @@ STATIC_URL = '/static/'
 STATIC_ROOT = Path(BASE_DIR, 'static')  # will likely vary
 
 STATICFILES_DIRS = (
-    Path(APP_DIR, 'telephone', 'static'),
     Path(APP_DIR, 'grunt', 'static'),
+    Path(APP_DIR, 'telephone', 'static'),
 )
 
 MEDIA_URL = '/media/'

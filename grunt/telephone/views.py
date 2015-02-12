@@ -14,15 +14,15 @@ from .models import Game, Seed, Cluster, Entry
 from .forms import EntryForm
 
 class GameListView(ListView):
-    template_name = 'grunt/list.html'
+    template_name = 'telephone/list.html'
     model = Game
 
 class CompleteView(DetailView):
-    template_name = 'grunt/complete.html'
+    template_name = 'telephone/complete.html'
     model = Game
 
 class PlayGameView(View):
-    template_name = 'grunt/game.html'
+    template_name = 'telephone/game.html'
 
     def get(self, request, pk):
         """ Determine what to do next based on receipts in the session

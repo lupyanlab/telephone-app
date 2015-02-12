@@ -1,4 +1,3 @@
-
 import sys
 
 from django.conf import settings
@@ -43,7 +42,7 @@ class FunctionalTests(LiveServerTestCase):
         # if not self.against_staging:
         #     # kwargs['manage_py'] = '../virtualenv/bin/python manage.py'
         #     # local(manage_py_command.format(**kwargs))
-        from grunt.management.commands import create_game
+        from telephone.management.commands import create_game
         create_game.create_game(seeds = seeds, nchain = nchain,
                                 code = code, name = name)
         # else:
@@ -67,8 +66,8 @@ class FunctionalTests(LiveServerTestCase):
         browser = browser or self.browser
         # Unhide the file input and give it the path to a file
         browser.execute_script('$( "#id_content" ).attr("type", "file");')
-        filepath = Path(settings.APP_DIR, 'grunt/tests/media/test-audio.wav')
-        content = browser.find_element_by_id('id_content').send_keys(filepath)
+        fpath = Path(settings.APP_DIR, 'telephone/tests/media/test-audio.wav')
+        content = browser.find_element_by_id('id_content').send_keys(fpath)
 
     def wait_for(self, tag = None, id = None, text = None,
                  browser = None, timeout = 10):
