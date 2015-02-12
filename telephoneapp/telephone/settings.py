@@ -69,8 +69,8 @@ WSGI_APPLICATION = 'telephone.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'telephone',
-        'USER': 'telephone',
+        'NAME': 'telephoneapp',
+        'USER': 'telephoneapp',
         'PASSWORD': 'password',
         'HOST': environ.get('POSTGRESQL_HOST', 'localhost'),
         'PORT': '',
