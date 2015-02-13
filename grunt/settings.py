@@ -68,7 +68,7 @@ WSGI_APPLICATION = 'wsgi.application'
 DATABASE_OPTIONS = {
     'sqlite': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'grunt',
+        'NAME': 'grunt.sqlite3',
      },
     'postgres': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
