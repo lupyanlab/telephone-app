@@ -14,13 +14,13 @@ from unipath import Path
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
 
-from local_settings import LOCATION
+from local_settings import _LOCATION, _DATABASE
 
-if LOCATION == 'local':
+if _LOCATION == 'local':
     DEBUG = True
     TEMPLATE_DEBUG = True
     ALLOWED_HOSTS = []
-elif LOCATION == 'dev':
+elif _LOCATION == 'dev':
     DEBUG = False
     TEMPLATE_DEBUG = False
     ALLOWED_HOSTS = ['grunt.pedmiston.xyz', ]
@@ -65,16 +65,23 @@ WSGI_APPLICATION = 'wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
 
-DATABASES = {
-    'default': {
+DATABASE_OPTIONS = {
+    'sqlite': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'grunt',
+     },
+    'postgres': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'grunt',
         'USER': 'grunt',
         'PASSWORD': 'password',
         'HOST': environ.get('POSTGRESQL_HOST', 'localhost'),
         'PORT': '',
-    }
+    },
 }
+
+DATABASES = {}
+DATABASES['default'] = DATABASE_OPTIONS[_DATABASE]
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.7/topics/i18n/

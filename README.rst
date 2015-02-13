@@ -36,11 +36,15 @@ This is a technique for managing django settings I learned from
 Chuck Martin <http://snakeycode.wordpress.com>. Thanks Chuck!
 
 You need to create a file called "local_settings.py" in the app root. It
-needs to define a string variable `LOCATION`. For now, just use 'local'.
+needs to define a string variable `_LOCATION`. For now, just use 'local'.
+In addition, you can specify the database to use. The easiest is just to
+use sqlite, but the actual app uses postgres.
 
 .. code::
 
-    echo "LOCATION = 'local'" > grunt/local_settings.py
+    touch grunt/local_settings.py
+    echo "_LOCATION = 'local'" >> grunt/local_settings.py
+    echo "_DATABASE = 'sqlite'" >> grunt/local_settings.py
 
 4. Run the django test server.
 
