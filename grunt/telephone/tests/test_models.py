@@ -196,6 +196,13 @@ class ChainTests(ModelTests):
         )
         self.assertEquals(chain.dir(), expected_dir)
 
+    def test_saving_a_chain_populates_first_entry(self):
+        """ A side effect of saving a chain is that a seed entry is made """
+        chain = Chain(cluster = self.cluster)
+        chain.full_clean()
+        chain.save()
+        self.assertEquals(chain.entry_set.count(), 1)
+
     def test_preparing_next_entry(self):
         """ Chains prepare the next entry using the last entry as parent """
         chain = Chain.objects.create(cluster = self.cluster)
@@ -206,41 +213,11 @@ class ChainTests(ModelTests):
         self.assertEquals(next_entry.chain.pk, chain.pk)
         self.assertEquals(next_entry.parent.pk, entry.pk)
 
-    def test_requirements_for_preparing_next_entry(self):
-        """ Chains need a seed entry in order to prepare the next one """
-        empty_chain = Chain.objects.create(cluster = self.cluster)
-        with self.assertRaises(Entry.DoesNotExist):
-            empty_chain.prepare_entry()
-
-    def test_create_entry_from_seed(self):
-        """ Empty chains can create an entry from the seed """
-        chain = mommy.make(Chain, cluster = self.cluster)
-        entry = chain.create_entry_from_seed()
-        self.assertEquals(chain.entry_set.count(), 1)
-
-        # chain has to be empty to create an entry from the seed
-        with self.assertRaises(ValidationError):
-            chain.create_entry_from_seed()
-
-        self.assertEquals(chain.entry_set.count(), 1)
-
-    def test_create_with_entry(self):
-        """ ChainManager can make a chain with an entry """
-        chain = self.cluster.chain_set.create_with_entry()
-        self.assertEquals(chain.entry_set.count(), 1)
-
     def test_create_multiple(self):
         """ ChainManager can make multiple chains at once """
         self.cluster.chain_set.create_multiple(_quantity = 5)
         self.assertEquals(self.cluster.chain_set.count(), 5)
-
-    def test_create_multiple_with_entry(self):
-        """ ChainManager can make multiple chains all with an entry """
-        chains = self.cluster.chain_set.create_multiple(
-            _quantity = 10, _with_entry = True
-        )
-        self.assertEquals(len(chains), 10)
-        for chain in chains:
+        for chain in self.cluster.chain_set.all():
             self.assertEquals(chain.entry_set.count(), 1)
 
 
@@ -249,7 +226,6 @@ class EntryTests(ModelTests):
     def setUp(self):
         super(EntryTests, self).setUp()
         self.chain = mommy.make(Chain)
-        mommy.make(Entry, chain = self.chain)
 
         fpath = Path(settings.APP_DIR, 'telephone/tests/media/test-audio.wav')
         self.content = File(open(fpath, 'rb'))
@@ -278,17 +254,9 @@ class EntryTests(ModelTests):
 
     def test_entry_requirements(self):
         """ First generation entries require content and a chain """
-        empty_chain = mommy.make(Chain)
-        no_content = Entry(chain = empty_chain)
-        with self.assertRaises(ValidationError):
-            no_content.full_clean()
-
         no_chain = Entry(content = self.content)
         with self.assertRaises(ValidationError):
             no_chain.full_clean()
-
-        valid = Entry(chain = empty_chain, content = self.content)
-        valid.full_clean()  # should not raise
 
     def test_entries_require_a_parent(self):
         """ Second+ generation entries also require a parent """
@@ -299,7 +267,8 @@ class EntryTests(ModelTests):
 
     def test_entry_defaults(self):
         """ Default generation is 0 """
-        entry = Entry.objects.create(content=self.content, chain=self.chain)
+        chain = mommy.make(Chain)
+        entry = chain.entry_set.last()
         self.assertEquals(entry.generation, 0)
 
     def test_generation_is_filled_on_clean(self):

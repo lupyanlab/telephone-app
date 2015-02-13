@@ -218,12 +218,13 @@ class Chain(models.Model):
         an entry instance with chain and parent entry already populated.
         """
         last_entry = self.entry_set.last()
-
-        if not last_entry:
-            raise Entry.DoesNotExist("This chain has no seed entry")
-
         return Entry(chain = self, parent = last_entry)
 
+    def save(self, *args, **kwargs):
+        """ Save the chain and create a seed entry """
+        super(Chain, self).save(*args, **kwargs)
+        self.create_entry_from_seed()
+        
     def __str__(self):
         """ """
         chains_in_cluster = self.cluster.chain_set.all()
