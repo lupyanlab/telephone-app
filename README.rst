@@ -82,4 +82,4 @@ Functional tests using the django test server are run with the following:
 
 .. code::
 
-    python manage.py test tests
+    python manage.py test user_tests
