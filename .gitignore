@@ -5,3 +5,4 @@ vagrant_ansible_inventory_default
 media/
 local_settings.py
 # static/
+*.swp
