@@ -52,6 +52,11 @@ class GameTests(ModelTests):
         game.save()
         self.assertEquals(game.dir(), 'game-{pk}'.format(pk = game.pk))
 
+        # still use the unique pk even when a name is provided
+        game = Game(name = 'the game name')
+        game.full_clean()
+        self.assertEquals(game.dir(), 'game-{pk}'.format(pk = game.pk))
+
 class SeedTests(ModelTests):
 
     def setUp(self):
