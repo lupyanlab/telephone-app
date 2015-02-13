@@ -104,18 +104,24 @@ class Cluster(models.Model):
     contributes to one chain in a cluster. Clusters consist of a single chain,
     multiple chains branching from the same seed, or multiple chains branching
     from alternative seeds.
-
-    TODO:
-    - add a field for chain depth
     """
     chain_selection_choices = [
         ('SRT', 'shortest'),
         ('RND', 'random')
     ]
     game = models.ForeignKey(Game)
-    seed = models.ForeignKey(Seed)
+    name = models.CharField(max_length = 30)
     method = models.CharField(choices = chain_selection_choices, default='SRT',
                               max_length = 3)
+    seed = models.ForeignKey(Seed, null = True, blank = True)
+
+    def full_clean(self, *args, **kwargs):
+        if not self.name:
+            if not self.seed_id:
+                pass
+            else:
+                self.name = self.seed.name
+        super(Cluster, self).full_clean(*args, **kwargs)
 
     def pick_chain(self):
         """ Select a chain.
@@ -164,32 +170,48 @@ class ChainManager(models.Manager):
         -------
         a Chain object with a related entry
         """
-        chain = self.create(**kwargs)
-        _ = chain.create_entry_from_seed()  # the new entry is discarded
+        chain = Chain(**kwargs)
+        _ = chain.full_clean()
+        chain.save()
         return chain
 
-    def create_multiple(self, _quantity, _with_entry = False, **kwargs):
+    def create_multiple(self, _quantity, **kwargs):
         """ Create multiple chains at once.
 
         Parameters
         ----------
         _quantity: int, The number of chains to create
-        _with_entry: bool, Should the chains be created with a first entry?
         **kwargs: keyword args passed to the Chain constructor
 
         Returns
         -------
         a list of Chain objects that were saved to the database
         """
-        create = self.create_with_entry if _with_entry else self.create
-        chains = [create(**kwargs) for _ in range(_quantity)]
+        chains = [self.create_with_entry(**kwargs) for _ in range(_quantity)]
         return chains
 
 class Chain(models.Model):
     """ Chains comprise one or more Entries """
     cluster = models.ForeignKey(Cluster)
+    seed = models.ForeignKey(Seed)
 
     objects = ChainManager()
+
+    def full_clean(self, *args, **kwargs):
+        """ """
+        if not self.seed_id:
+            if not self.cluster_id:
+                pass  # punt to super()
+            elif not self.cluster.seed:
+                raise ValidationError('No seed found')
+            else:
+                self.seed = self.cluster.seed
+        super(Chain, self).full_clean(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        """ Save the chain and create a seed entry """
+        super(Chain, self).save(*args, **kwargs)
+        self.create_entry_from_seed()
 
     def create_entry_from_seed(self):
         """ Create an entry from the seed
@@ -201,7 +223,7 @@ class Chain(models.Model):
         if self.entry_set.count() > 0:
             raise ValidationError("This chain already has a seed entry")
 
-        entry = Entry(chain = self, content = self.cluster.seed.content.file)
+        entry = Entry(chain = self, content = self.seed.content.file)
         entry.full_clean()
         entry.save()
 
@@ -220,11 +242,6 @@ class Chain(models.Model):
         last_entry = self.entry_set.last()
         return Entry(chain = self, parent = last_entry)
 
-    def save(self, *args, **kwargs):
-        """ Save the chain and create a seed entry """
-        super(Chain, self).save(*args, **kwargs)
-        self.create_entry_from_seed()
-        
     def __str__(self):
         """ """
         chains_in_cluster = self.cluster.chain_set.all()

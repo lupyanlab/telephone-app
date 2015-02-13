@@ -128,28 +128,28 @@ class ClusterTests(ModelTests):
 
     def test_make_a_cluster(self):
         """ Make a cluster """
-        cluster = Cluster(
-            game = self.game,
-            seed = self.seed,
-        )
+        cluster = Cluster(game = self.game, name = 'first-cluster')
         cluster.full_clean()
         cluster.save()
 
     def test_cluster_requirements(self):
-        """ A game and a seed are required for validation """
+        """ A game and a name is required for validation """
         empty_cluster = Cluster()
         try:
             empty_cluster.full_clean()
         except ValidationError as validation_error:
             errors = validation_error.error_dict
-            self.assertListEqual(errors.keys(), ['game', 'seed'])
+            self.assertListEqual(errors.keys(), ['game', 'name'])
+
+    def test_make_a_cluster_with_seed(self):
+        """ Clusters can be made with a seed """
+        cluster = Cluster(game = self.game, seed = self.seed)
+        cluster.full_clean()
+        self.assertEquals(cluster.name, str(self.seed))
 
     def test_cluster_defaults(self):
         """ Clusters select the shortest chains by default """
-        cluster = Cluster(
-            game = self.game,
-            seed = self.seed,
-        )
+        cluster = Cluster(game = self.game, name = 'my-cluster')
         cluster.full_clean()
         self.assertEquals(cluster.method, 'SRT')
 
@@ -165,18 +165,28 @@ class ChainTests(ModelTests):
     def setUp(self):
         super(ChainTests, self).setUp()
         self.cluster = mommy.make(Cluster)
+        self.seed = mommy.make(Seed)
 
     def test_make_a_chain(self):
         """ Make a chain """
-        chain = Chain(cluster = self.cluster)
+        chain = Chain(cluster = self.cluster, seed = self.seed)
         chain.full_clean()
         chain.save()
 
     def test_chain_requirements(self):
         """ Validating a chain without a cluster raises an error """
         no_cluster = Chain()
-        with self.assertRaises(ValidationError):
+        try:
             no_cluster.full_clean()
+        except ValidationError as validation_error:
+            errors = validation_error.error_dict
+            self.assertListEqual(errors.keys(), ['cluster', 'seed'])
+
+    def test_chain_populates_seed_from_cluster(self):
+        seeded_cluster = mommy.make(Cluster, seed = self.seed)
+        chain = Chain(cluster = seeded_cluster)
+        chain.full_clean()
+        self.assertEquals(chain.seed, self.seed)
 
     def test_chain_str(self):
         """ Chains are named based on their number within the cluster """
@@ -193,7 +203,7 @@ class ChainTests(ModelTests):
 
     def test_chain_directory(self):
         """ Chains know the directory in which to save entries """
-        chain = Chain.objects.create(cluster = self.cluster)
+        chain = Chain.objects.create(cluster = self.cluster, seed = self.seed)
         expected_dir = '{game}/{cluster}/{chain}/'.format(
             game = self.cluster.game.dir(),
             cluster = self.cluster.dir(),
@@ -203,15 +213,15 @@ class ChainTests(ModelTests):
 
     def test_saving_a_chain_populates_first_entry(self):
         """ A side effect of saving a chain is that a seed entry is made """
-        chain = Chain(cluster = self.cluster)
+        chain = Chain(cluster = self.cluster, seed = self.seed)
         chain.full_clean()
         chain.save()
         self.assertEquals(chain.entry_set.count(), 1)
 
     def test_preparing_next_entry(self):
         """ Chains prepare the next entry using the last entry as parent """
-        chain = Chain.objects.create(cluster = self.cluster)
-        entry = mommy.make(Entry, chain = chain)
+        chain = Chain.objects.create(cluster = self.cluster, seed = self.seed)
+        entry = chain.entry_set.first()
 
         next_entry = chain.prepare_entry()
 
@@ -220,9 +230,10 @@ class ChainTests(ModelTests):
 
     def test_create_multiple(self):
         """ ChainManager can make multiple chains at once """
-        self.cluster.chain_set.create_multiple(_quantity = 5)
-        self.assertEquals(self.cluster.chain_set.count(), 5)
-        for chain in self.cluster.chain_set.all():
+        seeded_cluster = mommy.make(Cluster, seed = self.seed)
+        chains = Chain.objects.create_multiple(_quantity = 5, cluster = seeded_cluster)
+        self.assertEquals(seeded_cluster.chain_set.count(), 5)
+        for chain in seeded_cluster.chain_set.all():
             self.assertEquals(chain.entry_set.count(), 1)
 
 
