@@ -25,18 +25,21 @@ class PlayGameView(View):
     template_name = 'telephone/game.html'
 
     def get(self, request, pk):
-        """ Determine what to do next based on receipts in the session
+        """ Determine what to do when a user requests the game page.
 
-        Attempt to create a new entry form for a cluster not already in the
-        session. If no clusters can be found, redirect to the confirmation
-        page.
+        Outcomes
+        --------
+        1. First time users should see the instructions page.
+        2. Instructed users should see an entry form.
+        3. Completed users should see a completion code.
         """
+        self.game = get_object_or_404(Game, pk = pk)
+
         receipts = request.session.get('receipts', list())
         request.session['receipts'] = receipts
 
-        game = get_object_or_404(Game, pk = pk)
         try:
-            form = self.get_form(game, receipts)
+            form = self.get_form(receipts)
             return render(request, self.template_name, {'form': form})
         except Cluster.DoesNotExist:
             return redirect('complete', pk = pk)
@@ -48,24 +51,28 @@ class PlayGameView(View):
         the next form. Otherwise, pass back the same form with validation
         errors.
         """
-        game = get_object_or_404(Game, pk = pk)
+        self.game = get_object_or_404(Game, pk = pk)
+
         form = EntryForm(data = request.POST, files = request.FILES)
 
         if form.is_valid():
-            return self.form_valid(form, game, request)
+            return self.form_valid(form, request)
         else:
             return self.form_invalid(form)
 
-    def get_form(self, game, receipts):
+    def get_complete(self):
+        pass
+
+    def get_form(self, receipts):
         """ Create an entry form for a cluster not already in the session.
 
         Raises a Cluster.DoesNotExist if there are no more clusters.
         """
-        entry = game.prepare_entry(receipts)
+        entry = self.game.prepare_entry(receipts)
         form = EntryForm(instance = entry, receipts = receipts)
         return form
 
-    def form_valid(self, form, game, request):
+    def form_valid(self, form, request):
         """ """
         entry = form.save()
 
@@ -74,7 +81,7 @@ class PlayGameView(View):
         request.session['receipts'] = receipts
 
         try:
-            form = self.get_form(game, receipts)
+            form = self.get_form(receipts)
             if request.is_ajax():
                 return HttpResponse(json.dumps(form.as_context()),
                         content_type = 'application/json')
@@ -85,7 +92,7 @@ class PlayGameView(View):
                 return HttpResponse(json.dumps(form.as_redirect()),
                     content_type = 'application/json')
             else:
-                return redirect('complete', pk = game.pk)
+                return redirect('complete', pk = self.game.pk)
 
     def form_invalid(self, form):
         return render(self.request, self.template_name, {'form': form})
