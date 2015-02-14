@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, url
 
-from .views import GameListView, PlayGameView, clear_view
+from .views import GameListView, PlayGameView, accept, clear
 
 urlpatterns = patterns('',
     url(
@@ -11,11 +11,8 @@ urlpatterns = patterns('',
     url(
         r'^(?P<pk>\d+)/$',
         PlayGameView.as_view(),
-        name = 'play_game',
+        name = 'play',
     ),
-    url(
-        r'^(?P<pk>\d+)/clear$',
-        clear_view,
-        name = 'clear',
-    ),
+    url(r'^(?P<pk>\d+)/accept$', accept, name = 'accept'),
+    url(r'^(?P<pk>\d+)/clear$', clear, name = 'clear'),
 )

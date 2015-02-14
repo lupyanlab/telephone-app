@@ -77,7 +77,7 @@ function postEntry( blob ) {
     formData.append("content", blob);
 
     $.ajax({
-        url: "{% url "play_game" pk=form.game.pk %}",
+        url: "{% url "play" pk=form.game.pk %}",
         type: "POST",
         data: formData,
         processData: false,

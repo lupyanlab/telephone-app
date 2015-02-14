@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block header %}
+    <h3 id="game" class="text-muted">{{ game }}</h3>
+{% endblock header %}
+
+{% block jumbotron %}
+    <p>This is the instructions page</p>
+    <form method="post" action={% url 'accept' pk=game.pk %}>
+        {% csrf_token %}
+        <input type="submit" value="Accept" id="accept" class="btn btn-lg btn-primary"/>
+    </form>
+{% endblock jumbotron %}

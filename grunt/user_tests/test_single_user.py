@@ -22,6 +22,13 @@ class SingleUserTests(FunctionalTests):
         self.assertRegexpMatches(game_url, r'/\d+/',
             "Clicking the game didn't advance the page")
 
+        # She sees some instructions
+        instructions = self.browser.find_element_by_tag_name('p').text
+        self.assertEquals(instructions, "This is the instructions page")
+
+        # She clicks accept
+        self.browser.find_element_by_id('accept').click()
+
         # She sees the name of the game on the status bar
         game_txt = self.browser.find_element_by_id('game').text
         self.assertEquals(game_txt, 'Test Game')

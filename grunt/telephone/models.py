@@ -21,7 +21,7 @@ class Game(models.Model):
 
         Games are the only model objects that are visible via URL.
         """
-        return reverse('play_game', kwargs = {'pk': self.pk})
+        return reverse('play', kwargs = {'pk': self.pk})
 
     def prepare_entry(self, receipts = list()):
         """ Determines the entry for the player
