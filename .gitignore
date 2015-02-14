@@ -6,3 +6,4 @@ media/
 local_settings.py
 # static/
 *.swp
+ansible/env_vars/secrets.yml
