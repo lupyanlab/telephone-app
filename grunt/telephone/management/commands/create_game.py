@@ -26,10 +26,14 @@ class Command(BaseCommand):
         game = create_game(**kwargs)
         code = game.completion_code
         seeds = game.cluster_set.values_list('seed__name', flat = True)
-        self.stdout.write('Game created ({}) with seeds {}'.format(code, seeds))
+        self.stdout.write(
+            'Game created ({}) with seeds {}'.format(code, seeds)
+        )
 
 def create_game(seeds, nchain, code = None, name = None, **kwargs):
-    game, _ = Game.objects.get_or_create(name = name, completion_code = code)
+    game, _ = Game.objects.get_or_create(
+        name = name, completion_code = code
+    )
     for seed_name in seeds:
         try:
             seed = Seed.objects.get(name = seed_name)
@@ -41,6 +45,7 @@ def create_game(seeds, nchain, code = None, name = None, **kwargs):
         )
 
         if created:
-            cluster.chain_set.create_multiple(_quantity=nchain, _with_entry=True)
-
+            Chain.objects.create_multiple(
+                cluster = cluster, _quantity = nchain
+            )
     return game
