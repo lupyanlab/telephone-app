@@ -42,7 +42,3 @@ class EntryForm(forms.ModelForm):
             'status': self.status(),
         }
         return context
-
-    def as_redirect(self):
-        game_complete = reverse('complete', kwargs = {'pk': self.game().pk})
-        return {'complete': game_complete}

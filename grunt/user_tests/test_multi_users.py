@@ -8,11 +8,6 @@ class MultiUserTests(FunctionalTests):
         browser.find_element_by_id('submit').click()
         self.wait_for(tag = 'body', browser = browser)
 
-    def assert_complete(self, game_url, code, browser = None):
-        browser = browser or self.browser
-        self.assertRegexpMatches(browser.current_url, game_url + 'complete/')
-        self.assert_completion_code(code, browser = browser)
-
     def test_sequential_generations(self):
         """ Simulate two players making entries to the same chain """
         completion_code = 'test-seq-gen'
@@ -29,7 +24,7 @@ class MultiUserTests(FunctionalTests):
         self.upload_and_post()
 
         # She is taken to the confirmation page and leaves the site
-        self.assert_complete(game_url, completion_code)
+        self.assert_completion_code(completion_code)
         self.new_user()
 
         # The second player arrives at the site.
@@ -43,7 +38,7 @@ class MultiUserTests(FunctionalTests):
 
         # She uploads her own entry and is taken to the completion page
         self.upload_and_post()
-        self.assert_complete(game_url, completion_code)
+        self.assert_completion_code(completion_code)
 
     def test_parallel_chains(self):
         """ Simulate two players making entries in two parallel chains """
@@ -60,7 +55,7 @@ class MultiUserTests(FunctionalTests):
 
         # She makes her entry, is redirected, and quits
         self.upload_and_post()
-        self.assert_complete(game_url, completion_code)
+        self.assert_completion_code(completion_code)
         self.new_user()
 
         # Player 2 joins the game
@@ -74,4 +69,4 @@ class MultiUserTests(FunctionalTests):
 
         # She makes her entry, is redirected, and quits
         self.upload_and_post()
-        self.assert_complete(game_url, completion_code)
+        self.assert_completion_code(completion_code)

@@ -45,10 +45,6 @@ class AjaxTests(FunctionalTests):
 
         # She is taken to the completion page
         #self.assert_status(self.browser, "You've made 1 of 1 entries")
-        complete_url = game_url + 'complete/'
-        self.assertRegexpMatches(self.browser.current_url, complete_url,
-            "Submitting an entry via AJAX didn't redirect"
-        )
         self.assert_completion_code(completion_code)
 
     def test_ajax_two_clusters(self):
@@ -76,6 +72,4 @@ class AjaxTests(FunctionalTests):
         #self.assert_status(self.browser, "You've made 2 of 2 entries")
 
         # She is taken to the completion page
-        complete_url = game_url + 'complete/'
-        self.assertRegexpMatches(self.browser.current_url, complete_url)
         self.assert_completion_code(completion_code)

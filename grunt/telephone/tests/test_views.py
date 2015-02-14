@@ -80,7 +80,6 @@ class SingleClusterTests(ViewTests):
         self.client.post(self.game_url, self.get_post_data())
         self.assertEquals(Entry.objects.count(), entries_before_post + 1)
 
-
     def test_post_adds_receipt_to_session(self):
         """ Posting an entry redirects when there are no other clusters """
         response = self.client.post(self.game_url, self.get_post_data())
@@ -105,7 +104,9 @@ class MultiClusterTests(ViewTests):
         self.game_url = self.game.get_absolute_url()
 
         self.clusters = mommy.make(Cluster, game = self.game, _quantity = 2)
+        self.receipts = []
         for cluster in self.clusters:
+            self.receipts.append(cluster.pk)
             tmp_chain = mommy.make(Chain, cluster = cluster)
             mommy.make(Entry, chain = tmp_chain)
 
@@ -167,11 +168,8 @@ class MultiClusterTests(ViewTests):
         response = self.client.post(self.game_url, data)
         self.assertIn(cluster.pk, self.client.session['receipts'])
 
-
-class ConfirmationPageTests(ViewTests):
-
-    def test_confirmation_page_puts_game_in_context(self):
+    def test_confirmation_page(self):
         """ The confirmation page should fetch the game and render it """
-        game = mommy.make(Game)
-        response = self.client.get('/telephone/{}/complete/'.format(game.pk))
-        self.assertEquals(response.context['game'], game)
+        self.conjure_session(receipts = self.receipts)
+        response = self.client.get(self.game_url)
+        self.assertTemplateUsed(response, 'telephone/complete.html')

@@ -66,10 +66,6 @@ class SingleUserTests(FunctionalTests):
         # 2. She was taken to the completion page
         # 3. She sees her completion code
         #self.assert_status("You've made 1 of 1 entries")
-        game_complete_url = game_url + 'complete/'
-        self.assertRegexpMatches(self.browser.current_url, game_complete_url,
-            "Submitting an entry didn't redirect to confirmation page")
-
         message = self.browser.find_element_by_tag_name('p').text
         self.assertEquals(message, "Keep gruntin'!")
 
@@ -115,13 +111,10 @@ class SingleUserTests(FunctionalTests):
 
         # Her entry was successful
         #self.assert_status(self.browser, "You've made 2 of 2 entries")
-        game_complete_url = game_url + 'complete/'
-        self.assertRegexpMatches(self.browser.current_url, game_complete_url)
         self.assert_completion_code(completion_code)
 
-        # She refreshes the page, but doesn't leave the completeion page
+        # She refreshes the page, but doesn't leave the completion page
         self.browser.refresh()
-        self.assertEquals(self.browser.current_url, game_complete_url)
 
         # She clicks the button to clear her session
         self.browser.find_element_by_id('clear').click()

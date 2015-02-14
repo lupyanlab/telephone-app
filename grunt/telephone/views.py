@@ -3,7 +3,7 @@ logger = logging.getLogger(__name__)
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
-# from django.http import JsonResponse
+from django.http import JsonResponse
 from django.http import HttpResponse
 import json
 from django.shortcuts import render, redirect, get_object_or_404
@@ -17,9 +17,9 @@ class GameListView(ListView):
     template_name = 'telephone/list.html'
     model = Game
 
-class CompleteView(DetailView):
-    template_name = 'telephone/complete.html'
-    model = Game
+# class CompleteView(DetailView):
+#     template_name = 'telephone/complete.html'
+#     model = Game
 
 class PlayGameView(View):
     template_name = 'telephone/game.html'
@@ -42,7 +42,7 @@ class PlayGameView(View):
             form = self.get_form(receipts)
             return render(request, self.template_name, {'form': form})
         except Cluster.DoesNotExist:
-            return redirect('complete', pk = pk)
+            return self.complete(request)
 
     def post(self, request, pk):
         """ Validate the entry
@@ -60,8 +60,8 @@ class PlayGameView(View):
         else:
             return self.form_invalid(form)
 
-    def get_complete(self):
-        pass
+    def complete(self, request):
+        return render(request, 'telephone/complete.html', {'game': self.game})
 
     def get_form(self, receipts):
         """ Create an entry form for a cluster not already in the session.
@@ -83,8 +83,7 @@ class PlayGameView(View):
         try:
             form = self.get_form(receipts)
             if request.is_ajax():
-                return HttpResponse(json.dumps(form.as_context()),
-                        content_type = 'application/json')
+                return JsonResponse({'complete': self.game.get_absolute_url()})
             else:
                 return render(request, self.template_name, {'form': form})
         except Cluster.DoesNotExist:
@@ -92,7 +91,7 @@ class PlayGameView(View):
                 return HttpResponse(json.dumps(form.as_redirect()),
                     content_type = 'application/json')
             else:
-                return redirect('complete', pk = self.game.pk)
+                return self.complete(request)
 
     def form_invalid(self, form):
         return render(self.request, self.template_name, {'form': form})
