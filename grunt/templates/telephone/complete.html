@@ -2,11 +2,6 @@
 {% load static %}
 
 {% block header %}
-    <nav>
-        <ul class="nav nav-pills pull-right">
-            <li id="clear" role="presentation"><a href="#">Clear Receipts</a></li>
-        </ul>
-    </nav>
     <h3 id="game" class="text-muted">{{ game }}</h3>
 {% endblock header %}
 
@@ -17,24 +12,8 @@
     {% else %}
         <p class="lead">Keep gruntin'!</p>
     {% endif %}
+    <form method="post" action="{% url 'clear' pk=game.pk %}">
+        {% csrf_token %}
+        <input type="submit" value="Play again" id="clear" class="btn btn-lg btn-primary"/>
+    </form>
 {% endblock jumbotron %}
-
-{% block javascript %}
-    <script type="text/javascript" src="{% static "grunt/js/ajax.js" %}"></script>
-    <script>
-
-$( "#clear" ).click(function( event ) {
-    console.log("posted");
-    $.ajax({
-        url: "{% url "clear" pk=game.pk %}",
-        type: "POST",
-        success: function(response) {
-            window.location.replace(response.complete);
-        },
-        error: function(xhr, msg, err) {
-            console.log("There was a problem clearing your session: " + err);
-        }
-    });
-});
-    </script>
-{% endblock javascript %}

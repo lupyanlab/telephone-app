@@ -62,6 +62,10 @@ class FunctionalTests(LiveServerTestCase):
         game_list = browser.find_element_by_id('id_game_list')
         game_list.find_elements_by_tag_name('a')[0].click()
 
+    def accept_instructions(self, browser = None):
+        browser = browser or self.browser
+        browser.find_element_by_id('accept').click()
+
     def upload_file(self, browser = None):
         browser = browser or self.browser
         # Unhide the file input and give it the path to a file

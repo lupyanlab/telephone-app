@@ -57,6 +57,10 @@ class PlayGameView(View):
         receipts = request.session['receipts']
         entry = self.game.prepare_entry(receipts)
         form = EntryForm(instance = entry, receipts = receipts)
+
+        if request.is_ajax():
+            return JsonResponse(form.as_context())
+
         return render(request, 'telephone/play.html', {'form': form})
 
     def post(self, request, pk):
@@ -91,6 +95,9 @@ class PlayGameView(View):
             return render(request, 'telephone/play.html', {'form': form})
 
     def complete(self, request):
+        if request.is_ajax():
+            return JsonResponse({'complete': self.game.get_absolute_url()})
+
         return render(request, 'telephone/complete.html', {'game': self.game})
 
 @require_POST

@@ -7,7 +7,7 @@
 
 {% block jumbotron %}
     <p>This is the instructions page</p>
-    <form method="post" action={% url 'accept' pk=game.pk %}>
+    <form method="post" action="{% url 'accept' pk=game.pk %}">
         {% csrf_token %}
         <input type="submit" value="Accept" id="accept" class="btn btn-lg btn-primary"/>
     </form>

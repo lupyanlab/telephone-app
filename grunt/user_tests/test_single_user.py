@@ -91,6 +91,7 @@ class SingleUserTests(FunctionalTests):
         # She navigates to the game page
         self.browser.get(self.live_server_url)
         self.click_on_first_game()
+        self.accept_instructions()
         game_url = self.browser.current_url
 
         # She sees that she is going to make two entries

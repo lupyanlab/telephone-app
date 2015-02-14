@@ -23,6 +23,13 @@ class ViewTests(TestCase):
         sound = Path(settings.APP_DIR, 'telephone/tests/media/test-audio.wav')
         return File(open(sound, 'r'))
 
+    def conjure_session(self, receipts = [], instructed = False):
+        self.client.get(self.game_url)
+        session = self.client.session
+        session['receipts'] = receipts
+        session['instructed'] = instructed
+        session.save()
+
 class GameListTests(ViewTests):
 
     def test_home_page_renders_game_list_template(self):
@@ -37,6 +44,12 @@ class GameListTests(ViewTests):
         visible_games = response.context['game_list']
         self.assertListEqual(expected_games, list(visible_games))
 
+    def test_instructions_page(self):
+        """ First visit should render instructions template """
+        game = mommy.make(Game)
+        response = self.client.get(game.get_absolute_url())
+        self.assertTemplateUsed(response, 'telephone/instruct.html')
+
 class SingleClusterTests(ViewTests):
 
     def setUp(self):
@@ -47,6 +60,8 @@ class SingleClusterTests(ViewTests):
         self.cluster = mommy.make(Cluster, game = self.game)
         self.chain = mommy.make(Chain, cluster = self.cluster)
         self.entry = mommy.make(Entry, chain = self.chain)
+
+        self.conjure_session(instructed = True)
 
     def get_post_data(self):
         entry = self.chain.prepare_entry()
@@ -110,6 +125,8 @@ class MultiClusterTests(ViewTests):
             tmp_chain = mommy.make(Chain, cluster = cluster)
             mommy.make(Entry, chain = tmp_chain)
 
+        self.conjure_session(instructed = True)
+
     def get_post_data(self, chain = None, cluster = None):
         """ Helper function for generate the data for a post
 
@@ -125,16 +142,10 @@ class MultiClusterTests(ViewTests):
                 'parent': entry.parent.pk,
                 'content': self._wav}
 
-    def conjure_session(self, receipts = []):
-        self.client.get(self.game_url)
-        session = self.client.session
-        session['receipts'] = receipts
-        session.save()
-
     def test_get_with_receipts(self):
         """ If there are receipts in the session, get the correct cluster """
         receipt = self.clusters[0].pk
-        self.conjure_session(receipts = [receipt, ])
+        self.conjure_session(receipts = [receipt, ], instructed = True)
 
         response = self.client.get(self.game_url)
 
@@ -170,6 +181,6 @@ class MultiClusterTests(ViewTests):
 
     def test_confirmation_page(self):
         """ The confirmation page should fetch the game and render it """
-        self.conjure_session(receipts = self.receipts)
+        self.conjure_session(receipts = self.receipts, instructed = True)
         response = self.client.get(self.game_url)
         self.assertTemplateUsed(response, 'telephone/complete.html')
