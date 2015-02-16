@@ -2,19 +2,23 @@
 {% load static %}
 
 {% block styling %}
-    <link href="{% static "grunt/css/recorder.css" %}" rel="stylesheet" type="text/css">
+    <link href="{% static "telephone/css/recorder.css" %}" rel="stylesheet" type="text/css">
 {% endblock styling %}
 
 {% block header %}
+
     <nav>
         <ul class="nav nav-pills pull-right">
             <li id="share" role="presentation"><a href="#">Share Mic</a></li>
         </ul>
     </nav>
+
     <h3 id="game" class="text-muted">{{ form.game }}</h3>
+
 {% endblock header %}
 
 {% block jumbotron %}
+
     <form id="entry" method="post" action="{{ form.game.get_absolute_url }}" enctype="multipart/form-data">
         {% csrf_token %}
 
@@ -25,11 +29,11 @@
         <p id="status" class="lead">{{ form.status }}</p>
         <div class="row">
             <div class="col-xs-8 col-md-8">
-                <img id="phone" src="{% static 'grunt/img/phone.png' %}" class="img-responsive"/>
+                <img id="phone" src="{% static 'telephone/img/phone.png' %}" class="img-responsive"/>
             </div>
             <div class="col-xs-4 col-md-4">
-                <img id="listen" src="{% static 'grunt/img/listen.png' %}" class="img-responsive unavailable"/>
-                <img id="record" src="{% static 'grunt/img/record.png' %}" class="img-responsive unavailable"/>
+                <img id="listen" src="{% static 'telephone/img/listen.png' %}" class="img-responsive unavailable"/>
+                <img id="record" src="{% static 'telephone/img/record.png' %}" class="img-responsive unavailable"/>
             </div>
         </div>
 
@@ -43,18 +47,19 @@
 
         <input type="submit" value="Send" id="submit" class="btn btn-lg btn-primary" disabled="disabled"/>
     </form>
+
 {% endblock jumbotron %}
 
 {% block footer %}
 {% endblock footer %}
 
 {% block javascript %}
-    <script type="text/javascript" src="{% static "grunt/js/recorderjs/recorder.js" %}"></script>
-    <script type="text/javascript" src="{% static "grunt/js/audiorecorder.js" %}"></script>
-    <script type="text/javascript" src="{% static "grunt/js/ajax.js" %}"></script>
+    <script type="text/javascript" src="{% static "telephone/js/recorderjs/recorder.js" %}"></script>
+    <script type="text/javascript" src="{% static "telephone/js/audiorecorder.js" %}"></script>
+    <script type="text/javascript" src="{% static "telephone/js/ajax.js" %}"></script>
     <script>
 // recorderjs uses javascript workers that require a full path
-var cfg = { workerPath: "{% static "grunt/js/recorderjs/recorderWorker.js" %}" };
+var cfg = { workerPath: "{% static "telephone/js/recorderjs/recorderWorker.js" %}" };
 
 function updateValues( response ) {
 

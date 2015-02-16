@@ -34,6 +34,7 @@ APP_DIR = Path(BASE_DIR, 'grunt')
 
 TEMPLATE_DIRS = (
     Path(APP_DIR, 'templates'),
+    Path(APP_DIR, 'telephone/templates'),
 )
 
 INSTALLED_APPS = (

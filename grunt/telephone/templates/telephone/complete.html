@@ -6,14 +6,17 @@
 {% endblock header %}
 
 {% block jumbotron %}
+
     {% if game.completion_code %}
         <p class="lead">Your completion code is:</p>
         <code id="code">{{ game.completion_code }}</code>
     {% else %}
         <p class="lead">Keep gruntin'!</p>
     {% endif %}
+
     <form method="post" action="{% url 'clear' pk=game.pk %}">
         {% csrf_token %}
         <input type="submit" value="Play again" id="clear" class="btn btn-lg btn-primary"/>
     </form>
+
 {% endblock jumbotron %}

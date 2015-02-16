@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block jumbotron %}
+
     <ul id="id_game_list" class="list-group">
         {% for game in game_list %}
         <li class="list-group-item"><a id="id_{{ game }}" href="{{ game.get_absolute_url }}">{{ game }}</a></li>
@@ -8,4 +9,5 @@
         <li class="list-group-item">No games have been created.</li>
         {% endfor %}
     </ul>
+
 {% endblock jumbotron %}
