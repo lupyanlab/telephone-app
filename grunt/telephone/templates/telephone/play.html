@@ -19,6 +19,8 @@
 
 {% block jumbotron %}
 
+    {{ block.super }}
+
     <form id="entry" method="post" action="{{ form.game.get_absolute_url }}" enctype="multipart/form-data">
         {% csrf_token %}
 

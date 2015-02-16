@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block jumbotron %}
+
+    {{ block.super }}
+
+    <a href={% url 'game_list' %}><img id="phone" src="{% static 'telephone/img/phone.png' %}" class="img-responsive"/></a>
+
+{% endblock jumbotron %}

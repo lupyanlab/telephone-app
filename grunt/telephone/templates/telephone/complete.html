@@ -7,6 +7,8 @@
 
 {% block jumbotron %}
 
+    {{ block.super }}
+
     {% if game.completion_code %}
         <p class="lead">Your completion code is:</p>
         <code id="code">{{ game.completion_code }}</code>

@@ -7,6 +7,8 @@
 
 {% block jumbotron %}
 
+    {{ block.super }}
+
     <p>This is the instructions page</p>
     <form method="post" action="{% url 'accept' pk=game.pk %}">
         {% csrf_token %}

@@ -2,10 +2,10 @@ from django.conf import settings
 from django.conf.urls import patterns, include, url
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.views.generic import RedirectView
+from django.views.generic import TemplateView
 
 urlpatterns = patterns('',
-    url(r'^$', RedirectView.as_view(pattern_name = 'game_list')),
+    url(r'^$', TemplateView.as_view(template_name = 'home.html')),
     url(r'^telephone/', include('telephone.urls')),
     url(r'^admin/', include(admin.site.urls)),
 )
