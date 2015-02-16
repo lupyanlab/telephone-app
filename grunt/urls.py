@@ -6,7 +6,7 @@ from django.views.generic import TemplateView
 
 urlpatterns = patterns('',
     url(r'^$', TemplateView.as_view(template_name = 'home.html')),
-    url(r'^telephone/', include('telephone.urls')),
+    url(r'^calls/', include('telephone.urls')),
     url(r'^admin/', include(admin.site.urls)),
 )
 
