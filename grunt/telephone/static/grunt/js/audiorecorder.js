@@ -13,11 +13,13 @@ $( "#share" ).click(function( event ) {
         // connect the audio and change the button state
         connectAudio(function() {
             $( "#share" ).addClass("active");
-            updateMessage();
+            $( "#listen" ).removeClass("unavailable");
+            updateMessage("");
         });
     } else {
         audioRecorder = null;
         $( "#share" ).removeClass("active");
+        updateMessage("");
     }
 
 });
@@ -26,20 +28,36 @@ $( "#sound" ).bind("ended", function() {
 
     // Update to indicate that the sound is done playing
 
-    $( "#phone" ).removeClass("playing");
+    $("#listen").removeClass("active");
+    if( $("#record").hasClass("unavailable") ) {
+        $("#record").removeClass("unavailable");
+    }
 
 });
 
-$( "#play" ).click(function( event ) {
+$( "#listen" ).click(function( event ) {
 
     // Trigger the (hidden) audio element.
     //
-    // TODO:
-    // * work on chrome and safari
-    // * prevent playing more than once
+    // If the speaker is available and you're not making a recording,
+    // play or pause the audio.
 
-    $( "#sound" ).trigger("play");
-    $( "#phone" ).addClass("playing");
+    if( $(this).hasClass("unavailable") ) {
+        updateMessage("Share your microphone to play");
+        return;
+    } else if( $("#record").hasClass("active") ) {
+        updateMessage("You can't record the original sound");
+        return;
+    } else {
+        $(this).toggleClass("active");
+        updateMessage("");
+    }
+
+    if( $(this).hasClass("active") ) {
+        $( "#sound" ).trigger("play");
+    } else {
+        $( "#sound" ).trigger("pause");
+    }
 
 });
 
@@ -48,17 +66,24 @@ $( "#record" ).click(function( event ) {
 
     // Toggle the audio recorder.
     //
-    // TODO:
-    // * make the submit button available after making a recording
+    // If the recorder is available and the sound is not playing,
+    // turn the recorder on and off.
 
-    if (!audioRecorder) {
-        $( "#message" ).text("Share your microphone to make a recoding");
+    if( !audioRecorder ) {
+        updateMessage("Share your microphone to play.");
         return;
+    } else if( $(this).hasClass("unavailable") ) {
+        updateMessage("You must listen to the sound first.");
+        return;
+    } else if( $("#listen").hasClass("active") ) {
+        updateMessage("You can't record the original sound.");
+        return;
+    } else {
+        updateMessage("");
+        $( this ).toggleClass("active");
     }
 
-    $( "#phone" ).toggleClass("recording");
-
-    if ($( "#phone" ).hasClass("recording")) {
+    if( !$(this).hasClass("active") ) {
         audioRecorder.clear();
         audioRecorder.record();
     } else {

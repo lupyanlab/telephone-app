@@ -15,18 +15,25 @@
 {% endblock header %}
 
 {% block jumbotron %}
-    <p id="status" class="lead">{{ form.status }}</p>
-    <img id="phone" src="{% static "logo/telephone-game.png" %}" border="0" width="311" height="414" orgWidth="600" orgHeight="800" usemap="#in-out-map" alt="" />
-    <map id="in-out-map">
-        <area shape="rect" id="play" coords="173,22,307,191" style="outline:none;" />
-        <area shape="rect" id="record" coords="172,225,305,390" style="outline:none;" />
-    </map>
-    <audio id="sound" src="{{ form.parent_url }}"></audio>
     <form id="entry" method="post" action="{{ form.game.get_absolute_url }}" enctype="multipart/form-data">
         {% csrf_token %}
+
         {{ form.chain.as_hidden }}
         {{ form.parent.as_hidden }}
         {{ form.content.as_hidden }}
+
+        <p id="status" class="lead">{{ form.status }}</p>
+        <div class="row">
+            <div class="col-xs-8 col-md-8">
+                <img id="phone" src="{% static 'grunt/img/phone.png' %}" class="img-responsive"/>
+            </div>
+            <div class="col-xs-4 col-md-4">
+                <img id="listen" src="{% static 'grunt/img/listen.png' %}" class="img-responsive unavailable"/>
+                <img id="record" src="{% static 'grunt/img/record.png' %}" class="img-responsive unavailable"/>
+            </div>
+        </div>
+
+        <audio id="sound" src="{{ form.parent_url }}"></audio>
 
         <p id="message" class="lead bg-danger">
             {% if form.content.errors %}
