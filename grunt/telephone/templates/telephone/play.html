@@ -60,6 +60,8 @@
     <script type="text/javascript" src="{% static "telephone/js/audiorecorder.js" %}"></script>
     <script type="text/javascript" src="{% static "telephone/js/ajax.js" %}"></script>
     <script>
+var audioRecorder = null;
+
 // recorderjs uses javascript workers that require a full path
 var cfg = { workerPath: "{% static "telephone/js/recorderjs/recorderWorker.js" %}" };
 
@@ -75,6 +77,15 @@ function updateValues( response ) {
     updateMessage();
 
 }
+
+function micShared() {
+
+    $( "#share" ).addClass("active");
+    $( "#listen" ).removeClass("unavailable");
+    updateMessage("");
+
+}
+
 
 function postEntry( blob ) {
 

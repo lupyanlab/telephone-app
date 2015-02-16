@@ -1,8 +1,7 @@
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
 
 var audioContext = new AudioContext(),
-    audioInput = null,
-    audioRecorder = null;
+    audioInput = null;
 
 $( "#share" ).click(function( event ) {
 
@@ -11,11 +10,7 @@ $( "#share" ).click(function( event ) {
 
     if (!audioRecorder) {
         // connect the audio and change the button state
-        connectAudio(function() {
-            $( "#share" ).addClass("active");
-            $( "#listen" ).removeClass("unavailable");
-            updateMessage("");
-        });
+        connectAudio( micShared );
     } else {
         audioRecorder = null;
         $( "#share" ).removeClass("active");
@@ -43,10 +38,10 @@ $( "#listen" ).click(function( event ) {
     // play or pause the audio.
 
     if( $(this).hasClass("unavailable") ) {
-        updateMessage("Share your microphone to play");
+        updateMessage("Share your microphone to play.");
         return;
     } else if( $("#record").hasClass("active") ) {
-        updateMessage("You can't record the original sound");
+        updateMessage("You can't record the original sound.");
         return;
     } else {
         $(this).toggleClass("active");
@@ -73,7 +68,7 @@ $( "#record" ).click(function( event ) {
         updateMessage("Share your microphone to play.");
         return;
     } else if( $(this).hasClass("unavailable") ) {
-        updateMessage("You must listen to the sound first.");
+        updateMessage("You have to listen to the sound first.");
         return;
     } else if( $("#listen").hasClass("active") ) {
         updateMessage("You can't record the original sound.");

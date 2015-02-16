@@ -57,6 +57,10 @@ class FunctionalTests(LiveServerTestCase):
         self.browser.set_window_size(800, 1000)
         self.browser.implicitly_wait(10)
 
+    def click_on_telephone_game(self, browser = None):
+        browser = browser or self.browser
+        browser.find_element_by_id('phone').click()
+
     def click_on_first_game(self, browser = None):
         browser = browser or self.browser
         game_list = browser.find_element_by_id('id_game_list')
@@ -66,12 +70,18 @@ class FunctionalTests(LiveServerTestCase):
         browser = browser or self.browser
         browser.find_element_by_id('accept').click()
 
+    def simulate_sharing_mic(self, browser = None):
+        browser = browser or self.browser
+        browser.execute_script('audioRecorder = true; micShared();')
+
     def upload_file(self, browser = None):
         browser = browser or self.browser
         # Unhide the file input and give it the path to a file
         browser.execute_script('$( "#id_content" ).attr("type", "file");')
         fpath = Path(settings.APP_DIR, 'telephone/tests/media/test-audio.wav')
         content = browser.find_element_by_id('id_content').send_keys(fpath)
+        browser.execute_script('$( "#submit" ).prop("disabled", false);')
+        browser.execute_script('audioRecorder = false;')
 
     def wait_for(self, tag = None, id = None, text = None,
                  browser = None, timeout = 10):
@@ -92,6 +102,11 @@ class FunctionalTests(LiveServerTestCase):
         status = browser.find_element_by_id('status').text
         expected = "Message {} of {}".format(num, total)
         self.assertEquals(status, expected)
+
+    def assert_error_message(self, msg, browser = None):
+        browser = browser or self.browser
+        error_message = browser.find_element_by_id("message").text
+        self.assertEquals(error_message, msg)
 
     def assert_completion_code(self, expected, browser = None):
         browser = browser or self.browser

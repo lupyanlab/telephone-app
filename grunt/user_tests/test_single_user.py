@@ -3,13 +3,18 @@ from .base import FunctionalTests
 
 class SingleUserTests(FunctionalTests):
 
-    def test_single_cluster(self):
+    def test_single_entry(self):
         """ Simulate a player making an entry to a single cluster game """
         self._fix_game(name = 'Test Game', seeds = ['crow', ], nchain = 1)
 
         # The player arrives at the homepage.
         self.browser.get(self.live_server_url)
         self.assertIn("Telephone Game", self.browser.title)
+
+        # She clicks on the telephone and is redirected to the
+        # list of available calls.
+        self.browser.find_element_by_id('phone').click()
+        self.assertRegexpMatches(self.browser.current_url, '/calls/')
 
         # There is one game available
         game_list = self.browser.find_element_by_id('id_game_list')
@@ -19,8 +24,7 @@ class SingleUserTests(FunctionalTests):
         # She selects the first game in the list and is taken to a new page
         self.click_on_first_game()
         game_url = self.browser.current_url
-        self.assertRegexpMatches(game_url, r'/\d+/',
-            "Clicking the game didn't advance the page")
+        self.assertRegexpMatches(game_url, r'/calls/\d+/')
 
         # She sees some instructions
         instructions = self.browser.find_element_by_tag_name('p').text
@@ -39,25 +43,32 @@ class SingleUserTests(FunctionalTests):
         # The correct audio file is presented on the page
         self.assert_audio_src('crow-0.wav')
 
-        """ Intends to verify that the speaker turns red when clicked
+        # She tries to play the audio but can't
+        self.browser.find_element_by_id('listen').click()
+        message = self.browser.find_element_by_id("message").text
+        self.assert_error_message("Share your microphone to play")
+
+        # She shares her microphone and the sound becomes available
+        self.simulate_sharing_mic()
+        speaker = self.browser.find_element_by_id('listen')
+        self.assertNotIn('unavailable', speaker.get_attribute('class'))
+
+        # The recorder isn't available because she hasn't listend
+        # to the audio yet
+        recorder = self.browser.find_element_by_id('record')
+        self.assertIn('unavailable', recorder.get_attribute('class'))
+        recorder.click()
+        self.assert_error_message("You must listen to the sound first.")
+
         # She plays the sound and gets visual feedback
         # that the sound is playing.
-        self.browser.find_element_by_id('play').click()       # selenium bug
-        self.browser.execute_script('$( "#play" ).click();')  # workaround
-        phone_img = self.browser.find_element_by_id('phone')
-        self.assertIn('on', phone_img.get_attribute('class'))
-        """
+        self.browser.find_element_by_id('listen').click()
+        speaker_img = self.browser.find_element_by_id('listen')
+        self.assertIn('active', speaker_img.get_attribute('class'))
 
-        """ Intends to verify getting permission to use the microphone
-        # She gives permission for her browser to use her microphone
-        #self.browser.find_element_by_id('share').click()
-        """
-
-        # She tries to submit the form, but sees an error
-        self.browser.find_element_by_id('submit').click()
-        self.wait_for(tag = 'body')
-        error_message = self.browser.find_element_by_id('message')
-        self.assertEquals(error_message.text, "You didn't make a recording")
+        # She hasn't made a recording yet so she can't submit
+        submit = self.browser.find_element_by_id('submit')
+        self.assertIn('true', submit.get_attribute('disabled'))
 
         # Nothing on the page has changed
         self.assert_status(1, 1)
@@ -65,6 +76,7 @@ class SingleUserTests(FunctionalTests):
 
         # She uploads an audio file she already has on her computer
         self.upload_file()
+        self.assertIsNone(submit.get_attribute('disabled'))
         self.browser.find_element_by_id('submit').click()  ## non-ajax POST
         self.wait_for(tag = 'body')
 
@@ -80,7 +92,7 @@ class SingleUserTests(FunctionalTests):
         game_txt = self.browser.find_element_by_id('game').text
         self.assertEquals(game_txt, 'Test Game')
 
-    def test_multi_clusters(self):
+    def test_multi_entries(self):
         """ Simulate a player making two entries to two clusters.
 
         Also ensure that games with completion codes are rendered in the
@@ -90,6 +102,7 @@ class SingleUserTests(FunctionalTests):
 
         # She navigates to the game page
         self.browser.get(self.live_server_url)
+        self.click_on_telephone_game()
         self.click_on_first_game()
         self.accept_instructions()
         game_url = self.browser.current_url
