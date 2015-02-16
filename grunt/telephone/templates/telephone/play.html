@@ -67,14 +67,20 @@ var cfg = { workerPath: "{% static "telephone/js/recorderjs/recorderWorker.js" %
 
 function updateValues( response ) {
 
-    // Update the relevant parts of the page given the JSON response
+    // Update the relevant parts of the page given the JSON response,
+    // and reset the button states for a new entry.
 
     $( "#id_chain" ).val(response.chain);
     $( "#id_parent" ).val(response.parent);
     $( "#sound" ).attr("src", response.url);
     $( "#status" ).text(response.status);
 
-    updateMessage();
+    $( "#record" ).addClass("unavailable");
+    $( "#submit" ).prop("disabled", true);
+    $( "#listen" ).removeClass("active");
+    $( "#record" ).removeClass("active");
+
+    updateMessage("");
 
 }
 
@@ -112,12 +118,16 @@ function postEntry( blob ) {
             // The server responds with the URL of the completion page
             // or the values to update for the next entry.
 
-            console.log("received");
-
             if (response.complete) {
                 window.location.replace(response.complete);
             } else {
-                updateValues(response);
+                $( "#status" ).text("Success!");
+                $( "#status" ).addClass("bg-success");
+
+                setTimeout(function() {
+                    $( "#status" ).removeClass("bg-success");
+                    updateValues(response);
+                }, 2000);  // show success message for 2 seconds
             }
 
         },
