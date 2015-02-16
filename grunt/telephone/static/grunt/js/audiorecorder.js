@@ -83,11 +83,12 @@ $( "#record" ).click(function( event ) {
         $( this ).toggleClass("active");
     }
 
-    if( !$(this).hasClass("active") ) {
+    if( $(this).hasClass("active") ) {
         audioRecorder.clear();
         audioRecorder.record();
     } else {
         audioRecorder.stop();
+        $("#submit").prop("disabled", false);
     }
 
 });
