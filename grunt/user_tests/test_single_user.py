@@ -133,20 +133,13 @@ class SingleUserTests(FunctionalTests):
         #self.assert_status(self.browser, "You've made 2 of 2 entries")
         self.assert_completion_code(completion_code)
 
-        # She refreshes the page, but doesn't leave the completion page
-        self.browser.refresh()
+        # She clicks the button to go back to the game page
+        self.browser.find_element_by_id('return').click()
+        self.assertRegexpMatches(self.browser.current_url, r'/calls/$')
 
-        # She clicks the button to clear her session
-        self.browser.find_element_by_id('clear').click()
-        self.wait_for(tag = 'body')
-
-        # She's back at the main page and can make more entries
-        self.browser.refresh()
-        """ Works fine on dev server! No idea why this doesn't work
-        self.assertEqual(self.browser.current_url, game_url)
-        self.wait_for(id = 'status', text = 'Message 1 of 2')
-        #self.assert_status(1, 2)
-
-        # She listens to her previous recording
-        self.assert_audio_src('crow-1.wav')
-        """
+        # She tries to play the same game again
+        self.click_on_first_game()
+        msg = self.browser.find_element_by_id('message').text
+        self.assertRegexpMatches(
+            msg, "It looks like you've already played this game."
+        )

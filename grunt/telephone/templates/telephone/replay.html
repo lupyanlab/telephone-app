@@ -9,7 +9,7 @@
 
     {{ block.super }}
 
-    <p class="lead">It looks like you've already played this game. Would you like to play again?</p>
+    <p id="message" class="lead">It looks like you've already played this game. Would you like to play again?</p>
 
     <form method="post" action="{% url 'clear' pk=game.pk %}">
         {% csrf_token %}
