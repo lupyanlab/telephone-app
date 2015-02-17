@@ -5,16 +5,16 @@ class SingleUserTests(FunctionalTests):
 
     def test_single_entry(self):
         """ Simulate a player making an entry to a single cluster game """
-        self._fix_game(name = 'Test Game', seeds = ['crow', ], nchain = 1)
+        self.create_game(name = 'Test Game', seeds = ['crow', ], nchain = 1)
 
         # The player arrives at the homepage.
         self.browser.get(self.live_server_url)
-        self.assertIn("Telephone Game", self.browser.title)
+        self.assertIn("Grunt", self.browser.title)
 
         # She clicks on the telephone and is redirected to the
         # list of available calls.
         self.browser.find_element_by_id('phone').click()
-        self.assertRegexpMatches(self.browser.current_url, '/calls/')
+        self.assertRegexpMatches(self.browser.current_url, r'/calls/$')
 
         # There is one game available
         game_list = self.browser.find_element_by_id('id_game_list')
@@ -24,7 +24,7 @@ class SingleUserTests(FunctionalTests):
         # She selects the first game in the list and is taken to a new page
         self.click_on_first_game()
         game_url = self.browser.current_url
-        self.assertRegexpMatches(game_url, r'/calls/\d+/')
+        self.assertRegexpMatches(game_url, r'/calls/\d+/$')
 
         # She sees some instructions
         instructions = self.browser.find_element_by_tag_name('p').text
@@ -38,14 +38,13 @@ class SingleUserTests(FunctionalTests):
         self.assertEquals(game_txt, 'Test Game')
 
         # She sees that she hasn't made any entries yet
-        self.assert_status(1, 1)
+        self.assert_status("Message 1 of 1")
 
         # The correct audio file is presented on the page
         self.assert_audio_src('crow-0.wav')
 
         # She tries to play the audio but can't
         self.browser.find_element_by_id('listen').click()
-        message = self.browser.find_element_by_id("message").text
         self.assert_error_message("Share your microphone to play")
 
         # She shares her microphone and the sound becomes available
@@ -71,7 +70,7 @@ class SingleUserTests(FunctionalTests):
         self.assertIn('true', submit.get_attribute('disabled'))
 
         # Nothing on the page has changed
-        self.assert_status(1, 1)
+        self.assert_status("Message 1 of 1")
         self.assert_audio_src('crow-0.wav')
 
         # She uploads an audio file she already has on her computer
@@ -98,7 +97,7 @@ class SingleUserTests(FunctionalTests):
         Also ensure that games with completion codes are rendered in the
         template. """
         completion_code = 'test-multi-clusters'
-        self._fix_game(code = completion_code, seeds = ['crow', 'bark'])
+        self.create_game(code = completion_code, seeds = ['crow', 'bark'])
 
         # She navigates to the game page
         self.browser.get(self.live_server_url)
@@ -108,7 +107,7 @@ class SingleUserTests(FunctionalTests):
         game_url = self.browser.current_url
 
         # She sees that she is going to make two entries
-        self.assert_status(1, 2)
+        self.assert_status("Message 1 of 2")
 
         # The entry form is ready
         self.assert_audio_src('crow-0.wav')
@@ -119,7 +118,7 @@ class SingleUserTests(FunctionalTests):
         self.wait_for(tag = 'body')
 
         # Her status has updated but she hasn't changed page
-        self.assert_status(2, 2)
+        self.assert_status("Message 2 of 2")
         self.assertEquals(self.browser.current_url, game_url)
 
         # Now she listens to a new entry

@@ -23,8 +23,8 @@ class ViewTests(TestCase):
         sound = Path(settings.APP_DIR, 'telephone/tests/media/test-audio.wav')
         return File(open(sound, 'r'))
 
-    def conjure_session(self, receipts = [], instructed = False):
-        self.client.get(self.game_url)
+    def make_session(self, game, instructed = False, receipts = []):
+        self.client.get(game.get_absolute_url())
         session = self.client.session
         session['receipts'] = receipts
         session['instructed'] = instructed
@@ -44,143 +44,111 @@ class GameListTests(ViewTests):
         visible_games = response.context['game_list']
         self.assertListEqual(expected_games, list(visible_games))
 
+class PlayGameViewTests(ViewTests):
+
+    def create_game(self, returning = ['game', ]):
+        objs = {}
+        objs['game'] = mommy.make(Game)
+        objs['cluster'] = mommy.make(Cluster, game = objs['game'])
+        objs['chain'] = mommy.make(Chain, cluster = objs['cluster'])
+        objs['entry'] = mommy.make(Entry, chain = objs['chain'])
+        return (objs[x] for x in returning)
+
+    def create_post(self, chain):
+        entry = chain.prepare_entry()
+        return {'chain': entry.chain.pk,
+                'parent': entry.parent.pk,
+                'content': self._wav}
+
     def test_instructions_page(self):
         """ First visit should render instructions template """
         game = mommy.make(Game)
         response = self.client.get(game.get_absolute_url())
         self.assertTemplateUsed(response, 'telephone/instruct.html')
 
-class SingleClusterTests(ViewTests):
-
-    def setUp(self):
-        super(SingleClusterTests, self).setUp()
-        self.game = mommy.make(Game)
-        self.game_url = self.game.get_absolute_url()
-
-        self.cluster = mommy.make(Cluster, game = self.game)
-        self.chain = mommy.make(Chain, cluster = self.cluster)
-        self.entry = mommy.make(Entry, chain = self.chain)
-
-        self.conjure_session(instructed = True)
-
-    def get_post_data(self):
-        entry = self.chain.prepare_entry()
-        return {'chain': entry.chain.pk,
-                'parent': entry.parent.pk,
-                'content': self._wav}
-
-    def test_context_data(self):
+    def test_entry_form(self):
         """ Should return an EntryForm """
-        response = self.client.get(self.game_url)
+        (game, ) = self.create_game()
+        self.make_session(game, instructed = True)
+        response = self.client.get(game.get_absolute_url())
         self.assertIsInstance(response.context['form'], EntryForm)
 
     def test_initial_form_data(self):
         """ EntryForms should be attached to a next entry instance """
-        response = self.client.get(self.game_url)
+        (game, chain, entry) = self.create_game(
+            returning = ['game', 'chain', 'entry'])
+
+        self.make_session(game, instructed = True)
+        response = self.client.get(game.get_absolute_url())
+
         initial = response.context['form'].initial
-        self.assertEquals(initial['parent'], self.entry.pk)
-        self.assertEquals(initial['chain'], self.chain.pk)
+        self.assertEquals(initial['chain'], chain.pk)
+        self.assertEquals(initial['parent'], entry.pk)
 
-        form = EntryForm(data = initial, files = {'content': self._wav})
-        self.assertTrue(form.is_valid())
-
-    def test_session_receipts(self):
-        """ Arriving at a game page should initialize a list of receipts """
-        self.client.get(self.game_url)
-        self.assertEquals(self.client.session['receipts'], list())
-
-    def test_post_entry(self):
+    def test_post_an_entry(self):
         """ Post an entry """
+        (game, chain) = self.create_game(returning = ['game', 'chain'])
+        self.make_session(game, instructed = True)
+
+        post = self.create_post(chain)
         entries_before_post = Entry.objects.count()
-        self.client.post(self.game_url, self.get_post_data())
+        self.client.post(game.get_absolute_url(), post)
         self.assertEquals(Entry.objects.count(), entries_before_post + 1)
 
     def test_post_adds_receipt_to_session(self):
-        """ Posting an entry redirects when there are no other clusters """
-        response = self.client.post(self.game_url, self.get_post_data())
-        self.assertIn(self.cluster.pk, self.client.session['receipts'])
+        """ Posting an entry adds a receipt to the session """
+        (game, cluster, chain) = self.create_game(
+            returning = ['game', 'cluster', 'chain'])
+        self.make_session(game, instructed = True)
 
-    def test_post_without_content(self):
-        """ Posting an entry without making a recording should error """
-        entry = self.chain.prepare_entry()
-        invalid_post_data = {
-            'chain': entry.chain.pk,
-            'parent': entry.parent.pk
-        }
-        response = self.client.post(self.game_url, invalid_post_data)
+        post = self.create_post(chain)
+        response = self.client.post(game.get_absolute_url(), post)
+
+        self.assertIn(cluster.pk, self.client.session['receipts'])
+
+    def test_invalid_post(self):
+        """ Post an entry without a recording """
+        (game, chain, entry) = self.create_game(
+            returning = ['game', 'chain', 'entry']
+        )
+
+        self.make_session(game, instructed = True)
+
+        invalid_post = {'chain': chain.pk, 'parent': entry.pk}
+        response = self.client.post(game.get_absolute_url(), invalid_post)
         errors = response.context['form'].errors
         self.assertEquals(errors['content'][0], "You didn't make a recording")
 
-class MultiClusterTests(ViewTests):
-
-    def setUp(self):
-        super(MultiClusterTests, self).setUp()
-        self.game = mommy.make(Game)
-        self.game_url = self.game.get_absolute_url()
-
-        self.clusters = mommy.make(Cluster, game = self.game, _quantity = 2)
-        self.receipts = []
-        for cluster in self.clusters:
-            self.receipts.append(cluster.pk)
-            tmp_chain = mommy.make(Chain, cluster = cluster)
-            mommy.make(Entry, chain = tmp_chain)
-
-        self.conjure_session(instructed = True)
-
-    def get_post_data(self, chain = None, cluster = None):
-        """ Helper function for generate the data for a post
-
-        Option parameters allow specifying the entry chain or cluster from
-        within the test call.
-        """
-        if not chain:
-            cluster = cluster or self.game.pick_cluster()
-            chain = cluster.pick_chain()
-
-        entry = chain.prepare_entry()
-        return {'chain': entry.chain.pk,
-                'parent': entry.parent.pk,
-                'content': self._wav}
-
-    def test_get_with_receipts(self):
+    def test_exclude_clusters_in_session(self):
         """ If there are receipts in the session, get the correct cluster """
-        receipt = self.clusters[0].pk
-        self.conjure_session(receipts = [receipt, ], instructed = True)
+        (game, cluster_1) = self.create_game(returning = ['game', 'cluster'])
+        cluster_2 = mommy.make(Cluster, game = game)
 
-        response = self.client.get(self.game_url)
+        self.make_session(game, instructed = True, receipts = [cluster_2.pk, ])
+
+        response = self.client.get(game.get_absolute_url())
 
         initial = response.context['form'].initial
         initial_cluster = Chain.objects.get(pk = initial['chain']).cluster
 
-        self.assertEquals(initial_cluster, self.clusters[1])
-
-    def test_post_new_entry_to_db_with_multiple_clusters(self):
-        """ Posting an entry should be the same with multiple clusters """
-        entries_before_post = Entry.objects.count()
-        chain = self.game.pick_cluster().pick_chain()
-        data = self.get_post_data(chain = chain)
-        self.client.post(self.game_url, data)
-        self.assertEquals(Entry.objects.count(), entries_before_post + 1)
-
-        last_saved_entry = chain.entry_set.last()
-        self.assertEquals(last_saved_entry.chain.pk, data['chain'])
-        self.assertEquals(last_saved_entry.parent.pk, data['parent'])
+        self.assertEquals(initial_cluster, cluster_1)
 
     def test_post_leads_to_next_cluster(self):
         """ Posting an entry should return a new form """
-        data = self.get_post_data()
-        response = self.client.post(self.game_url, data)
-        self.assertIsInstance(response.context['form'], EntryForm)
+        (game, ) = self.create_game()
+        cluster = mommy.make(Cluster, game = game)
+        chain = mommy.make(Chain, cluster = cluster)
+        entry = mommy.make(Entry, chain = chain)
 
-    def test_post_adds_receipt_to_session(self):
-        """ Posting an entry should add the cluster receipt to the session """
-        cluster = self.game.pick_cluster()
-        data = self.get_post_data(cluster = cluster)
-        response = self.client.post(self.game_url, data)
-        self.assertIn(cluster.pk, self.client.session['receipts'])
+        self.make_session(game, instructed = True)
+
+        post = self.create_post(chain)
+        response = self.client.post(game.get_absolute_url(), post)
+        self.assertIsInstance(response.context['form'], EntryForm)
 
     def test_confirmation_page(self):
         """ The confirmation page should fetch the game and render it """
-        self.conjure_session(receipts = self.receipts, instructed = True)
-        response = self.client.get(self.game_url)
+        (game, cluster) = self.create_game(returning = ['game', 'cluster'])
+        self.make_session(game, instructed = True, receipts = [cluster.pk, ])
+        response = self.client.get(game.get_absolute_url())
         self.assertTemplateUsed(response, 'telephone/complete.html')

@@ -27,28 +27,11 @@ class FunctionalTests(LiveServerTestCase):
 
         TEST_MEDIA_ROOT.rmtree()
 
-    def _fix_game(self, name = None, code = None, seeds = ['bark', ],
-                  nchain = 1):
+    def create_game(self, name = None, code = None,
+                    seeds = ['bark', ], nchain = 1):
         """ Poplulate the database with a game to test interactions """
-        manage_py_command = ("{manage_py} create_game "
-                             "{code_if} {name_if} --nchain {nchain} "
-                             "{seed_args}")
-
-        kwargs = {'nchain': nchain}
-        kwargs['code_if'] = '--code ' + code if code else ''
-        kwargs['name_if'] = '--name ' + name if name else ''
-        kwargs['seed_args'] = ' '.join(['--seed ' + seed for seed in seeds])
-
-        # if not self.against_staging:
-        #     # kwargs['manage_py'] = '../virtualenv/bin/python manage.py'
-        #     # local(manage_py_command.format(**kwargs))
-        from telephone.management.commands import create_game
-        create_game.create_game(seeds = seeds, nchain = nchain,
-                                code = code, name = name)
-        # else:
-        #     kwargs['manage_py'] = _get_manage_py(env.host)
-        #     with hide('running', 'stdout'):
-        #         run(manage_py_command.format(**kwargs))
+        from telephone.management.commands.create_game import create_game
+        create_game(name = name, code = code, seeds = seeds, nchain = nchain)
 
     def new_user(self):
         if self.browser:
@@ -97,16 +80,15 @@ class FunctionalTests(LiveServerTestCase):
         WebDriverWait(browser, timeout).until(
             ec, 'Unable to find element {}'.format(locator))
 
-    def assert_status(self, num, total, browser = None):
+    def assert_status(self, expected, browser = None):
         browser = browser or self.browser
         status = browser.find_element_by_id('status').text
-        expected = "Message {} of {}".format(num, total)
         self.assertEquals(status, expected)
 
-    def assert_error_message(self, msg, browser = None):
+    def assert_error_message(self, expected, browser = None):
         browser = browser or self.browser
-        error_message = browser.find_element_by_id("message").text
-        self.assertEquals(error_message, msg)
+        error_message = browser.find_element_by_id('message').text
+        self.assertEquals(error_message, expected)
 
     def assert_completion_code(self, expected, browser = None):
         browser = browser or self.browser

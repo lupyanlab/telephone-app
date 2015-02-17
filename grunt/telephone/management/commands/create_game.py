@@ -9,6 +9,9 @@ from .create_seed import create_seed
 
 class Command(BaseCommand):
     option_list = BaseCommand.option_list + (
+        make_option('--name',
+            action = 'store',
+            help = 'The name of the game'),
         make_option('--code',
             action = 'store',
             help = 'Completion code for this game'),
@@ -30,7 +33,7 @@ class Command(BaseCommand):
             'Game created ({}) with seeds {}'.format(code, seeds)
         )
 
-def create_game(seeds, nchain, code = None, name = None, **kwargs):
+def create_game(seeds, nchain, name = None, code = None, **kwargs):
     game, _ = Game.objects.get_or_create(
         name = name, completion_code = code
     )
