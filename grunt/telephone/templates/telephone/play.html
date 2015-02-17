@@ -30,13 +30,15 @@
 
         <p id="status" class="lead">{{ form.status }}</p>
         <div class="row">
-            <div class="col-xs-8 col-md-8">
+            <div class="col-md-2 col-sm-1"></div>
+            <div class="col-md-4 col-sm-5 col-xs-6">
                 <img id="phone" src="{% static 'telephone/img/phone.png' %}" class="img-responsive"/>
             </div>
-            <div class="col-xs-4 col-md-4">
+            <div class="col-md-4 col-sm-5 col-xs-6">
                 <img id="listen" src="{% static 'telephone/img/listen.png' %}" class="img-responsive unavailable"/>
                 <img id="record" src="{% static 'telephone/img/record.png' %}" class="img-responsive unavailable"/>
             </div>
+            <div class="col-md-2 col-sm-1"></div>
         </div>
 
         <audio id="sound" src="{{ form.parent_url }}"></audio>
