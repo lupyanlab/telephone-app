@@ -34,13 +34,13 @@ class GameListTests(ViewTests):
 
     def test_home_page_renders_game_list_template(self):
         """ Make sure the home page is linked up to the list template """
-        response = self.client.get('/telephone/')
+        response = self.client.get('/calls/')
         self.assertTemplateUsed(response, 'telephone/list.html')
 
     def test_games_show_up_on_home_page(self):
         """ Games should be listed on the home page """
         expected_games = mommy.make(Game, _quantity = 10)
-        response = self.client.get('/telephone/')
+        response = self.client.get('/calls/')
         visible_games = response.context['game_list']
         self.assertListEqual(expected_games, list(visible_games))
 
