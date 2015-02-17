@@ -106,6 +106,17 @@ class PlayGameViewTests(ViewTests):
 
         self.assertIn(cluster.pk, self.client.session['receipts'])
 
+    def test_post_redirects_to_complete(self):
+        """ Posting an entry should redirect to the completion page """
+        (game, cluster, chain) = self.create_game(
+            returning = ['game', 'cluster', 'chain'])
+        self.make_session(game, instructed = True, receipts = [cluster.pk, ])
+
+        post = self.create_post(chain)
+        response = self.client.post(game.get_absolute_url(), post)
+
+        self.assertTemplateUsed(response, 'telephone/complete.html')
+
     def test_invalid_post(self):
         """ Post an entry without a recording """
         (game, chain, entry) = self.create_game(
@@ -145,10 +156,3 @@ class PlayGameViewTests(ViewTests):
         post = self.create_post(chain)
         response = self.client.post(game.get_absolute_url(), post)
         self.assertIsInstance(response.context['form'], EntryForm)
-
-    def test_confirmation_page(self):
-        """ The confirmation page should fetch the game and render it """
-        (game, cluster) = self.create_game(returning = ['game', 'cluster'])
-        self.make_session(game, instructed = True, receipts = [cluster.pk, ])
-        response = self.client.get(game.get_absolute_url())
-        self.assertTemplateUsed(response, 'telephone/complete.html')
