@@ -156,3 +156,11 @@ class PlayGameViewTests(ViewTests):
         post = self.create_post(chain)
         response = self.client.post(game.get_absolute_url(), post)
         self.assertIsInstance(response.context['form'], EntryForm)
+
+    def test_revisit_game(self):
+        """ Getting the game page after submitting should bring up dialog """
+        (game, cluster) = self.create_game(returning = ['game', 'cluster'])
+        self.make_session(game, instructed = True, receipts = [cluster.pk, ])
+
+        response = self.client.get(game.get_absolute_url())
+        self.assertTemplateUsed(response, 'telephone/replay.html')

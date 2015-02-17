@@ -42,7 +42,7 @@ class PlayGameView(View):
         except Cluster.DoesNotExist:
             # user is trying to revisit the game
             # TODO: add custom template or message
-            return self.complete(request)
+            return self.replay(request)
 
     def instruct(self, request):
         """ Render the instructions for the telephone game """
@@ -62,6 +62,9 @@ class PlayGameView(View):
             return JsonResponse(form.as_context())
 
         return render(request, 'telephone/play.html', {'form': form})
+
+    def replay(self, request):
+        return render(request, 'telephone/replay.html', {'game': self.game})
 
     def post(self, request, pk):
         """ Determine what to do with an entry.
