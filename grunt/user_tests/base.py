@@ -53,6 +53,13 @@ class FunctionalTests(LiveServerTestCase):
         browser = browser or self.browser
         browser.find_element_by_id('accept').click()
 
+    def get_to_entry_screen(self):
+        self.browser.get(self.live_server_url)
+        self.click_on_telephone_game()
+        self.click_on_first_game()
+        self.accept_instructions()
+        return self.browser.current_url
+
     def simulate_sharing_mic(self, browser = None):
         browser = browser or self.browser
         browser.execute_script('audioRecorder = true; micShared();')
