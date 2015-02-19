@@ -13,7 +13,7 @@ class CallsView(ListView):
     template_name = 'telephone/calls.html'
     model = Game
 
-class PlayGameView(View):
+class PlayView(View):
 
     def get(self, request, pk):
         """ Determine what to do when a user requests the game page.

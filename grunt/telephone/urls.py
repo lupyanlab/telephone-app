@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, url
 
-from .views import CallsView, PlayGameView, accept, clear
+from .views import CallsView, PlayView, accept, clear
 
 urlpatterns = patterns('',
     url(
@@ -10,7 +10,7 @@ urlpatterns = patterns('',
     ),
     url(
         r'^(?P<pk>\d+)/$',
-        PlayGameView.as_view(),
+        PlayView.as_view(),
         name = 'play',
     ),
     url(r'^(?P<pk>\d+)/accept$', accept, name = 'accept'),
