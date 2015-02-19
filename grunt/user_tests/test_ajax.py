@@ -26,7 +26,7 @@ class AjaxTests(FunctionalTests):
     def test_ajax_single_cluster(self):
         """ Simulate a single user submitting an entry via the recorder """
         completion_code = 'test-ajax-code'
-        self._fix_game(code = completion_code, seeds = ['crow', ])
+        self.create_game(name = 'Ajax Game', code = completion_code)
 
         # She navigates to the game page
         self.browser.get(self.live_server_url)
