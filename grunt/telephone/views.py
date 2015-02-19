@@ -1,5 +1,3 @@
-import logging
-logger = logging.getLogger(__name__)
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -11,8 +9,8 @@ from django.views.generic import View, ListView
 from .models import Game, Seed, Cluster, Entry
 from .forms import EntryForm
 
-class GameListView(ListView):
-    template_name = 'telephone/list.html'
+class CallsView(ListView):
+    template_name = 'telephone/calls.html'
     model = Game
 
 class PlayGameView(View):

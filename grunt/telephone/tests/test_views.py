@@ -35,7 +35,7 @@ class GameListTests(ViewTests):
     def test_home_page_renders_game_list_template(self):
         """ Make sure the home page is linked up to the list template """
         response = self.client.get('/calls/')
-        self.assertTemplateUsed(response, 'telephone/list.html')
+        self.assertTemplateUsed(response, 'telephone/calls.html')
 
     def test_games_show_up_on_home_page(self):
         """ Games should be listed on the home page """
@@ -110,7 +110,7 @@ class PlayGameViewTests(ViewTests):
         """ Posting an entry should redirect to the completion page """
         (game, cluster, chain) = self.create_game(
             returning = ['game', 'cluster', 'chain'])
-        self.make_session(game, instructed = True, receipts = [cluster.pk, ])
+        self.make_session(game, instructed = True)
 
         post = self.create_post(chain)
         response = self.client.post(game.get_absolute_url(), post)
