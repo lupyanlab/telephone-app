@@ -15,7 +15,7 @@ class MultiUserTests(FunctionalTests):
 
         # The first player arrives at the homepage and selects the first game
         # in the list.
-        game_url = self.get_to_entry_screen()
+        game_url = self.nav_to_play()
 
         # She listens to the seed entry, makes her recording, and uploads it
         self.assert_audio_src('crow-0.wav')
@@ -27,7 +27,7 @@ class MultiUserTests(FunctionalTests):
 
         # The second player arrives at the site.
         # She clicks on the same game as player 1
-        new_user_url = self.get_to_entry_screen()
+        new_user_url = self.nav_to_play()
         self.assertEquals(new_user_url, game_url,
             "Players weren't playing the same game")
 
@@ -45,7 +45,7 @@ class MultiUserTests(FunctionalTests):
                          code = completion_code)
 
         # Player 1 joins the game
-        game_url = self.get_to_entry_screen()
+        game_url = self.nav_to_play()
 
         # She hears a seed entry
         self.assert_audio_src('bark-0.wav')
@@ -56,7 +56,7 @@ class MultiUserTests(FunctionalTests):
         self.new_user()
 
         # Player 2 joins the game
-        new_user_url = self.get_to_entry_screen()
+        new_user_url = self.nav_to_play()
         self.assertEquals(new_user_url, game_url,
             "Players weren't playing the same game")
 

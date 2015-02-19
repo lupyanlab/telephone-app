@@ -53,7 +53,7 @@ class FunctionalTests(LiveServerTestCase):
         browser = browser or self.browser
         browser.find_element_by_id('accept').click()
 
-    def get_to_entry_screen(self):
+    def nav_to_play(self):
         self.browser.get(self.live_server_url)
         self.click_on_telephone_game()
         self.click_on_first_game()

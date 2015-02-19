@@ -100,11 +100,7 @@ class SingleUserTests(FunctionalTests):
         self.create_game(code = completion_code, seeds = ['crow', 'bark'])
 
         # She navigates to the game page
-        self.browser.get(self.live_server_url)
-        self.click_on_telephone_game()
-        self.click_on_first_game()
-        self.accept_instructions()
-        game_url = self.browser.current_url
+        game_url = self.nav_to_play()
 
         # She sees that she is going to make two entries
         self.assert_status("Message 1 of 2")

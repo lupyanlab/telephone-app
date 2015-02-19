@@ -30,7 +30,7 @@ class AjaxTests(FunctionalTests):
                          code = completion_code)
 
         # She navigates to the game page
-        game_url = self.get_to_entry_screen()
+        game_url = self.nav_to_play()
 
         # She sees that she is going to make a single entry
         self.assert_status("Message 1 of 1")
@@ -52,7 +52,7 @@ class AjaxTests(FunctionalTests):
                          nchain = 1, code = completion_code)
 
         # She navigates to the game page
-        game_url = self.get_to_entry_screen()
+        game_url = self.nav_to_play()
 
         # She sees that she is going to make two entries
         self.assert_status("Message 1 of 2")
