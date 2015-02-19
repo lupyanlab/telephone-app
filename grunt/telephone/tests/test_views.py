@@ -30,7 +30,7 @@ class ViewTests(TestCase):
         session['instructed'] = instructed
         session.save()
 
-class GameListTests(ViewTests):
+class CallsViewTests(ViewTests):
 
     def test_home_page_renders_game_list_template(self):
         """ Make sure the home page is linked up to the list template """
@@ -44,7 +44,7 @@ class GameListTests(ViewTests):
         visible_games = response.context['game_list']
         self.assertListEqual(expected_games, list(visible_games))
 
-class PlayGameViewTests(ViewTests):
+class PlayViewTests(ViewTests):
 
     def create_game(self, returning = ['game', ]):
         objs = {}
@@ -163,4 +163,4 @@ class PlayGameViewTests(ViewTests):
         self.make_session(game, instructed = True, receipts = [cluster.pk, ])
 
         response = self.client.get(game.get_absolute_url())
-        self.assertTemplateUsed(response, 'telephone/replay.html')
+        self.assertTemplateUsed(response, 'telephone/complete.html')

@@ -139,7 +139,4 @@ class SingleUserTests(FunctionalTests):
 
         # She tries to play the same game again
         self.click_on_first_game()
-        msg = self.browser.find_element_by_id('message').text
-        self.assertRegexpMatches(
-            msg, "It looks like you've already played this game."
-        )
+        self.assert_completion_code(completion_code)
