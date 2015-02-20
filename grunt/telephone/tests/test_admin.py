@@ -14,4 +14,4 @@ class ModelAdminTests(TestCase):
        game_admin = GameAdmin(Game, self.site)
        admin_form = game_admin.get_form(self.request)
        admin_fields = list(admin_form.base_fields)
-       self.assertEquals(admin_fields, ['name', 'order', 'completion_code'])
+       self.assertEquals(admin_fields, ['name', 'status', 'order', 'completion_code'])

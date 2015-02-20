@@ -26,7 +26,7 @@ class GameTests(ModelTests):
         game.full_clean()
         game.save()
 
-    def test_game_options(self):
+    def test_game_order(self):
         """ Games select clusters in order by default """
         game = Game()
         game.full_clean()
@@ -34,6 +34,16 @@ class GameTests(ModelTests):
 
         # orders can be selected at random too
         game = Game(order = 'RND')
+        game.full_clean()  # should not raise
+
+    def test_game_status(self):
+        """ Games are active by default """
+        game = Game()
+        game.full_clean()
+        self.assertEquals(game.status, 'ACTIV')
+
+        # status can be inactivate
+        game = Game(status = 'INACT')
         game.full_clean()  # should not raise
 
     def test_game_str(self):

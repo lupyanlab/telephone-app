@@ -44,6 +44,13 @@ class CallsViewTests(ViewTests):
         visible_games = response.context['game_list']
         self.assertListEqual(expected_games, list(visible_games))
 
+    def test_inactive_games_not_shown(self):
+        """ Games can be active or inactive """
+        inactive_games = mommy.make(Game, status = "INACT", _quantity = 10)
+        response = self.client.get('/calls/')
+        self.assertEqual(len(response.context['game_list']), 0)
+
+
 class PlayViewTests(ViewTests):
 
     def create_game(self, returning = ['game', ]):

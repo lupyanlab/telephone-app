@@ -6,13 +6,16 @@ from .handlers import chain_dir
 
 class Game(models.Model):
     """ Games comprise one or more Clusters """
-    cluster_order_choices  = [
-        ('SEQ', 'sequential'),
-        ('RND', 'random'),
-    ]
     name = models.CharField(blank = True, null = True, max_length = 30)
+
+    status_choices = [('ACTIV', 'active'), ('INACT', 'inactive')]
+    status = models.CharField(choices = status_choices, default = 'ACTIV',
+                              max_length = 5)
+
+    cluster_order_choices  = [('SEQ', 'sequential'), ('RND', 'random')]
     order = models.CharField(choices = cluster_order_choices, default = 'SEQ',
                              max_length = 3)
+
     completion_code = models.CharField(blank = True, null = True,
                              max_length = 20)
 

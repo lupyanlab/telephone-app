@@ -13,6 +13,9 @@ class CallsView(ListView):
     template_name = 'telephone/calls.html'
     model = Game
 
+    def get_queryset(self):
+        return self.model._default_manager.filter(status = 'ACTIV')
+
 class PlayView(View):
 
     def get(self, request, pk):
