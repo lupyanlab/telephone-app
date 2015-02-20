@@ -195,16 +195,16 @@ class ChainTests(ModelTests):
 
     def test_chain_str(self):
         """ Chains are named based on their number within the cluster """
-        cluster_1, cluster_2 = mommy.make(Cluster, _quantity = 2)
+        cluster = mommy.make(Cluster)
+        chains = mommy.make(Chain, cluster = cluster, _quantity = 3)
 
-        mommy.make(Chain, cluster = cluster_1, _quantity = 3)
-        mommy.make(Chain, cluster = cluster_2, _quantity = 3)
+        expected = []
+        actual = []
+        for ix, chain in enumerate(chains):
+            expected.append('{}-{}'.format(ix, chain.seed))
+            actual.append(str(chain))
 
-        cluster_1_chains = cluster_1.chain_set.all()
-        self.assertListEqual(map(str, cluster_1_chains), ['0', '1', '2'])
-
-        cluster_2_chains = cluster_2.chain_set.all()
-        self.assertListEqual(map(str, cluster_2_chains), ['0', '1', '2'])
+        self.assertListEqual(actual, expected)
 
     def test_chain_directory(self):
         """ Chains know the directory in which to save entries """
@@ -214,9 +214,9 @@ class ChainTests(ModelTests):
         expected_dir = '{game}/{cluster}/{chain}/'.format(
             game = game.dir(),
             cluster = cluster.dir(),
-            chain = chain
+            chain = chain.dir()
         )
-        self.assertEquals(chain.dir(), expected_dir)
+        self.assertEquals(chain.path(), expected_dir)
 
     def test_saving_a_chain_populates_first_entry(self):
         """ A side effect of saving a chain is that a seed entry is made """
@@ -313,7 +313,7 @@ class EntryTests(ModelTests):
     def test_entries_are_saved_to_chain_directory(self):
         """ Entries should be saved in the chain directory """
         entry = self.make_entry(save = True)
-        self.assertRegexpMatches(entry.content.url, self.chain.dir())
+        self.assertRegexpMatches(entry.content.url, self.chain.path())
 
     def test_entry_files_are_saved_as_wav(self):
         """ In the telephone app all entries are .wav files """

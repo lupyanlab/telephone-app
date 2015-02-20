@@ -64,13 +64,14 @@ class Game(models.Model):
         return clusters[0]
 
     def dir(self):
-        """
-        game.dir() is used as the name of the directory to hold all clusters,
-        chains, and entries in this game.
+        """ Parent directory for entries in this game.
+
+        Appended to MEDIA_ROOT.
         """
         return 'game-{pk}'.format(pk = self.pk)
 
     def __str__(self):
+        """ If the game was not created with a name, provide the directory """
         return self.name or self.dir()
 
 class Seed(models.Model):
@@ -78,19 +79,16 @@ class Seed(models.Model):
 
     Seeds are stored separately from other Entries. They are used as the first
     entry of new chains as needed.
+
+    TODO: name validation; no spaces or weird stuff allowed
     """
     name = models.CharField(unique = True, max_length = 30)
     content = models.FileField(upload_to = 'seeds/')
 
     def __str__(self):
-        """ The string representation of the seed
+        """ The name of the seed.
 
-        str(seed) will be used as the name of the directory to hold any
-        clusters that begin with this seed.
-
-            > str(cluster) == str(seed)
-
-        str(seed) will also be used as the base name of all entries starting
+        str(seed) will be used as the stem name of all entries originating
         from this seed.
 
             > str(entry) == '{0}-{1}'.format(seed, entry.generation)
@@ -100,10 +98,9 @@ class Seed(models.Model):
 class Cluster(models.Model):
     """ A collection of parallel chains.
 
-    Parallel chains are non-overlapping in the sense that a single player only
-    contributes to one chain in a cluster. Clusters consist of a single chain,
-    multiple chains branching from the same seed, or multiple chains branching
-    from alternative seeds.
+    A player only contributes to one chain in a cluster.
+
+    TODO: name validation; no spaces or weird stuff allowed
     """
     chain_selection_choices = [
         ('SRT', 'shortest'),
@@ -131,8 +128,7 @@ class Cluster(models.Model):
 
         Players only respond to a single chain in each cluster.
 
-        TODO:
-        - exclude chains that are full
+        TODO: exclude chains that are full
 
         Returns
         -------
@@ -150,13 +146,10 @@ class Cluster(models.Model):
         return chains[0]
 
     def dir(self):
+        """ Parent directory for all chains in this cluster. """
         return self.name or str(self.seed)
 
     def __str__(self):
-        """ The string representation of the cluster
-
-        The name of the directory to hold all chains in this cluster.
-        """
         return self.dir()
 
 class ChainManager(models.Manager):
@@ -198,7 +191,7 @@ class Chain(models.Model):
     objects = ChainManager()
 
     def full_clean(self, *args, **kwargs):
-        """ """
+        """ If a seed wasn't provided, try the seed for the cluster. """
         if not self.seed_id:
             if not self.cluster_id:
                 pass  # punt to super()
@@ -211,10 +204,10 @@ class Chain(models.Model):
     def save(self, *args, **kwargs):
         """ Save the chain and create a seed entry """
         super(Chain, self).save(*args, **kwargs)
-        self.create_entry_from_seed()
+        _ = self.create_entry_from_seed()
 
     def create_entry_from_seed(self):
-        """ Create an entry from the seed
+        """ Create an entry from the seed.
 
         Returns
         -------
@@ -242,26 +235,23 @@ class Chain(models.Model):
         last_entry = self.entry_set.last()
         return Entry(chain = self, parent = last_entry)
 
-    def __str__(self):
-        """ """
-        chains_in_cluster = self.cluster.chain_set.all()
-        index_in_cluster = list(chains_in_cluster).index(self)
-        return '{ix}'.format(ix = index_in_cluster)
-
     def dir(self):
-        """ The directory where entries will be saved
+        """ Directory to hold all entries in this chain. """
+        neighbors = self.cluster.chain_set.all()
+        position = list(neighbors).index(self)
+        return '{ix}-{seed}'.format(ix = position, seed = self.seed)
 
-        Returns
-        -------
-        path, relative to media root
-        """
+    def __str__(self):
+        return self.dir()
+
+    def path(self):
+        """ The path from MEDIA_ROOT to the chain directory. """
         nesting = {
             'game': self.cluster.game.dir(),
             'cluster': self.cluster.dir(),
-            'chain': self,
+            'chain': self.dir(),
         }
         return '{game}/{cluster}/{chain}/'.format(**nesting)
-
 
 class Entry(models.Model):
     """ Entries are file uploads situated in a particular Chain """
