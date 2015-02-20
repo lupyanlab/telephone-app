@@ -256,8 +256,8 @@ class Chain(models.Model):
         path, relative to media root
         """
         nesting = {
-            'game': self.cluster.game,
-            'cluster': self.cluster,
+            'game': self.cluster.game.dir(),
+            'cluster': self.cluster.dir(),
             'chain': self,
         }
         return '{game}/{cluster}/{chain}/'.format(**nesting)

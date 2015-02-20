@@ -203,10 +203,12 @@ class ChainTests(ModelTests):
 
     def test_chain_directory(self):
         """ Chains know the directory in which to save entries """
-        chain = Chain.objects.create(cluster = self.cluster, seed = self.seed)
+        game = mommy.make(Game, name = 'The Game Name')
+        cluster = mommy.make(Cluster, game = game)
+        chain = Chain.objects.create(cluster = cluster, seed = self.seed)
         expected_dir = '{game}/{cluster}/{chain}/'.format(
-            game = self.cluster.game.dir(),
-            cluster = self.cluster.dir(),
+            game = game.dir(),
+            cluster = cluster.dir(),
             chain = chain
         )
         self.assertEquals(chain.dir(), expected_dir)
