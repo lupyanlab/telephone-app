@@ -150,7 +150,7 @@ class Cluster(models.Model):
         return chains[0]
 
     def dir(self):
-        return str(self.seed)
+        return self.name or str(self.seed)
 
     def __str__(self):
         """ The string representation of the cluster
@@ -287,5 +287,5 @@ class Entry(models.Model):
         Entries are named based on the seed and the generation.
         """
         return '{seed}-{gen}'.format(
-            seed = self.chain.cluster.seed, gen = self.generation
+            seed = self.chain.seed, gen = self.generation
         )

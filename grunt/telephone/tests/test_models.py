@@ -154,11 +154,16 @@ class ClusterTests(ModelTests):
         self.assertEquals(cluster.method, 'SRT')
 
     def test_cluster_str(self):
-        """ Clusters are named based on the name of the seed """
-        cluster = Cluster.objects.create(
+        """ Clusters are named or get their name from the seed """
+        with_name = Cluster.objects.create(
+            game = self.game, name = 'cluster-name'
+        )
+        self.assertEquals(str(with_name), 'cluster-name')
+
+        with_seed = Cluster.objects.create(
             game = self.game, seed = self.seed,
         )
-        self.assertEquals(str(cluster), str(self.seed))
+        self.assertEquals(str(with_seed), str(self.seed))
 
 class ChainTests(ModelTests):
 
@@ -298,7 +303,7 @@ class EntryTests(ModelTests):
     def test_entry_str(self):
         """ Entries are named by the seed and the generation """
         expected_name = '{seed}-{generation}'.format(
-            seed = str(self.chain.cluster.seed),
+            seed = str(self.chain.seed),
             generation = 1
         )
 
@@ -320,7 +325,7 @@ class EntryTests(ModelTests):
     def test_entry_files_are_saved_with_interpretable_names(self):
         """ """
         expected_stem = '{seed}-{generation}'.format(
-            seed = str(self.chain.cluster.seed),
+            seed = str(self.chain.seed),
             generation = 1
         )
         entry = self.make_entry(save = True)

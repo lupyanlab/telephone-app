@@ -50,7 +50,7 @@ class EntryFormTests(FormTests):
         self.assertTrue(form.is_valid())
         entry = form.save()
         expected_url = "{name}-{generation}.wav".format(
-            name = self.chain.cluster, generation = self.entry.generation + 1
+            name = self.chain.seed, generation = self.entry.generation + 1
         )
         self.assertRegexpMatches(entry.content.url, expected_url)
 
