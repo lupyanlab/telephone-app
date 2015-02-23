@@ -10,8 +10,10 @@
     {{ block.super }}
 
     {% if game.completion_code %}
-        <p class="lead">Your completion code is:</p>
-        <code id="code">{{ game.completion_code }}</code>
+        <p class="lead">
+            Your completion code is:
+            <code id="code">{{ game.completion_code }}</code>
+        </p>
     {% else %}
         <p class="lead">Keep gruntin'!</p>
     {% endif %}
