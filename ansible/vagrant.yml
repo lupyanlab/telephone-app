@@ -8,7 +8,8 @@
   vars:
     - setup_git_repo: yes
     - update_apt_cache: yes
-    - deploy_location: local
+    - django_location: local
+    - django_database: postgres
   vars_files:
     - env_vars/base.yml
     - env_vars/local.yml
@@ -17,4 +18,3 @@
     - base
     - db
     - web
-    - memcached

@@ -1,1 +1,2 @@
-LOCATION = "{{ deploy_location }}"
+_LOCATION = "{{ django_location }}"
+_DATABASE = "{{ django_database }}"
