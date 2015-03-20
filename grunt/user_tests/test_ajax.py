@@ -1,9 +1,9 @@
-from .base import FunctionalTests
+from .base import FunctionalTest
 
 from unipath import Path
 from django.conf import settings
 
-class AjaxTests(FunctionalTests):
+class AjaxTest(FunctionalTest):
 
     def ajax_post(self, browser = None):
         # Load a file blob to post via AJAX (hack!!)

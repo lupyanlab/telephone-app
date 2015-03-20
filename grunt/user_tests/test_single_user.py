@@ -1,7 +1,7 @@
 from selenium import webdriver
-from .base import FunctionalTests
+from .base import FunctionalTest
 
-class SingleUserTests(FunctionalTests):
+class SingleUserTest(FunctionalTest):
 
     def test_single_entry(self):
         """ Simulate a player making an entry to a single cluster game """
@@ -28,7 +28,7 @@ class SingleUserTests(FunctionalTests):
 
         # She sees some instructions
         instructions = self.browser.find_element_by_tag_name('p').text
-        self.assertEquals(instructions, "This is the instructions page")
+        self.assertRegexpMatches(instructions, "University of Wisconsin")
 
         # She clicks accept
         self.browser.find_element_by_id('accept').click()

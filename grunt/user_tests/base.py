@@ -12,15 +12,15 @@ from unipath import Path
 TEST_MEDIA_ROOT = Path(settings.MEDIA_ROOT + '-test')
 
 @override_settings(MEDIA_ROOT = TEST_MEDIA_ROOT)
-class FunctionalTests(LiveServerTestCase):
+class FunctionalTest(LiveServerTestCase):
 
     def setUp(self):
-        super(FunctionalTests, self).setUp()
+        super(FunctionalTest, self).setUp()
         self.browser = None
         self.new_user()
 
     def tearDown(self):
-        super(FunctionalTests, self).tearDown()
+        super(FunctionalTest, self).tearDown()
 
         if self.browser:
             self.browser.quit()

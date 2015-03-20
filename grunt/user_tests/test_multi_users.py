@@ -1,6 +1,6 @@
-from .base import FunctionalTests
+from .base import FunctionalTest
 
-class MultiUserTests(FunctionalTests):
+class MultiUserTest(FunctionalTest):
 
     def upload_and_post(self):
         self.upload_file()
