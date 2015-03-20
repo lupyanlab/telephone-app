@@ -4,7 +4,7 @@ from django.core.urlresolvers import reverse
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
-from django.views.generic import View, ListView
+from django.views.generic import View, ListView, DetailView
 
 from .models import Game, Seed, Cluster, Entry
 from .forms import EntryForm
@@ -17,7 +17,6 @@ class CallsView(ListView):
         return self.model._default_manager.filter(status = 'ACTIV')
 
 class PlayView(View):
-
     def get(self, request, pk):
         """ Determine what to do when a user requests the game page.
 
@@ -98,6 +97,10 @@ class PlayView(View):
             return JsonResponse({'complete': self.game.get_absolute_url()})
 
         return render(request, 'telephone/complete.html', {'game': self.game})
+
+class InspectView(DetailView):
+    template_name = 'telephone/inspect.html'
+    model = 'Game'
 
 @require_POST
 def accept(request, pk):

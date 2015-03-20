@@ -19,6 +19,10 @@ class Game(models.Model):
     completion_code = models.CharField(blank = True, null = True,
                              max_length = 20)
 
+    def get_inspect_url(self):
+        """ Inspect a game to see all the entries organized in clusters """
+        return reverse('inspect', kwargs = {'pk': self.pk})
+
     def get_absolute_url(self):
         """ Viewing a game is synonymous with playing the game.
 

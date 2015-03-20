@@ -12,8 +12,7 @@ from telephone.models import Game, Seed, Cluster, Chain, Entry
 TEST_MEDIA_ROOT = Path(settings.MEDIA_ROOT + '-test')
 
 @override_settings(MEDIA_ROOT = TEST_MEDIA_ROOT)
-class ViewTests(TestCase):
-
+class ViewTest(TestCase):
     def tearDown(self):
         TEST_MEDIA_ROOT.rmtree()
 
@@ -30,8 +29,9 @@ class ViewTests(TestCase):
         session['instructed'] = instructed
         session.save()
 
-class CallsViewTests(ViewTests):
 
+class CallsViewTest(ViewTest):
+    """ The view showing all available games """
     def test_home_page_renders_game_list_template(self):
         """ Make sure the home page is linked up to the list template """
         response = self.client.get('/calls/')
@@ -51,8 +51,7 @@ class CallsViewTests(ViewTests):
         self.assertEqual(len(response.context['game_list']), 0)
 
 
-class PlayViewTests(ViewTests):
-
+class PlayViewTest(ViewTest):
     def create_game(self, returning = ['game', ]):
         objs = {}
         objs['game'] = mommy.make(Game)
@@ -171,3 +170,11 @@ class PlayViewTests(ViewTests):
 
         response = self.client.get(game.get_absolute_url())
         self.assertTemplateUsed(response, 'telephone/complete.html')
+
+
+class ClusterViewTest(TestCase):
+    def test_game_view_url(self):
+        """ Games should return a url for viewing the clusters """
+        game = mommy.make(Game)
+        expected_url = '/calls/1/inspect/'
+        self.assertEquals(expected_url, game.get_inspect_url())
