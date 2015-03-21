@@ -100,7 +100,7 @@ class PlayView(View):
 
 class InspectView(DetailView):
     template_name = 'telephone/inspect.html'
-    model = 'Game'
+    model = Game
 
 @require_POST
 def accept(request, pk):

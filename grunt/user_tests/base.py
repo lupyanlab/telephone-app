@@ -51,10 +51,10 @@ class FunctionalTest(LiveServerTestCase):
 
         game_list = browser.find_element_by_id('id_game_list')
 
-        if role == 'play':
-            game_list.find_elements_by_class_name('play')[0].click()
-        else:
+        if role == 'inspect':
             game_list.find_elements_by_class_name('inspect')[0].click()
+        else:
+            game_list.find_elements_by_class_name('play')[0].click()
 
     def accept_instructions(self, browser = None):
         browser = browser or self.browser

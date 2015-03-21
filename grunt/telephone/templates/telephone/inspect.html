@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block jumbotron %}
+
+    <!-- Iterate through clusters and generations to draw all entries.
+         Clusters are vertically separated on the page.
+         Generations are rows. -->
+    {% for cluster in game.cluster_set.all %}
+    <div>
+        {% for generation in cluster.generations %}
+        <div>
+            {% for entry in generation.entries %}
+            <!-- Draw the entry. Entries have a fixed height. Entry width
+                 depends on the number of children it has. -->
+            <div>
+                {{ entry }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endfor %}
+
+{% endblock jumbotron %}

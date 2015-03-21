@@ -173,8 +173,14 @@ class PlayViewTest(ViewTest):
 
 
 class ClusterViewTest(TestCase):
-    def test_game_view_url(self):
+    def test_game_inspect_url(self):
         """ Games should return a url for viewing the clusters """
         game = mommy.make(Game)
         expected_url = '/calls/1/inspect/'
         self.assertEquals(expected_url, game.get_inspect_url())
+
+    def test_inspect_template(self):
+        """ Inspecting a game uses the inspect.html template """
+        game = mommy.make(Game)
+        response = self.client.get(game.get_inspect_url())
+        self.assertTemplateUsed(response, 'telephone/inspect.html')
