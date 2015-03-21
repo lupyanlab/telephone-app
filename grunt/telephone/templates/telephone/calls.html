@@ -4,9 +4,19 @@
 
     {{ block.super }}
 
-    <ul id="id_game_list" class="list-group">
+    <ul id="id_game_list" class="list-group" style="text-align: right;">
         {% for game in game_list %}
-        <li class="list-group-item"><a id="id_{{ game }}" href="{{ game.get_absolute_url }}">{{ game }}</a></li>
+        <li class="list-group-item">
+            <h2>{{ game }}
+                <a class="btn btn-default play" aria-label="Left Align" href="{{ game.get_absolute_url }}">
+                    <span class="glyphicon glyphicon-play" aria-hidden="true"></span> Play
+                </a>
+
+                <a class="btn btn-default inspect" aria-label="Left Align" href="{{ game.get_inspect_url }}">
+                    <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> View
+                </a>
+            </h2>
+        </li>
         {% empty %}
         <li class="list-group-item">No games have been created.</li>
         {% endfor %}

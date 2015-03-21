@@ -44,10 +44,17 @@ class FunctionalTest(LiveServerTestCase):
         browser = browser or self.browser
         browser.find_element_by_id('phone').click()
 
-    def click_on_first_game(self, browser = None):
+    def click_on_first_game(self, role = 'play', browser = None):
         browser = browser or self.browser
+        choices = ['play', 'inspect']
+        assert role in choices, 'Role "{}" not in {}'.format(role, choices)
+
         game_list = browser.find_element_by_id('id_game_list')
-        game_list.find_elements_by_tag_name('a')[0].click()
+
+        if role == 'play':
+            game_list.find_elements_by_class_name('play')[0].click()
+        else:
+            game_list.find_elements_by_class_name('inspect')[0].click()
 
     def accept_instructions(self, browser = None):
         browser = browser or self.browser
@@ -59,6 +66,11 @@ class FunctionalTest(LiveServerTestCase):
         self.click_on_first_game()
         self.accept_instructions()
         return self.browser.current_url
+
+    def nav_to_view(self):
+        self.browser.get(self.live_server_url)
+        self.click_on_telephone_game()
+        self.click_on_first_game(role = 'inspect')
 
     def simulate_sharing_mic(self, browser = None):
         browser = browser or self.browser
