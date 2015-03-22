@@ -8,7 +8,7 @@ from django.test import TestCase, override_settings
 from model_mommy import mommy
 from unipath import Path
 
-from telephone.models import Game, Seed, Cluster, Chain, Entry
+from telephone.models import Game, Call, Seed, Cluster, Chain, Entry
 
 TEST_MEDIA_ROOT = Path(settings.MEDIA_ROOT + '-test')
 
@@ -25,7 +25,7 @@ class GameTest(ModelTest):
         game.full_clean()
         game.save()
 
-    def test_game_order(self):
+    def test_call_order(self):
         """ Games select clusters in order by default """
         game = mommy.make(Game)
         self.assertEquals(game.call_order, 'SEQ')
@@ -33,7 +33,7 @@ class GameTest(ModelTest):
         # orders can be selected at random too
         mommy.make(Game, call_order = 'RND')  # should not raise
 
-    def test_game_status(self):
+    def test_status(self):
         """ Games are active by default """
         game = mommy.make(Game)
         self.assertEquals(game.status, 'ACTIV')
@@ -41,7 +41,7 @@ class GameTest(ModelTest):
         # status can be inactivate
         mommy.make(Game, status = 'INACT') # should not raise
 
-    def test_game_str(self):
+    def test_str(self):
         """ By default games are named based on their primary key """
         game = mommy.make(Game)
         self.assertEquals(str(game), 'game-{}'.format(game.pk))
@@ -50,13 +50,40 @@ class GameTest(ModelTest):
         game = mommy.make(Game, name = 'The Game Name')
         self.assertEquals(str(game), 'The Game Name')
 
-    def test_game_dir_name(self):
+    def test_dirname(self):
         game = mommy.make(Game)
         self.assertEquals(game.dirname(), 'game-{pk}'.format(pk = game.pk))
 
         # still use the unique pk even when a name is provided
         game = mommy.make(Game, name = 'the game name')
         self.assertEquals(game.dirname(), 'game-{pk}'.format(pk = game.pk))
+
+    def test_pick_next_call_sequential(self):
+        """ Games can pick the next call, excluding based on receipts """
+        game = mommy.make(Game)
+        calls = mommy.make(Call, game = game, _quantity = 2)
+        receipts = [call.pk for call in calls]
+        self.assertEquals(game.pick_next_call(), calls[0])
+        self.assertEquals(game.pick_next_call(receipts=receipts[:1]), calls[1])
+
+    # I don't know a good way to test this
+    # def test_pick_next_call_random(self):
+    #     pass
+
+    def test_pick_next_call_fails_when_game_is_empty(self):
+        game = mommy.make(Game)
+        with self.assertRaises(Call.DoesNotExist):
+            game.pick_next_call()
+
+    def test_pick_next_call_fails_when_all_calls_excluded(self):
+        game = mommy.make(Game)
+        call = mommy.make(Call, game = game)
+        with self.assertRaises(Call.DoesNotExist):
+            game.pick_next_call(receipts = [call.pk, ])
+
+    # def test_mturk_games_require_a_completion_code(self):
+    #     with self.assertRaises(ValidationError):
+    #         mommy.make(Game, type = 'MTK', completion_code = '')
 
 class ChainTest(ModelTest):
     def setUp(self):

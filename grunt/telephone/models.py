@@ -102,6 +102,11 @@ class Game(models.Model):
         """ If the game was not created with a name, provide the directory """
         return self.name or self.dirname()
 
+class Call(models.Model):
+    game = models.ForeignKey(Game)
+
+    def __str__(self):
+        return 'pk: {}'.format(self.pk)
 
 class Seed(models.Model):
     """ An Entry with no parent.
