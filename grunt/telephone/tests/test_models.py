@@ -13,13 +13,12 @@ from telephone.models import Game, Seed, Cluster, Chain, Entry
 TEST_MEDIA_ROOT = Path(settings.MEDIA_ROOT + '-test')
 
 @override_settings(MEDIA_ROOT = TEST_MEDIA_ROOT)
-class ModelTests(TestCase):
-
+class ModelTest(TestCase):
     def tearDown(self):
         TEST_MEDIA_ROOT.rmtree()
 
-class GameTests(ModelTests):
 
+class GameTest(ModelTest):
     def test_make_a_game(self):
         """ Make a game """
         game = Game()
@@ -28,157 +27,40 @@ class GameTests(ModelTests):
 
     def test_game_order(self):
         """ Games select clusters in order by default """
-        game = Game()
-        game.full_clean()
-        self.assertEquals(game.order, 'SEQ')
+        game = mommy.make(Game)
+        self.assertEquals(game.call_order, 'SEQ')
 
         # orders can be selected at random too
-        game = Game(order = 'RND')
-        game.full_clean()  # should not raise
+        mommy.make(Game, call_order = 'RND')  # should not raise
 
     def test_game_status(self):
         """ Games are active by default """
-        game = Game()
-        game.full_clean()
+        game = mommy.make(Game)
         self.assertEquals(game.status, 'ACTIV')
 
         # status can be inactivate
-        game = Game(status = 'INACT')
-        game.full_clean()  # should not raise
+        mommy.make(Game, status = 'INACT') # should not raise
 
     def test_game_str(self):
         """ By default games are named based on their primary key """
-        game = Game.objects.create()
+        game = mommy.make(Game)
         self.assertEquals(str(game), 'game-{}'.format(game.pk))
 
         # but human-readable names can be provided
-        name_game = Game.objects.create(name = 'The Game Name')
-        self.assertEquals(str(name_game), 'The Game Name')
+        game = mommy.make(Game, name = 'The Game Name')
+        self.assertEquals(str(game), 'The Game Name')
 
-    def test_game_dir(self):
-        """ Game data are stored relative to MEDIA_ROOT """
-        game = Game()
-        game.full_clean()
-        game.save()
-        self.assertEquals(game.dir(), 'game-{pk}'.format(pk = game.pk))
+    def test_game_dir_name(self):
+        game = mommy.make(Game)
+        self.assertEquals(game.dirname(), 'game-{pk}'.format(pk = game.pk))
 
         # still use the unique pk even when a name is provided
-        game = Game(name = 'the game name')
-        game.full_clean()
-        self.assertEquals(game.dir(), 'game-{pk}'.format(pk = game.pk))
+        game = mommy.make(Game, name = 'the game name')
+        self.assertEquals(game.dirname(), 'game-{pk}'.format(pk = game.pk))
 
-class SeedTests(ModelTests):
-
+class ChainTest(ModelTest):
     def setUp(self):
-        super(SeedTests, self).setUp()
-        fpath = Path(settings.APP_DIR, 'telephone/tests/media/test-audio.wav')
-        self.content = File(open(fpath, 'rb'))
-
-    def test_make_a_seed(self):
-        """ Make a seed """
-        seed = Seed(name = 'seed', content = self.content)
-        seed.full_clean()
-        seed.save()
-
-    def test_seed_requirements(self):
-        """ A name w/o a file, or a file w/o a name raises an error """
-        valid_name = 'seed'
-        valid_content = self.content
-
-        no_name = Seed(content = valid_content)
-        with self.assertRaises(ValidationError):
-            no_name.full_clean()
-
-        no_content = Seed(name = valid_name)
-        with self.assertRaises(ValidationError):
-            no_content.full_clean()
-
-        valid = Seed(name = valid_name, content = valid_content)
-        valid.full_clean()  # should not raise
-
-    def test_seed_str(self):
-        seed = Seed.objects.create(name = 'valid-name', content = self.content)
-        self.assertEquals(str(seed), 'valid-name')
-
-    def test_seed_names_are_unique(self):
-        """ Seeds can't have the same name """
-        repeated = 'repeated-name'
-
-        first = Seed(name = repeated, content = self.content)
-        first.full_clean()
-        first.save()
-
-        second = Seed(name = repeated, content = self.content)
-        with self.assertRaises(ValidationError):
-            second.full_clean()
-
-        third = Seed(name = "new-name", content = self.content)
-        third.full_clean()  # should not raise
-        third.save()
-
-    def test_seeds_are_saved_to_correct_directory(self):
-        """ Seeds are saved to their own directory """
-        seed = Seed(name = 'seed', content = self.content)
-        seed.save()
-        self.assertRegexpMatches(seed.content.url, r'/media/seeds/')
-
-    def test_seed_files_are_saved_as_wav(self):
-        """ In the telephone app all seeds are .wav files """
-        seed = Seed(name = 'seed', content = self.content)
-        seed.save()
-        seed_content_url = Path(seed.content.url)
-        self.assertEquals(seed_content_url.ext, '.wav')
-
-class ClusterTests(ModelTests):
-
-    def setUp(self):
-        super(ClusterTests, self).setUp()
-        self.game = mommy.make(Game)
-        self.seed = mommy.make(Seed)
-
-    def test_make_a_cluster(self):
-        """ Make a cluster """
-        cluster = Cluster(game = self.game, name = 'first-cluster')
-        cluster.full_clean()
-        cluster.save()
-
-    def test_cluster_requirements(self):
-        """ A game and a name is required for validation """
-        empty_cluster = Cluster()
-        try:
-            empty_cluster.full_clean()
-        except ValidationError as validation_error:
-            errors = validation_error.error_dict
-            self.assertListEqual(errors.keys(), ['game', 'name'])
-
-    def test_make_a_cluster_with_seed(self):
-        """ Clusters can be made with a seed """
-        cluster = Cluster(game = self.game, seed = self.seed)
-        cluster.full_clean()
-        self.assertEquals(cluster.name, str(self.seed))
-
-    def test_cluster_defaults(self):
-        """ Clusters select the shortest chains by default """
-        cluster = Cluster(game = self.game, name = 'my-cluster')
-        cluster.full_clean()
-        self.assertEquals(cluster.method, 'SRT')
-
-    def test_cluster_str(self):
-        """ Clusters are named or get their name from the seed """
-        with_name = Cluster.objects.create(
-            game = self.game, name = 'cluster-name'
-        )
-        self.assertEquals(str(with_name), 'cluster-name')
-
-        with_seed = Cluster.objects.create(
-            game = self.game, seed = self.seed,
-        )
-        self.assertEquals(str(with_seed), str(self.seed))
-
-class ChainTests(ModelTests):
-
-    def setUp(self):
-        super(ChainTests, self).setUp()
+        super(ChainTest, self).setUp()
         self.cluster = mommy.make(Cluster)
         self.seed = mommy.make(Seed)
 
@@ -253,8 +135,120 @@ class ChainTests(ModelTests):
         for chain in seeded_cluster.chain_set.all():
             self.assertEquals(chain.entry_set.count(), 1)
 
+class SeedTest(ModelTest):
+    def setUp(self):
+        super(SeedTest, self).setUp()
+        fpath = Path(settings.APP_DIR, 'telephone/tests/media/test-audio.wav')
+        self.content = File(open(fpath, 'rb'))
 
-class EntryTests(ModelTests):
+    def test_make_a_seed(self):
+        """ Make a seed """
+        seed = Seed(name = 'seed', content = self.content)
+        seed.full_clean()
+        seed.save()
+
+    def test_seed_requirements(self):
+        """ A name w/o a file, or a file w/o a name raises an error """
+        valid_name = 'seed'
+        valid_content = self.content
+
+        no_name = Seed(content = valid_content)
+        with self.assertRaises(ValidationError):
+            no_name.full_clean()
+
+        no_content = Seed(name = valid_name)
+        with self.assertRaises(ValidationError):
+            no_content.full_clean()
+
+        valid = Seed(name = valid_name, content = valid_content)
+        valid.full_clean()  # should not raise
+
+    def test_seed_str(self):
+        seed = Seed.objects.create(name = 'valid-name', content = self.content)
+        self.assertEquals(str(seed), 'valid-name')
+
+    def test_seed_names_are_unique(self):
+        """ Seeds can't have the same name """
+        repeated = 'repeated-name'
+
+        first = Seed(name = repeated, content = self.content)
+        first.full_clean()
+        first.save()
+
+        second = Seed(name = repeated, content = self.content)
+        with self.assertRaises(ValidationError):
+            second.full_clean()
+
+        third = Seed(name = "new-name", content = self.content)
+        third.full_clean()  # should not raise
+        third.save()
+
+    def test_seeds_are_saved_to_correct_directory(self):
+        """ Seeds are saved to their own directory """
+        seed = Seed(name = 'seed', content = self.content)
+        seed.save()
+        self.assertRegexpMatches(seed.content.url, r'/media/seeds/')
+
+    def test_seed_files_are_saved_as_wav(self):
+        """ In the telephone app all seeds are .wav files """
+        seed = Seed(name = 'seed', content = self.content)
+        seed.save()
+        seed_content_url = Path(seed.content.url)
+        self.assertEquals(seed_content_url.ext, '.wav')
+
+
+class ClusterTest(ModelTest):
+    def setUp(self):
+        super(ClusterTest, self).setUp()
+        self.game = mommy.make(Game)
+        self.seed = mommy.make(Seed)
+
+    def test_make_a_cluster(self):
+        """ Make a cluster """
+        cluster = Cluster(game = self.game, name = 'first-cluster')
+        cluster.full_clean()
+        cluster.save()
+
+    def test_cluster_requirements(self):
+        """ A game and a name is required for validation """
+        empty_cluster = Cluster()
+        try:
+            empty_cluster.full_clean()
+        except ValidationError as validation_error:
+            errors = validation_error.error_dict
+            self.assertListEqual(errors.keys(), ['game', 'name'])
+
+    def test_make_a_cluster_with_seed(self):
+        """ Clusters can be made with a seed """
+        cluster = Cluster(game = self.game, seed = self.seed)
+        cluster.full_clean()
+        self.assertEquals(cluster.name, str(self.seed))
+
+    def test_cluster_defaults(self):
+        """ Clusters select the shortest chains by default """
+        cluster = Cluster(game = self.game, name = 'my-cluster')
+        cluster.full_clean()
+        self.assertEquals(cluster.method, 'SRT')
+
+    def test_cluster_str(self):
+        """ Clusters are named or get their name from the seed """
+        with_name = Cluster.objects.create(
+            game = self.game, name = 'cluster-name'
+        )
+        self.assertEquals(str(with_name), 'cluster-name')
+
+        with_seed = Cluster.objects.create(
+            game = self.game, seed = self.seed,
+        )
+        self.assertEquals(str(with_seed), str(self.seed))
+
+    def test_cluster_generations(self):
+        cluster = Cluster.objects.create(game = self.game, seed = self.seed)
+        generations = cluster.generations()
+        self.assertEquals(len(generations), 1)
+
+
+class EntryTests(ModelTest):
 
     def setUp(self):
         super(EntryTests, self).setUp()
@@ -342,7 +336,7 @@ class EntryTests(ModelTests):
         entry_content_url = Path(entry.content.url)
         self.assertEquals(entry_content_url.stem, expected_stem)
 
-class GameNavigationTests(ModelTests):
+class GameNavigationTests(ModelTest):
 
     def setUp(self):
         super(GameNavigationTests, self).setUp()
@@ -405,7 +399,7 @@ class GameNavigationTests(ModelTests):
             self.game.pick_cluster(self.visits)
 
 
-class ClusterNavigationTests(ModelTests):
+class ClusterNavigationTests(ModelTest):
     """ When a player reaches a cluster only one chain should be viewed """
 
     def setUp(self):
@@ -449,7 +443,7 @@ class ClusterNavigationTests(ModelTests):
         with self.assertRaises(Chain.DoesNotExist):
             new_cluster.pick_chain()
 
-class GameShortcutTests(ModelTests):
+class GameShortcutTests(ModelTest):
 
     def test_games_can_prepare_entry(self):
         """ Traverse the game:cluster:chain.prepare_entry """

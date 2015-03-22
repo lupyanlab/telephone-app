@@ -5,81 +5,103 @@ from django.db import models
 from .handlers import chain_dir
 
 class Game(models.Model):
-    """ Games comprise one or more Clusters """
+    """ Top-level control over calls
+
+    Games can be played or inspected. If the game is being played, the
+    game determines which call the player should contribute to next.
+    If the game is being inspected, the game returns all of the calls
+    in the game.
+    """
+    # The name of the game. Visible to the players, but not used for
+    # naming entries or chains. Instead, the int primary key (pk) is
+    # used.
     name = models.CharField(blank = True, null = True, max_length = 30)
 
+    possible_game_types = [('PUB', 'public'), ('MTK', 'mturk')]
+    type = models.CharField(choices = possible_game_types, default = 'PUB',
+            max_length = 3)
+
+    # Completion codes are presented to MTurk players
+    completion_code = models.CharField(blank = True, null = True,
+            max_length = 20)
+
+    # When playing a game, how should the next call be determined?
+    call_order_choices  = [('SEQ', 'sequential'), ('RND', 'random')]
+    call_order = models.CharField(choices = call_order_choices, default = 'SEQ',
+            max_length = 3)
+
+    # Active games are visible
     status_choices = [('ACTIV', 'active'), ('INACT', 'inactive')]
     status = models.CharField(choices = status_choices, default = 'ACTIV',
                               max_length = 5)
 
-    cluster_order_choices  = [('SEQ', 'sequential'), ('RND', 'random')]
-    order = models.CharField(choices = cluster_order_choices, default = 'SEQ',
-                             max_length = 3)
-
-    completion_code = models.CharField(blank = True, null = True,
-                             max_length = 20)
+    def get_play_url(self):
+        """ URL for playing this game """
+        return reverse('play', kwargs = {'pk': self.pk})
 
     def get_inspect_url(self):
-        """ Inspect a game to see all the entries organized in clusters """
+        """ URL for inspecting this game """
         return reverse('inspect', kwargs = {'pk': self.pk})
 
     def get_absolute_url(self):
-        """ Viewing a game is synonymous with playing the game.
+        """ By default, games are played when viewed """
+        return self.get_play_url()
 
-        Games are the only model objects that are visible via URL.
-        """
-        return reverse('play', kwargs = {'pk': self.pk})
+    def pick_next_call(self, receipts = list()):
+        """ Determine which call should be viewed next
 
-    def prepare_entry(self, receipts = list()):
-        """ Determines the entry for the player
+        Fails when:
+        (a) there are no calls in the game
+        (b) there are no calls not in receipts
 
-        Step 1: Pick a cluster, excluding ones that have already been seen.
-        Step 2: Pick a chain in that cluster, either the shortest chain or
-                one selected at random.
-        Step 3: Prepare the next entry in that chain.
-
-        Returns
-        -------
-        an Entry object
-        """
-        cluster = self.pick_cluster(receipts = receipts)
-        chain = cluster.pick_chain()
-        entry = chain.prepare_entry()
-        return entry
-
-    def pick_cluster(self, receipts = list()):
-        """ Determine which cluster should be viewed next.
-
-        The record of the clusters each player has contributed to is stored
-        in the players session, in a list of "receipts". This method
-        excludes clusters that are already in the receipt list and returns
-        one of the remaining clusters, possible at random.
+        Parameters
+        ----------
+        receipts: list of calls already made, by primary key
 
         Returns
         -------
-        a Cluster object
+        a Call object, determined by call order
         """
-        clusters = self.cluster_set.exclude(pk__in = receipts)
+        if self.call_set.count() == 0:
+            raise Call.DoesNotExist('No calls in game')
 
-        if not clusters:
-            # signals that all entries have been made
-            raise Cluster.DoesNotExist("No more clusters in game")
+        calls = self.call_set.exclude(pk__in = receipts)
+        if not calls:
+            raise Call.DoesNotExist('All calls have been used')
 
-        if self.order == 'RND':
-            clusters = clusters.order_by('?')
+        if self.call_order == 'RND':
+            calls = calls.order_by('?')
 
-        return clusters[0]
+        return calls[0]
 
-    def dir(self):
-        """ Parent directory for entries in this game.
+    # def prepare_entry(self, receipts = list()):
+    #     """ Determines the entry for the player
+    #
+    #     Step 1: Pick a cluster, excluding ones that have already been seen.
+    #     Step 2: Pick a chain in that cluster, either the shortest chain or
+    #             one selected at random.
+    #     Step 3: Prepare the next entry in that chain.
+    #
+    #     Returns
+    #     -------
+    #     an Entry object
+    #     """
+    #     cluster = self.pick_cluster(receipts = receipts)
+    #     chain = cluster.pick_chain()
+    #     entry = chain.prepare_entry()
+    #     return entry
 
-        Appended to MEDIA_ROOT.
+    def dirname(self):
+        """ The name of the directory to hold all calls
+
+        Appended to MEDIA_ROOT
         """
         return 'game-{pk}'.format(pk = self.pk)
 
     def __str__(self):
         """ If the game was not created with a name, provide the directory """
-        return self.name or self.dir()
+        return self.name or self.dirname()
+
 
 class Seed(models.Model):
     """ An Entry with no parent.
@@ -259,6 +281,10 @@ class Chain(models.Model):
             'chain': self.dir(),
         }
         return '{game}/{cluster}/{chain}/'.format(**nesting)
+
+
+
+
 
 class Entry(models.Model):
     """ Entries are file uploads situated in a particular Chain """
