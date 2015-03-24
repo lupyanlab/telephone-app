@@ -41,8 +41,15 @@ class Game(models.Model):
 
     def save(self, *args, **kwargs):
         """ """
+        existing_calls = self.call_set.count()
+        # don't delete calls on edit/resave
+        if existing_calls > self.num_calls:
+            raise ValidationError('Calls must be deleted manually')
+
         super(Game, self).save(*args, **kwargs)
-        for _ in range(self.num_calls):
+
+        # create calls as necessary
+        for _ in range(self.num_calls - existing_calls):
             self.call_set.create(game = self)
 
     def get_play_url(self):

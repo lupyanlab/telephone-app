@@ -40,6 +40,20 @@ class GameTest(ModelTest):
         game = mommy.make(Game, num_calls = 0)
         self.assertEquals(game.call_set.count(), 0)
 
+    def test_num_calls_edit(self):
+        """ Calls can be added to a game """
+        game = mommy.make(Game)
+        game.num_calls = 10
+        game.save()
+        self.assertEquals(game.call_set.count(), 10)
+
+    def test_num_calls_remove_error(self):
+        """ Calls cannot be removed by editing a game """
+        game = mommy.make(Game)
+        game.num_calls = 0
+        with self.assertRaises(ValidationError):
+            game.save()
+
     def test_call_order(self):
         """ Games can be sequential or random """
         for opt in ['SEQ', 'RND']:
