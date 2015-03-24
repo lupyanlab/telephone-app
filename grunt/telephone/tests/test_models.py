@@ -158,6 +158,21 @@ class CallTest(ModelTest):
         with self.assertRaises(ValidationError):
             call.save()
 
+    def test_selection_method(self):
+        """ Calls can select sprouts in different ways """
+        for opt in ['SRT', 'RND']:
+            mommy.make(Call, selection_method = opt)
+
+    def test_selection_method_default(self):
+        """ Calls select sprouts with the smallest generation by default """
+        call = mommy.make(Call)
+        self.assertEquals(call.selection_method, 'SRT')
+
+    def test_pick_next_sprout(self):
+        call = mommy.make(Call, num_seeds = 0)
+        sprout = mommy.make(Message, type = 'SPRT', call = call)
+        self.assertEquals(call.pick_next_sprout(), sprout)
+
 class MessageTest(ModelTest):
     def setUp(self):
         super(MessageTest, self).setUp()

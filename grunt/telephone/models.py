@@ -40,7 +40,7 @@ class Game(models.Model):
                               max_length = 5)
 
     def save(self, *args, **kwargs):
-        """ """
+        """ Update the number of calls in the game on save """
         existing_calls = self.call_set.count()
         # don't delete calls on edit/resave
         if existing_calls > self.num_calls:
@@ -123,11 +123,8 @@ class Call(models.Model):
     """
     game = models.ForeignKey(Game)
     num_seeds = models.IntegerField(default = 1)
-
-    def dirname(self):
-        """ The name of the directory to hold all of this call's messages """
-        path_args = {'game_dir': self.game.dirname(), 'pk': self.pk}
-        return '{game_dir}/call-{pk}'.format(**path_args)
+    sprout_selection_methods = [('SRT', 'shortest'), ('RND', 'random')]
+    selection_method = models.CharField(max_length = 3, default = 'SRT')
 
     def save(self, *args, **kwargs):
         """ Save a new call or edit an existing call
@@ -144,6 +141,34 @@ class Call(models.Model):
         # create seed messages as necessary
         for _ in range(self.num_seeds - existing_seeds):
             self.message_set.create(type = 'SEED', call = self)
+
+    def pick_next_sprout(self):
+        """ Determine which sprout message should be viewed next
+
+        Fails when:
+        (a) there are no sprouts in the game
+
+        Returns
+        -------
+        a Message object, of type == 'SPRT'
+        """
+        sprouts = self.message_set.filter(type = 'SPRT')
+        if sprouts.count() == 0:
+            raise Message.DoesNotExist('No sprouts available')
+
+        if self.selection_method == 'SRT':
+            sprouts = list(sprouts)
+            sprouts = sorted(sprouts, key = lambda msg: msg.generation)
+        else:
+            # choose a sprout at random
+            sprouts = sprouts.order_by('?')
+
+        return sprouts[0]
+
+    def dirname(self):
+        """ The name of the directory to hold all of this call's messages """
+        path_args = {'game_dir': self.game.dirname(), 'pk': self.pk}
+        return '{game_dir}/call-{pk}'.format(**path_args)
 
 class Message(models.Model):
     """ Audio recordings
