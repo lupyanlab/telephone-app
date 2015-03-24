@@ -8,7 +8,7 @@ from django.test import TestCase, override_settings
 from model_mommy import mommy
 from unipath import Path
 
-from telephone.models import Game, Call, Seed, Cluster, Chain, Entry
+from telephone.models import Game, Call, Message, Seed, Cluster, Chain, Entry
 
 TEST_MEDIA_ROOT = Path(settings.MEDIA_ROOT + '-test')
 
@@ -25,23 +25,42 @@ class GameTest(ModelTest):
         game.full_clean()
         game.save()
 
+    def test_num_calls(self):
+        """ Games start with a number of calls """
+        game = mommy.make(Game, num_calls = 10)
+        self.assertEquals(game.call_set.count(), 10)
+
+    def test_num_calls_default(self):
+        """ Games start with a single call by default """
+        game = mommy.make(Game)
+        self.assertEquals(game.call_set.count(), 1)
+
+    def test_num_calls_none(self):
+        """ Creating a call on save can be prevented """
+        game = mommy.make(Game, num_calls = 0)
+        self.assertEquals(game.call_set.count(), 0)
+
     def test_call_order(self):
+        """ Games can be sequential or random """
+        for opt in ['SEQ', 'RND']:
+            mommy.make(Game, call_order = opt)
+
+    def test_call_order_default(self):
         """ Games select clusters in order by default """
         game = mommy.make(Game)
         self.assertEquals(game.call_order, 'SEQ')
 
-        # orders can be selected at random too
-        mommy.make(Game, call_order = 'RND')  # should not raise
-
     def test_status(self):
+        """ Games are active or inactive """
+        for opt in ['ACTIV', 'INACT']:
+            mommy.make(Game, status = opt)
+
+    def test_status_default(self):
         """ Games are active by default """
         game = mommy.make(Game)
         self.assertEquals(game.status, 'ACTIV')
 
-        # status can be inactivate
-        mommy.make(Game, status = 'INACT') # should not raise
-
-    def test_str(self):
+    def test_str_default(self):
         """ By default games are named based on their primary key """
         game = mommy.make(Game)
         self.assertEquals(str(game), 'game-{}'.format(game.pk))
@@ -60,7 +79,7 @@ class GameTest(ModelTest):
 
     def test_pick_next_call_sequential(self):
         """ Games can pick the next call, excluding based on receipts """
-        game = mommy.make(Game)
+        game = mommy.make(Game, num_calls = 0)
         calls = mommy.make(Call, game = game, _quantity = 2)
         receipts = [call.pk for call in calls]
         self.assertEquals(game.pick_next_call(), calls[0])
@@ -71,12 +90,12 @@ class GameTest(ModelTest):
     #     pass
 
     def test_pick_next_call_fails_when_game_is_empty(self):
-        game = mommy.make(Game)
+        game = mommy.make(Game, num_calls = 0)
         with self.assertRaises(Call.DoesNotExist):
             game.pick_next_call()
 
     def test_pick_next_call_fails_when_all_calls_excluded(self):
-        game = mommy.make(Game)
+        game = mommy.make(Game, num_calls = 0)
         call = mommy.make(Call, game = game)
         with self.assertRaises(Call.DoesNotExist):
             game.pick_next_call(receipts = [call.pk, ])
@@ -84,6 +103,74 @@ class GameTest(ModelTest):
     # def test_mturk_games_require_a_completion_code(self):
     #     with self.assertRaises(ValidationError):
     #         mommy.make(Game, type = 'MTK', completion_code = '')
+
+class CallTest(ModelTest):
+    def setUp(self):
+        super(CallTest, self).setUp()
+        self.game = mommy.make(Game)
+
+    def test_make_a_call(self):
+        call = Call(game = self.game)
+        call.full_clean()
+        call.save()
+
+    def test_calls_begin_with_a_single_sprout_message(self):
+        call = mommy.make(Call)
+        self.assertEquals(call.message_set.count(), 1)
+
+        sprout = call.message_set.first()
+        self.assertTrue(sprout.type, 'SPRT')
+
+class MessageTest(ModelTest):
+    def setUp(self):
+        super(MessageTest, self).setUp()
+        fpath = Path(settings.APP_DIR, 'telephone/tests/media/test-audio.wav')
+        self.content = File(open(fpath, 'rb'))
+
+class SeedMessageTest(MessageTest):
+    def test_make_a_seed_message(self):
+        seed = Message(type = 'SEED', name = 'test-seed', audio = self.content)
+        seed.full_clean()
+        seed.save()
+
+    def test_seeds_are_saved_to_seed_dir(self):
+        seed = mommy.make(Message, type = 'SEED',
+                name = 'test-seed', audio = self.content)
+        self.assertEquals(seed.audio.url, '/media/seeds/test-seed.wav')
+
+class ResponseMessageTest(MessageTest):
+    def setUp(self):
+        super(ResponseMessageTest, self).setUp()
+        self.call = mommy.make(Call)
+        self.seed = mommy.make(Message, type = 'SEED', name = 'test-seed')
+
+    def test_make_a_response_message(self):
+        response = Message(type = 'RESP', call = self.call, parent = self.seed,
+                audio = self.content)
+        response.full_clean()
+        response.save()
+
+    def test_responses_are_saved_to_call_dir(self):
+        response = mommy.make(Message, type = 'RESP', call = self.call,
+                parent = self.seed, audio = self.content, generation = 1)
+        self.assertEquals(response.audio.url,
+                '/media/game-1/call-1/gen-1.wav'.format(self.seed.name))
+
+    def test_saving_a_response_creates_a_new_sprout(self):
+        response = mommy.make(Message, type = 'RESP', call = self.call)
+        sprout = Message.objects.filter(type = 'SPRT').first()
+        self.assertEquals(sprout.parent, response)
+
+class SproutMessageTest(MessageTest):
+    def setUp(self):
+        super(SproutMessageTest, self).setUp()
+        self.call = mommy.make(Call)
+        self.seed = mommy.make(Message, type = 'SEED', name = 'test-seed')
+
+    def test_make_a_sprout_message(self):
+        sprout = Message(type = 'SPRT', call = self.call, parent = self.seed)
+        sprout.full_clean()
+        sprout.save()
 
 class ChainTest(ModelTest):
     def setUp(self):

@@ -2,7 +2,7 @@ from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import models
 
-from .handlers import chain_dir
+from .handlers import message_dir
 
 class Game(models.Model):
     """ Top-level control over calls
@@ -16,6 +16,10 @@ class Game(models.Model):
     # naming entries or chains. Instead, the int primary key (pk) is
     # used.
     name = models.CharField(blank = True, null = True, max_length = 30)
+
+    # How many calls should be initialized
+    num_calls = models.IntegerField(default = 1)
+    ## I feel this might be bad practice...
 
     possible_game_types = [('PUB', 'public'), ('MTK', 'mturk')]
     type = models.CharField(choices = possible_game_types, default = 'PUB',
@@ -34,6 +38,12 @@ class Game(models.Model):
     status_choices = [('ACTIV', 'active'), ('INACT', 'inactive')]
     status = models.CharField(choices = status_choices, default = 'ACTIV',
                               max_length = 5)
+
+    def save(self, *args, **kwargs):
+        """ """
+        super(Game, self).save(*args, **kwargs)
+        for _ in range(self.num_calls):
+            self.call_set.create(game = self)
 
     def get_play_url(self):
         """ URL for playing this game """
@@ -92,10 +102,7 @@ class Game(models.Model):
     #     return entry
 
     def dirname(self):
-        """ The name of the directory to hold all calls
-
-        Appended to MEDIA_ROOT
-        """
+        """ The name of the directory to hold all of this game's calls """
         return 'game-{pk}'.format(pk = self.pk)
 
     def __str__(self):
@@ -103,10 +110,85 @@ class Game(models.Model):
         return self.name or self.dirname()
 
 class Call(models.Model):
+    """ Collection of messages
+
+    Calls run in parallel to others within the same game.
+    """
     game = models.ForeignKey(Game)
 
+    def dirname(self):
+        """ The name of the directory to hold all of this call's messages """
+        path_args = {'game_dir': self.game.dirname(), 'pk': self.pk}
+        return '{game_dir}/call-{pk}'.format(**path_args)
+
+class Message(models.Model):
+    """ Audio recordings
+    """
+    name = models.CharField(blank = True, null = True, max_length = 30)
+    message_types = [
+        ('SEED', 'seed'),
+        ('RESP', 'response'),
+        ('SPRT', 'sprout')
+    ]
+    type = models.CharField(choices = message_types, default = 'SEED',
+            max_length = 4)
+
+    call = models.ForeignKey(Call, blank = True, null = True)
+    parent = models.ForeignKey('self', blank = True, null = True)
+    generation = models.IntegerField(default = 0, editable = False)
+    audio = models.FileField(upload_to = message_dir, blank=True, null=True)
+    # creator =
+
+    def full_clean(self, *args, **kwargs):
+        """ Validate message type """
+        super(Message, self).full_clean(*args, **kwargs)
+
+        if self.type == 'SEED':
+            if not self.name:
+                raise ValidationError('A seed needs a name')
+
+            self.call = None
+            self.parent = None
+            self.generation = 0
+            # validate audio
+
+        elif self.type == 'RESP':
+            if not self.call:
+                raise ValidationError('A response needs to be in a call')
+
+            if not self.parent:
+                raise ValidationError('A response needs a parent message')
+            self.generation = self.parent.generation + 1
+            # validate audio
+
+        else:  # type == 'SPRT'
+            if not self.call:
+                raise ValidationError('A sprout needs to be in a call')
+
+            if not self.parent:
+                raise ValidationError('A sprout needs a parent message')
+            self.audio = None
+
+    def save(self, *args, **kwargs):
+        super(Message, self).save(*args, **kwargs)
+
+        if self.type == 'RESP':
+            sprout = Message(type = 'SPRT', call = self.call, parent = self)
+            sprout.full_clean()
+            sprout.save()
+
+    def dirname(self):
+        if self.type == 'SEED':
+            return 'seeds'
+        else:
+            return self.call.dirname()
+
     def __str__(self):
-        return 'pk: {}'.format(self.pk)
+        """ The string representation of the entry
+
+        Entries are named based on the seed and the generation.
+        """
+        return self.pk
 
 class Seed(models.Model):
     """ An Entry with no parent.
@@ -295,7 +377,7 @@ class Entry(models.Model):
     """ Entries are file uploads situated in a particular Chain """
     chain = models.ForeignKey(Chain)
     parent = models.ForeignKey('self', null = True, blank = True)
-    content = models.FileField(upload_to = chain_dir)
+    content = models.FileField(upload_to = message_dir)
     generation = models.IntegerField(default = 0, editable = False)
 
     def full_clean(self, *args, **kwargs):
