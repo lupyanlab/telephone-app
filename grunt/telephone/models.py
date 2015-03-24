@@ -115,11 +115,21 @@ class Call(models.Model):
     Calls run in parallel to others within the same game.
     """
     game = models.ForeignKey(Game)
+    num_seeds = models.IntegerField(default = 1)
 
     def dirname(self):
         """ The name of the directory to hold all of this call's messages """
         path_args = {'game_dir': self.game.dirname(), 'pk': self.pk}
         return '{game_dir}/call-{pk}'.format(**path_args)
+
+    def save(self, *args, **kwargs):
+        """ """
+        existing_seeds = self.message_set.count()
+        if existing_seeds > self.num_seeds:
+            raise ValidationError('Seeds must be deleted manually')
+        super(Call, self).save(*args, **kwargs)
+        for _ in range(self.num_seeds - existing_seeds):
+            self.message_set.create(type = 'SEED', call = self)
 
 class Message(models.Model):
     """ Audio recordings

@@ -110,16 +110,25 @@ class CallTest(ModelTest):
         self.game = mommy.make(Game)
 
     def test_make_a_call(self):
+        """ Calls need to be assigned to a game """
         call = Call(game = self.game)
         call.full_clean()
         call.save()
 
-    def test_calls_begin_with_a_single_sprout_message(self):
+    def test_num_seeds(self):
+        """ Calls start with a number of seed messages """
+        call = mommy.make(Call, num_seeds = 10)
+        self.assertEquals(call.message_set.count(), 10)
+
+    def test_num_seeds_default(self):
+        """ Calls start with a single seed message by default """
         call = mommy.make(Call)
         self.assertEquals(call.message_set.count(), 1)
 
-        sprout = call.message_set.first()
-        self.assertTrue(sprout.type, 'SPRT')
+    def test_num_seeds_none(self):
+        """ Calls can be created without any seed messages """
+        call = mommy.make(Call, num_seeds = 0)
+        self.assertEquals(call.message_set.count(), 0)
 
 class MessageTest(ModelTest):
     def setUp(self):
