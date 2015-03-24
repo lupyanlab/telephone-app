@@ -130,6 +130,20 @@ class CallTest(ModelTest):
         call = mommy.make(Call, num_seeds = 0)
         self.assertEquals(call.message_set.count(), 0)
 
+    def test_num_seeds_edit(self):
+        """ Calls can be edited to create more seed messages """
+        call = mommy.make(Call)
+        call.num_seeds = 10
+        call.save()
+        self.assertEquals(call.message_set.count(), 10)
+
+    def test_num_seeds_remove_error(self):
+        """ Seeds cannot be removed by editing a call """
+        call = mommy.make(Call)
+        call.num_seeds = 0
+        with self.assertRaises(ValidationError):
+            call.save()
+
 class MessageTest(ModelTest):
     def setUp(self):
         super(MessageTest, self).setUp()

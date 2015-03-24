@@ -123,11 +123,18 @@ class Call(models.Model):
         return '{game_dir}/call-{pk}'.format(**path_args)
 
     def save(self, *args, **kwargs):
-        """ """
+        """ Save a new call or edit an existing call
+
+        Ensure that it has the correct number of seed messages before saving.
+        """
         existing_seeds = self.message_set.count()
+        # don't delete seed messages on edit/resave
         if existing_seeds > self.num_seeds:
             raise ValidationError('Seeds must be deleted manually')
+
         super(Call, self).save(*args, **kwargs)
+
+        # create seed messages as necessary
         for _ in range(self.num_seeds - existing_seeds):
             self.message_set.create(type = 'SEED', call = self)
 
