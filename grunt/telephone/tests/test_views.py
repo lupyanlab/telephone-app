@@ -7,7 +7,7 @@ from unipath import Path
 from model_mommy import mommy
 
 from telephone.forms import EntryForm
-from telephone.models import Game, Seed, Cluster, Chain, Entry
+from telephone.models import Game, Chain, Message
 
 TEST_MEDIA_ROOT = Path(settings.MEDIA_ROOT + '-test')
 

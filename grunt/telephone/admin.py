@@ -1,7 +1,7 @@
 from django.contrib import admin
 
-from .models import Game, Seed, Cluster, Chain
+from .models import Game, Chain, Message
 
-@admin.register(Game, Seed, Cluster, Chain)
+@admin.register(Game, Chain, Message)
 class GameAdmin(admin.ModelAdmin):
     pass
