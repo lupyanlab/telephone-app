@@ -145,8 +145,7 @@ class Call(models.Model):
     def pick_next_sprout(self):
         """ Determine which sprout message should be viewed next
 
-        Fails when:
-        (a) there are no sprouts in the game
+        Fails when there are no sprouts in the call.
 
         Returns
         -------
@@ -172,6 +171,12 @@ class Call(models.Model):
 
 class Message(models.Model):
     """ Audio recordings
+
+    Message types
+    -------------
+    SEED (seed): a message with no parent, generation = 0
+    SPRT (sprout): a placeholder for a message, audio = None
+    RESP (response): a message
     """
     name = models.CharField(blank = True, null = True, max_length = 30)
     message_types = [
@@ -186,37 +191,33 @@ class Message(models.Model):
     parent = models.ForeignKey('self', blank = True, null = True)
     generation = models.IntegerField(default = 0, editable = False)
     audio = models.FileField(upload_to = message_dir, blank=True, null=True)
-    # creator =
 
-    def full_clean(self, *args, **kwargs):
-        """ Validate message type """
-        super(Message, self).full_clean(*args, **kwargs)
-
-        if self.type == 'SEED':
-            if not self.name:
-                raise ValidationError('A seed needs a name')
-
-            self.call = None
-            self.parent = None
-            self.generation = 0
-            # validate audio
-
-        elif self.type == 'RESP':
-            if not self.call:
-                raise ValidationError('A response needs to be in a call')
-
-            if not self.parent:
-                raise ValidationError('A response needs a parent message')
-            self.generation = self.parent.generation + 1
-            # validate audio
-
-        else:  # type == 'SPRT'
-            if not self.call:
-                raise ValidationError('A sprout needs to be in a call')
-
-            if not self.parent:
-                raise ValidationError('A sprout needs a parent message')
-            self.audio = None
+    # def full_clean(self, *args, **kwargs):
+    #     """ Validate message type """
+    #     super(Message, self).full_clean(*args, **kwargs)
+    #
+    #     if self.type == 'SEED':
+    #         self.call = None
+    #         self.parent = None
+    #         self.generation = 0
+    #         # validate audio
+    #
+    #     elif self.type == 'RESP':
+    #         if not self.call:
+    #             raise ValidationError('A response needs to be in a call')
+    #
+    #         if not self.parent:
+    #             raise ValidationError('A response needs a parent message')
+    #         self.generation = self.parent.generation + 1
+    #         # validate audio
+    #
+    #     else:  # type == 'SPRT'
+    #         if not self.call:
+    #             raise ValidationError('A sprout needs to be in a call')
+    #
+    #         if not self.parent:
+    #             raise ValidationError('A sprout needs a parent message')
+    #         self.audio = None
 
     def save(self, *args, **kwargs):
         super(Message, self).save(*args, **kwargs)

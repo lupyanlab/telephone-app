@@ -6,8 +6,8 @@ from .views import accept, clear
 urlpatterns = patterns('',
     url(
         r'^$',
-        CallsView.as_view(),
-        name = 'calls',
+        CallsView.as_view(),  # change to Games
+        name = 'calls',       # change to games
     ),
     url(
         r'^(?P<pk>\d+)/$',

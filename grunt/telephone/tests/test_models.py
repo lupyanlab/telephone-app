@@ -176,19 +176,35 @@ class CallTest(ModelTest):
 class MessageTest(ModelTest):
     def setUp(self):
         super(MessageTest, self).setUp()
+
+        # test file for models.FileField
         fpath = Path(settings.APP_DIR, 'telephone/tests/media/test-audio.wav')
         self.content = File(open(fpath, 'rb'))
 
+        self.call = mommy.make(Call, num_seeds = 0)
+
 class SeedMessageTest(MessageTest):
     def test_make_a_seed_message(self):
-        seed = Message(type = 'SEED', name = 'test-seed', audio = self.content)
+        seed = Message(type = 'SEED', call = self.call)
         seed.full_clean()
         seed.save()
 
-    def test_seeds_are_saved_to_seed_dir(self):
-        seed = mommy.make(Message, type = 'SEED',
-                name = 'test-seed', audio = self.content)
-        self.assertEquals(seed.audio.url, '/media/seeds/test-seed.wav')
+class SproutMessageTest(MessageTest):
+    def setUp(self):
+        super(SproutMessageTest, self).setUp()
+        self.seed = mommy.make(Message, type = 'SEED',
+                call = self.call, audio = self.content)
+
+    def test_make_a_sprout_message(self):
+        sprout = Message(type = 'SPRT', call = self.call, parent = self.seed)
+        sprout.full_clean()
+        sprout.save()
+
+    def test_sprout_parent_must_have_audio(self):
+        empty_seed = mommy.make(Message, call = self.call, type = 'SEED')
+        sprout = Message(type = 'SPRT', call = self.call, parent = empty_seed)
+        with self.assertRaises(ValidationError):
+            sprout.full_clean()
 
 class ResponseMessageTest(MessageTest):
     def setUp(self):
@@ -213,16 +229,6 @@ class ResponseMessageTest(MessageTest):
         sprout = Message.objects.filter(type = 'SPRT').first()
         self.assertEquals(sprout.parent, response)
 
-class SproutMessageTest(MessageTest):
-    def setUp(self):
-        super(SproutMessageTest, self).setUp()
-        self.call = mommy.make(Call)
-        self.seed = mommy.make(Message, type = 'SEED', name = 'test-seed')
-
-    def test_make_a_sprout_message(self):
-        sprout = Message(type = 'SPRT', call = self.call, parent = self.seed)
-        sprout.full_clean()
-        sprout.save()
 
 class ChainTest(ModelTest):
     def setUp(self):

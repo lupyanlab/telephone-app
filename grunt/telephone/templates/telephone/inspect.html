@@ -5,7 +5,7 @@
     <!-- Iterate through clusters and generations to draw all entries.
          Clusters are vertically separated on the page.
          Generations are rows. -->
-    {% for cluster in game.cluster_set.all %}
+    {% for chain in game.chain_set.all %}
     <div>
         {% for generation in cluster.generations %}
         <div>
