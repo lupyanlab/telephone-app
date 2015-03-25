@@ -1,7 +1,17 @@
 from django import forms
 from django.core.urlresolvers import reverse
 
-from .models import Message
+from .models import Chain, Message
+
+class ResponseForm(forms.ModelForm):
+    class Meta:
+        model = Message
+        fields = ('parent', 'audio')
+
+    def clean(self, *args, **kwargs):
+        super(ResponseForm, self).clean(*args, **kwargs)
+        parent = self.cleaned_data['parent']
+        self.instance.chain = parent.chain
 
 class MessageForm(forms.ModelForm):
 
@@ -31,7 +41,7 @@ class MessageForm(forms.ModelForm):
     def status(self):
         kwargs = {}
         kwargs['current'] = len(self.receipts) + 1
-        kwargs['total'] = self.game().cluster_set.count()
+        kwargs['total'] = self.game().chain_set.count()
         return "Message {current} of {total}".format(**kwargs)
 
     def as_context(self):
