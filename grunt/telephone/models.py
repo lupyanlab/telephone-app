@@ -2,7 +2,7 @@ from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import models
 
-from .handlers import message_dir
+from .handlers import message_path
 
 class Game(models.Model):
     """ Top-level control over calls
@@ -128,7 +128,7 @@ class Message(models.Model):
     chain = models.ForeignKey(Chain, blank = True, null = True)
     parent = models.ForeignKey('self', blank = True, null = True)
     generation = models.IntegerField(default = 0, editable = False)
-    audio = models.FileField(upload_to = message_dir, blank = True,
+    audio = models.FileField(upload_to = message_path, blank = True,
             null = True)
 
     def __str__(self):

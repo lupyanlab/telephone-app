@@ -125,7 +125,7 @@ class MessageTest(ModelTest):
 
         # test file for models.FileField
         fpath = Path(settings.APP_DIR, 'telephone/tests/media/test-audio.wav')
-        self.content = File(open(fpath, 'rb'))
+        self.audio = File(open(fpath, 'rb'))
 
     def test_make_a_message(self):
         """ Messages need to be assigned to a chain """
@@ -214,18 +214,18 @@ class MessageTest(ModelTest):
 #     def setUp(self):
 #         super(SeedTest, self).setUp()
 #         fpath = Path(settings.APP_DIR, 'telephone/tests/media/test-audio.wav')
-#         self.content = File(open(fpath, 'rb'))
+#         self.audio = File(open(fpath, 'rb'))
 #
 #     def test_make_a_seed(self):
 #         """ Make a seed """
-#         seed = Seed(name = 'seed', content = self.content)
+#         seed = Seed(name = 'seed', content = self.audio)
 #         seed.full_clean()
 #         seed.save()
 #
 #     def test_seed_requirements(self):
 #         """ A name w/o a file, or a file w/o a name raises an error """
 #         valid_name = 'seed'
-#         valid_content = self.content
+#         valid_content = self.audio
 #
 #         no_name = Seed(content = valid_content)
 #         with self.assertRaises(ValidationError):
@@ -239,34 +239,34 @@ class MessageTest(ModelTest):
 #         valid.full_clean()  # should not raise
 #
 #     def test_seed_str(self):
-#         seed = Seed.objects.create(name = 'valid-name', content = self.content)
+#         seed = Seed.objects.create(name = 'valid-name', content = self.audio)
 #         self.assertEquals(str(seed), 'valid-name')
 #
 #     def test_seed_names_are_unique(self):
 #         """ Seeds can't have the same name """
 #         repeated = 'repeated-name'
 #
-#         first = Seed(name = repeated, content = self.content)
+#         first = Seed(name = repeated, content = self.audio)
 #         first.full_clean()
 #         first.save()
 #
-#         second = Seed(name = repeated, content = self.content)
+#         second = Seed(name = repeated, content = self.audio)
 #         with self.assertRaises(ValidationError):
 #             second.full_clean()
 #
-#         third = Seed(name = "new-name", content = self.content)
+#         third = Seed(name = "new-name", content = self.audio)
 #         third.full_clean()  # should not raise
 #         third.save()
 #
 #     def test_seeds_are_saved_to_correct_directory(self):
 #         """ Seeds are saved to their own directory """
-#         seed = Seed(name = 'seed', content = self.content)
+#         seed = Seed(name = 'seed', content = self.audio)
 #         seed.save()
 #         self.assertRegexpMatches(seed.content.url, r'/media/seeds/')
 #
 #     def test_seed_files_are_saved_as_wav(self):
 #         """ In the telephone app all seeds are .wav files """
-#         seed = Seed(name = 'seed', content = self.content)
+#         seed = Seed(name = 'seed', content = self.audio)
 #         seed.save()
 #         seed_content_url = Path(seed.content.url)
 #         self.assertEquals(seed_content_url.ext, '.wav')
@@ -330,11 +330,11 @@ class MessageTest(ModelTest):
 #         self.chain = mommy.make(Chain)
 #
 #         fpath = Path(settings.APP_DIR, 'telephone/tests/media/test-audio.wav')
-#         self.content = File(open(fpath, 'rb'))
+#         self.audio = File(open(fpath, 'rb'))
 #
 #     def make_entry(self, save = True):
 #         entry = Entry(
-#             content = self.content,
+#             content = self.audio,
 #             chain = self.chain,
 #             parent = self.chain.entry_set.last()
 #         )
@@ -347,7 +347,7 @@ class MessageTest(ModelTest):
 #         """ Make an entry """
 #         parent = self.chain.entry_set.last()
 #         entry = Entry(
-#             content = self.content,
+#             content = self.audio,
 #             chain = self.chain,
 #             parent = parent
 #         )
@@ -356,14 +356,14 @@ class MessageTest(ModelTest):
 #
 #     def test_entry_requirements(self):
 #         """ First generation entries require content and a chain """
-#         no_chain = Entry(content = self.content)
+#         no_chain = Entry(content = self.audio)
 #         with self.assertRaises(ValidationError):
 #             no_chain.full_clean()
 #
 #     def test_entries_require_a_parent(self):
 #         """ Second+ generation entries also require a parent """
 #         self.assertGreater(self.chain.entry_set.count(), 0)
-#         entry = Entry(content = self.content, chain = self.chain)
+#         entry = Entry(content = self.audio, chain = self.chain)
 #         with self.assertRaises(ValidationError):
 #             entry.full_clean()
 #

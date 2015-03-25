@@ -6,11 +6,11 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 from django.views.generic import View, ListView, DetailView
 
-from .models import Game, Seed, Cluster, Entry
-from .forms import EntryForm
+from .models import Game, Chain, Message
+from .forms import MessageForm
 
-class CallsView(ListView):
-    template_name = 'telephone/calls.html'
+class GamesView(ListView):
+    template_name = 'telephone/games.html'
     model = Game
 
     def get_queryset(self):
@@ -39,7 +39,7 @@ class PlayView(View):
 
         try:
             return self.play(request)
-        except Cluster.DoesNotExist:
+        except Chain.DoesNotExist:
             return self.complete(request)
 
     def instruct(self, request):
@@ -76,13 +76,13 @@ class PlayView(View):
         """
         self.game = get_object_or_404(Game, pk = pk)
 
-        form = EntryForm(data = request.POST, files = request.FILES)
+        form = MessageForm(data = request.POST, files = request.FILES)
 
         if form.is_valid():
-            entry = form.save()
+            message = form.save()
 
             receipts = request.session.get('receipts', list())
-            receipts.append(entry.chain.cluster.pk)
+            receipts.append(message.chain.pk)
             request.session['receipts'] = receipts
 
             try:

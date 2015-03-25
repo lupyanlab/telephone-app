@@ -1,13 +1,13 @@
 from django import forms
 from django.core.urlresolvers import reverse
 
-from .models import Entry
+from .models import Message
 
-class EntryForm(forms.ModelForm):
+class MessageForm(forms.ModelForm):
 
     class Meta:
-        model = Entry
-        fields = ('chain', 'parent', 'content')
+        model = Message
+        fields = ('chain', 'parent', 'audio')
         widgets = {
             'chain': forms.TextInput(),
             'parent': forms.TextInput(),
@@ -18,15 +18,15 @@ class EntryForm(forms.ModelForm):
             },
         }
 
-    def __init__(self, receipts = [], *args, **kwargs):
-        super(EntryForm, self).__init__(*args, **kwargs)
+    def __init__(self, receipts = list(), *args, **kwargs):
+        super(MessageForm, self).__init__(*args, **kwargs)
         self.receipts = receipts
 
     def game(self):
-        return self.instance.chain.cluster.game
+        return self.instance.chain.game
 
     def parent_url(self):
-        return self.instance.parent.content.url
+        return self.instance.parent.audio.url
 
     def status(self):
         kwargs = {}
@@ -38,7 +38,7 @@ class EntryForm(forms.ModelForm):
         context = {
             'chain': self.instance.chain.pk,
             'parent': self.instance.parent.pk,
-            'url': self.instance.parent.content.url,
+            'url': self.instance.parent.audio.url,
             'status': self.status(),
         }
         return context
