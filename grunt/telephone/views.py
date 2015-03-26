@@ -7,13 +7,14 @@ from django.views.decorators.http import require_POST
 from django.views.generic import View, ListView, DetailView
 
 from .models import Game, Chain, Message
-from .forms import MessageForm
+from .forms import ResponseForm
 
 class GamesView(ListView):
     template_name = 'telephone/games.html'
     model = Game
 
     def get_queryset(self):
+        """ Only show active games """
         return self.model._default_manager.filter(status = 'ACTIV')
 
 class PlayView(View):
@@ -52,14 +53,21 @@ class PlayView(View):
         Raises an exception (Cluster.DoesNotExist) if there are no more
         clusters.
         """
+        context_data = {}
+        context_data['game'] = self.game
+
         receipts = request.session['receipts']
-        entry = self.game.prepare_entry(receipts)
-        form = EntryForm(instance = entry, receipts = receipts)
+        chain = self.game.pick_next_chain(receipts)
+        message = chain.pick_next_message()
+        context_data['url'] = message.parent.audio.url
+
+        form = ResponseForm(instance = message)
 
         if request.is_ajax():
-            return JsonResponse(form.as_context())
+            return JsonResponse(form.as_dict())
 
-        return render(request, 'telephone/play.html', {'form': form})
+        context_data['form'] = form
+        return render(request, 'telephone/play.html', context_data)
 
     def post(self, request, pk):
         """ Determine what to do with an entry.
@@ -76,9 +84,10 @@ class PlayView(View):
         """
         self.game = get_object_or_404(Game, pk = pk)
 
-        form = MessageForm(data = request.POST, files = request.FILES)
+        form = ResponseForm(data = request.POST, files = request.FILES)
 
         if form.is_valid():
+            print "form valid"
             message = form.save()
 
             receipts = request.session.get('receipts', list())
@@ -87,7 +96,7 @@ class PlayView(View):
 
             try:
                 return self.play(request)
-            except Cluster.DoesNotExist:
+            except Message.DoesNotExist:
                 return self.complete(request)
         else:
             return render(request, 'telephone/play.html', {'form': form})

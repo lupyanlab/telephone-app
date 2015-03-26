@@ -6,7 +6,7 @@ from django.test import TestCase, override_settings
 from model_mommy import mommy
 from unipath import Path
 
-from telephone.forms import ResponseForm, MessageForm
+from telephone.forms import ResponseForm
 from telephone.models import Game, Chain, Message
 
 TEST_MEDIA_ROOT = Path(settings.MEDIA_ROOT + '-test')
@@ -51,3 +51,8 @@ class ResponseFormTest(FormTests):
         )
         message = form.save()
         self.assertIn(message, self.parent_message.message_set.all())
+
+    def test_get_a_response_form(self):
+        message = mommy.make(Message, parent = self.parent_message,
+                chain = self.chain)
+        form = ResponseForm(instance = message)

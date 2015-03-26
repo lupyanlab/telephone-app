@@ -132,7 +132,11 @@ class Message(models.Model):
             null = True)
 
     def __str__(self):
-        return self.audio.url or 'message-{pk}'.format(pk = self.pk)
+        try:
+            description = self.audio.url
+        except ValueError:
+            description = 'message-{pk}'.format(pk = self.pk)
+        return description
 
 # class Seed(models.Model):
 #     """ An Entry with no parent.

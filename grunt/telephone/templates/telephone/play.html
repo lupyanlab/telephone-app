@@ -13,7 +13,7 @@
         </ul>
     </nav>
 
-    <h3 id="game" class="text-muted">{{ form.game }}</h3>
+    <h3 id="game" class="text-muted">{{ game }}</h3>
 
 {% endblock header %}
 
@@ -21,12 +21,8 @@
 
     {{ block.super }}
 
-    <form id="entry" method="post" action="{{ form.game.get_absolute_url }}" enctype="multipart/form-data">
+    <form id="entry" method="post" action="{{ game.get_absolute_url }}" enctype="multipart/form-data">
         {% csrf_token %}
-
-        {{ form.chain.as_hidden }}
-        {{ form.parent.as_hidden }}
-        {{ form.content.as_hidden }}
 
         <p id="status" class="lead">{{ form.status }}</p>
         <div class="row">
@@ -41,7 +37,9 @@
             <div class="col-md-2 col-sm-1"></div>
         </div>
 
-        <audio id="sound" src="{{ form.parent_url }}"></audio>
+        {{ form.parent.as_hidden }}
+        {{ form.audio.as_hidden }}
+        <audio id="sound" src="{{ url }}"></audio>
 
         <p id="message" class="lead bg-danger">
             {% if form.content.errors %}

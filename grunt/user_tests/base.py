@@ -67,7 +67,7 @@ class FunctionalTest(LiveServerTestCase):
         self.accept_instructions()
         return self.browser.current_url
 
-    def nav_to_view(self):
+    def nav_to_view(self, name = None):
         self.browser.get(self.live_server_url)
         self.click_on_telephone_game()
         self.click_on_first_game(role = 'inspect')
