@@ -124,22 +124,29 @@ class Chain(models.Model):
 
 class Message(models.Model):
     """ Audio recordings """
-    name = models.CharField(blank = True, null = True, max_length = 30)
     chain = models.ForeignKey(Chain, blank = True, null = True)
+    name = models.CharField(blank = True, null = True, max_length = 30)
     parent = models.ForeignKey('self', blank = True, null = True)
     generation = models.IntegerField(default = 0, editable = False)
     audio = models.FileField(upload_to = message_path, blank = True,
             null = True)
 
+    def full_clean(self, *args, **kwargs):
+        if self.parent:
+            self.generation = self.parent.generation + 1
+        super(Message, self).full_clean(*args, **kwargs)
+
     def __str__(self):
-        try:
-            description = self.audio.url
-        except ValueError:
-            description = 'message-{pk}'.format(pk = self.pk)
-        return description
+        if self.name:
+            return self.name
+        else:
+            return 'message-{pk}'.format(pk = self.pk)
 
     def replicate(self):
-        return Message.objects.create(chain = self.chain, parent = self)
+        child = Message(chain = self.chain, parent = self)
+        child.full_clean()
+        child.save()
+        return child
 
 # class Seed(models.Model):
 #     """ An Entry with no parent.

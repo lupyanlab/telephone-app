@@ -137,8 +137,20 @@ class MessageTest(ModelTest):
         message = mommy.make(Message)
         child = message.replicate()
         children = message.message_set.all()
-        self.assertEquals(len(children), 1)
-        self.assertIn(child, children)
+        self.assertIn(child, children, 'Child not linked to parent')
+
+    def test_replicate_generation(self):
+        message = mommy.make(Message)
+        child = message.replicate()
+        self.assertEquals(child.generation, message.generation + 1)
+
+    def test_str(self):
+        message = mommy.make(Message, name = 'new-message')
+        self.assertEquals(str(message), 'new-message')
+
+    def test_str_default(self):
+        message = mommy.make(Message)
+        self.assertEquals(str(message), 'message-1')
 
 # class ChainTest(ModelTest):
 #     def setUp(self):
