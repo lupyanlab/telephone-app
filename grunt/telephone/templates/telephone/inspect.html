@@ -7,15 +7,10 @@
          Generations are rows. -->
     {% for chain in game.chain_set.all %}
     <div>
-        {% for generation in cluster.generations %}
-        <div>
-            {% for entry in generation.entries %}
-            <!-- Draw the entry. Entries have a fixed height. Entry width
-                 depends on the number of children it has. -->
-            <div>
-                {{ entry }}
-            </div>
-            {% endfor %}
+        {% for message in chain.message_set.all %}
+        <div class="message">
+            {{ message }}
+            <a id="id_edit" href="{{ message.get_absolute_url }}">Edit</a>
         </div>
         {% endfor %}
     </div>

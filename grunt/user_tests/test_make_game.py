@@ -1,7 +1,8 @@
 from unipath import Path
-from django.conf.settings import APP_DIR
+from django.conf import settings
 from django.core.files import File
 from telephone.models import Game, Chain, Message
+
 from .base import FunctionalTest
 
 class MakeGameTest(FunctionalTest):
@@ -18,7 +19,7 @@ class MakeGameTest(FunctionalTest):
         self.nav_to_view(name = game_name)
 
         # He sees that the game has a single chain with a single message.
-        messages = self.browser.find_elements_by_class('message')
+        messages = self.browser.find_elements_by_class_name('message')
         self.assertEquals(len(messages), 1)
 
         # On the message is a button to edit.
@@ -26,7 +27,7 @@ class MakeGameTest(FunctionalTest):
         message.find_element_by_id('id_edit').click()
 
         # He can edit the message, uploading a file and giving it a name.
-        uploaded = Path(APP_DIR, 'telephone/tests/media/test-audio.wav')
+        uploaded = Path(settings.APP_DIR, 'telephone/tests/media/test-audio.wav')
         self.browser.find_element_by_id('id_audio').send_keys(uploaded)
         self.browser.find_element_by_id('id_name').send_keys('seed-message')
         self.browser.find_element_by_id('id_submit').click()

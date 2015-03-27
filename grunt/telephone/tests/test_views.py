@@ -7,7 +7,7 @@ from django.test import TestCase, override_settings
 from unipath import Path
 from model_mommy import mommy
 
-from telephone.forms import ResponseForm
+from telephone.forms import ResponseForm, MessageForm
 from telephone.models import Game, Chain, Message
 
 TEST_MEDIA_ROOT = Path(settings.MEDIA_ROOT + '-test')
@@ -149,7 +149,21 @@ class PlayViewTest(ViewTest):
         self.assertTemplateUsed(response, 'telephone/complete.html')
 
 
-class InspectViewTest(TestCase):
+class MessageViewTest(ViewTest):
+    def test_message_view_returns_correct_form(self):
+        chain = mommy.make(Chain)
+        message = mommy.make(Message, chain = chain)
+        response = self.client.get(message.get_absolute_url())
+        self.assertIsInstance(response.context['form'], MessageForm)
+
+    def test_message_view_url(self):
+        chain = mommy.make(Chain)
+        message = mommy.make(Message, chain = chain)
+        expected_url = '/games/1/{}/{}/'.format(chain, message.pk)
+        self.assertEquals(expected_url, message.get_absolute_url())
+
+
+class InspectViewTest(ViewTest):
     def test_game_inspect_url(self):
         """ Games should return a url for viewing the clusters """
         game = mommy.make(Game)
