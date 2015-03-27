@@ -21,6 +21,11 @@ class ResponseForm(forms.ModelForm):
             'url': parent.audio.url,
         }
 
+class MessageForm(forms.ModelForm):
+    class Meta:
+        model = Message
+        fields = ('chain', 'audio')
+
 # class MessageForm(forms.ModelForm):
 #
 #     class Meta:

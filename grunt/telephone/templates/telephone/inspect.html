@@ -1,5 +1,12 @@
 {% extends "base.html" %}
 
+<!-- preparing for adding D3.js
+{% block styling %}
+    <script src="d3.v3.min.js" type="text/JavaScript"></script>
+    <script src="colorbrewer.js" type="text/JavaScript"></script>
+{% endblock styling %}
+-->
+
 {% block jumbotron %}
 
     <!-- Iterate through clusters and generations to draw all entries.
@@ -10,10 +17,25 @@
         {% for message in chain.message_set.all %}
         <div class="message">
             {{ message }}
-            <a id="id_edit" href="{{ message.get_absolute_url }}">Edit</a>
+            {% if message.audio %}
+            <audio id="id_{{ message }}" src="{{ message.audio.url }}" controls></audio>
+            {% else %}
+            <form method="post" action="{{ message.get_absolute_url }}" enctype="multipart/form-data">
+                <input id="id_{{ message }}" name="audio" type="file" />
+                <input type="submit" value="Upload" id="submit" class="btn" />
+            </form>
+            {% endif %}
+
         </div>
         {% endfor %}
     </div>
     {% endfor %}
 
 {% endblock jumbotron %}
+
+<!-- preparing for adding D3.js
+{% block javascript %}
+    <script>
+    </script>
+{% endblock javascript %}
+-->

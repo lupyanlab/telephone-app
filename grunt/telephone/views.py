@@ -111,6 +111,18 @@ class InspectView(DetailView):
     template_name = 'telephone/inspect.html'
     model = Game
 
+class MessageView(DetailView):
+    template_name = 'telephone/edit.html'
+    model = Message
+
+@require_POST
+def upload(request, pk):
+    form = MessageForm(request.POST, request.FILES)
+    if form.is_valid():
+        message = form.save()
+
+        message.replicate()
+
 @require_POST
 def accept(request, pk):
     request.session['instructed'] = True

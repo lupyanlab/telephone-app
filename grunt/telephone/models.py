@@ -138,6 +138,9 @@ class Message(models.Model):
             description = 'message-{pk}'.format(pk = self.pk)
         return description
 
+    def replicate(self):
+        return Message.objects.create(chain = self.chain, parent = self)
+
 # class Seed(models.Model):
 #     """ An Entry with no parent.
 #

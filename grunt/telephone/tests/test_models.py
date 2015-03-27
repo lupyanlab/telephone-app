@@ -117,10 +117,10 @@ class ChainTest(ModelTest):
         young_message = mommy.make(Message, generation = 4, chain = chain)
         self.assertEquals(chain.pick_next_message(), young_message)
 
+
 class MessageTest(ModelTest):
     def setUp(self):
         super(MessageTest, self).setUp()
-
         self.chain = mommy.make(Chain)
 
         # test file for models.FileField
@@ -132,6 +132,13 @@ class MessageTest(ModelTest):
         message = Message(chain = self.chain)
         message.full_clean()
         message.save()
+
+    def test_replicate(self):
+        message = mommy.make(Message)
+        child = message.replicate()
+        children = message.message_set.all()
+        self.assertEquals(len(children), 1)
+        self.assertIn(child, children)
 
 # class ChainTest(ModelTest):
 #     def setUp(self):

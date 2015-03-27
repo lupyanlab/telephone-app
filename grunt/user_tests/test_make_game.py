@@ -22,10 +22,7 @@ class MakeGameTest(FunctionalTest):
         messages = self.browser.find_elements_by_class_name('message')
         self.assertEquals(len(messages), 1)
 
-        # On the message is a button to edit.
-        message = messages[0]
-        message.find_element_by_id('id_edit').click()
-
+        # The message doesn't yet have a seed.
         # He can edit the message, uploading a file and giving it a name.
         uploaded = Path(settings.APP_DIR, 'telephone/tests/media/test-audio.wav')
         self.browser.find_element_by_id('id_audio').send_keys(uploaded)
