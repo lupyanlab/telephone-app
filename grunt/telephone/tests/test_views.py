@@ -62,7 +62,7 @@ class PlayViewTest(ViewTest):
         response = self.client.get(self.game.get_absolute_url())
         self.assertTemplateUsed(response, 'telephone/instruct.html')
 
-    def test_message_form(self):
+    def test_response_form(self):
         """ Should return a ResponseForm """
         self.make_session(self.game, instructed = True)
         response = self.client.get(self.game.get_absolute_url())
@@ -74,7 +74,6 @@ class PlayViewTest(ViewTest):
         response = self.client.get(self.game.get_absolute_url())
 
         initial = response.context['form'].initial
-        self.assertEquals(initial['chain'], self.chain.pk)
         self.assertEquals(initial['parent'], self.message.pk)
 
     def test_post_a_message(self):

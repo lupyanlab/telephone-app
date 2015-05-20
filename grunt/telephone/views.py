@@ -61,8 +61,7 @@ class PlayView(View):
         message = chain.pick_next_message()
         context_data['url'] = message.audio.url
 
-        #form = ResponseForm(data = {'parent': message.pk})
-        form = ResponseForm(instance = message)
+        form = ResponseForm(initial = {'parent': message.pk})
 
         if request.is_ajax():
             return JsonResponse(form.as_dict())
