@@ -11,7 +11,14 @@ class ModelAdminTests(TestCase):
         self.request = None
 
     def test_default_fields(self):
-       game_admin = GameAdmin(Game, self.site)
-       admin_form = game_admin.get_form(self.request)
-       admin_fields = list(admin_form.base_fields)
-       self.assertEquals(admin_fields, ['name', 'status', 'order', 'completion_code'])
+        game_admin = GameAdmin(Game, self.site)
+        admin_form = game_admin.get_form(self.request)
+        admin_fields = list(admin_form.base_fields)
+        expected_game_fields = [
+            'name',
+            'type',
+            'completion_code',
+            'chain_order',
+            'status',
+        ]
+        self.assertEquals(admin_fields, expected_game_fields)
