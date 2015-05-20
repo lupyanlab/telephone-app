@@ -79,7 +79,6 @@ class PlayViewTest(ViewTest):
     def test_post_a_message(self):
         """ Post a message """
         post = {
-            'chain': self.chain.pk,
             'parent': self.message.pk,
             'audio': self.audio
         }

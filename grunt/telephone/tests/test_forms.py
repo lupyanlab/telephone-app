@@ -34,16 +34,8 @@ class ResponseFormTest(FormTests):
 
         self.assertTrue(form.is_valid())
 
-    def test_validate_form_to_populate_chain(self):
-        form = ResponseForm(
-            data = {'parent': self.parent_message.pk},
-            files = {'audio': self.audio},
-        )
-        form.is_valid()  # full clean
-        message = form.save()
-        self.assertEquals(message.chain, self.chain)
-
     def test_save_a_valid_message(self):
+        """ Save a ResponseForm without validation """
         form = ResponseForm(
             data = {'parent': self.parent_message.pk,
                     'chain': self.chain.pk},
@@ -51,6 +43,16 @@ class ResponseFormTest(FormTests):
         )
         message = form.save()
         self.assertIn(message, self.parent_message.message_set.all())
+
+    def test_validate_form_to_populate_chain(self):
+        """ Full clean a ResponseForm and save it """
+        form = ResponseForm(
+            data = {'parent': self.parent_message.pk},
+            files = {'audio': self.audio},
+        )
+        self.assertTrue(form.is_valid())  # full clean
+        message = form.save()
+        self.assertEquals(message.chain, self.chain)
 
     def test_response_forms_require_audio(self):
         message = mommy.make(Message, parent = self.parent_message,

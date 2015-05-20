@@ -87,7 +87,6 @@ class PlayView(View):
         form = ResponseForm(data = request.POST, files = request.FILES)
 
         if form.is_valid():
-            print "form valid"
             message = form.save()
 
             receipts = request.session.get('receipts', list())
