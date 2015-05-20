@@ -4,6 +4,11 @@ from django.core.urlresolvers import reverse
 from .models import Chain, Message
 
 class ResponseForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(ResponseForm, self).__init__(*args, **kwargs)
+        self.fields['audio'].required = True
+
     class Meta:
         model = Message
         fields = ('parent', 'audio')

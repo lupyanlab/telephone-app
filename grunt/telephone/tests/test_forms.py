@@ -52,7 +52,8 @@ class ResponseFormTest(FormTests):
         message = form.save()
         self.assertIn(message, self.parent_message.message_set.all())
 
-    def test_get_a_response_form(self):
+    def test_response_forms_require_audio(self):
         message = mommy.make(Message, parent = self.parent_message,
                 chain = self.chain)
-        form = ResponseForm(instance = message)
+        form = ResponseForm(data = {'parent': message.pk})
+        self.assertFalse(form.is_valid())
