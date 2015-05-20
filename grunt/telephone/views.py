@@ -59,8 +59,9 @@ class PlayView(View):
         receipts = request.session['receipts']
         chain = self.game.pick_next_chain(receipts)
         message = chain.pick_next_message()
-        context_data['url'] = message.parent.audio.url
+        context_data['url'] = message.audio.url
 
+        #form = ResponseForm(data = {'parent': message.pk})
         form = ResponseForm(instance = message)
 
         if request.is_ajax():
