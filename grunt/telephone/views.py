@@ -50,8 +50,8 @@ class PlayView(View):
     def play(self, request):
         """ Render an entry form for a cluster not already in the session.
 
-        Raises an exception (Cluster.DoesNotExist) if there are no more
-        clusters.
+        Raises an exception (Chain.DoesNotExist) if there are no more
+        chains.
         """
         context_data = {}
         context_data['game'] = self.game
@@ -93,10 +93,7 @@ class PlayView(View):
             receipts.append(message.chain.pk)
             request.session['receipts'] = receipts
 
-            try:
-                return self.play(request)
-            except Message.DoesNotExist:
-                return self.complete(request)
+            return self.get(request, pk)
         else:
             parent = form.instance.parent
             context_data = {

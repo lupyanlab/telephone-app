@@ -15,8 +15,9 @@ TEST_MEDIA_ROOT = Path(settings.MEDIA_ROOT + '-test')
 @override_settings(MEDIA_ROOT = TEST_MEDIA_ROOT)
 class ViewTest(TestCase):
     def setUp(self):
-        fpath = Path(settings.APP_DIR, 'telephone/tests/media/test-audio.wav')
-        self.audio = File(open(fpath, 'rb'))
+        self.audio_path = Path(
+            settings.APP_DIR,
+            'telephone/tests/media/test-audio.wav')
 
     def tearDown(self):
         TEST_MEDIA_ROOT.rmtree()
@@ -54,8 +55,11 @@ class PlayViewTest(ViewTest):
         super(PlayViewTest, self).setUp()
         self.game = mommy.make(Game)
         self.chain = mommy.make(Chain, game = self.game)
-        self.message = mommy.make(Message, chain = self.chain,
-                audio = self.audio)
+
+        with open(self.audio_path, 'rb') as audio_handle:
+            audio_file = File(audio_handle)
+            self.message = mommy.make(Message, chain=self.chain,
+                                      audio=audio_file)
 
     def test_instructions_page(self):
         """ First visit should render instructions template """
@@ -78,12 +82,13 @@ class PlayViewTest(ViewTest):
 
     def test_post_a_message(self):
         """ Post a message """
-        post = {
-            'parent': self.message.pk,
-            'audio': self.audio,
-        }
         messages_before_post = Message.objects.count()
-        self.client.post(self.game.get_absolute_url(), post)
+
+        with open(self.audio_path, 'rb') as audio_handle:
+            audio_file = File(audio_handle)
+            post = {'parent': self.message.pk, 'audio': audio_file}
+            self.client.post(self.game.get_absolute_url(), post)
+
         self.assertEquals(Message.objects.count(), messages_before_post + 1)
 
     def test_post_adds_receipt_to_session(self):

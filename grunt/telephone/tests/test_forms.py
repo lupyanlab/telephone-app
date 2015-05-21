@@ -50,6 +50,7 @@ class ResponseFormTest(FormTests):
             data = {'parent': self.parent_message.pk},
             files = {'audio': self.audio},
         )
+
         self.assertTrue(form.is_valid())  # full clean
         message = form.save()
         self.assertEquals(message.chain, self.chain)
