@@ -58,8 +58,16 @@ class PlayViewTest(ViewTest):
 
         with open(self.audio_path, 'rb') as audio_handle:
             audio_file = File(audio_handle)
-            self.message = mommy.make(Message, chain=self.chain,
-                                      audio=audio_file)
+            self.message = mommy.make(Message, chain = self.chain,
+                                      audio = audio_file)
+
+    def post_response(self):
+        with open(self.audio_path, 'rb') as audio_handle:
+            audio_file = File(audio_handle)
+            post_url = self.game.get_absolute_url()
+            post_data = {'parent': self.message.pk, 'audio': audio_file}
+            response = self.client.post(post_url, post_data)
+        return response
 
     def test_instructions_page(self):
         """ First visit should render instructions template """
@@ -83,31 +91,17 @@ class PlayViewTest(ViewTest):
     def test_post_a_message(self):
         """ Post a message """
         messages_before_post = Message.objects.count()
-
-        with open(self.audio_path, 'rb') as audio_handle:
-            audio_file = File(audio_handle)
-            post = {'parent': self.message.pk, 'audio': audio_file}
-            self.client.post(self.game.get_absolute_url(), post)
-
+        self.post_response()
         self.assertEquals(Message.objects.count(), messages_before_post + 1)
 
     def test_post_adds_receipt_to_session(self):
         """ Posting an entry adds a receipt to the session """
-        post = {
-            'chain': self.chain.pk,
-            'parent': self.message.pk,
-            'audio': self.audio
-        }
-        response = self.client.post(self.game.get_absolute_url(), post)
+        self.post_response()
         self.assertIn(self.chain.pk, self.client.session['receipts'])
 
     def test_post_redirects_to_complete(self):
         """ Posting an entry should redirect to the completion page """
-        post = {
-            'parent': self.message.pk,
-            'audio': self.audio
-        }
-        response = self.client.post(self.game.get_absolute_url(), post)
+        response = self.post_response()
         self.assertTemplateUsed(response, 'telephone/complete.html')
 
     def test_invalid_post(self):
