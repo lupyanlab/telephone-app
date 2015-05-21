@@ -80,7 +80,7 @@ class PlayViewTest(ViewTest):
         """ Post a message """
         post = {
             'parent': self.message.pk,
-            'audio': self.audio
+            'audio': self.audio,
         }
         messages_before_post = Message.objects.count()
         self.client.post(self.game.get_absolute_url(), post)

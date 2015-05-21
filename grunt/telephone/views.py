@@ -98,7 +98,13 @@ class PlayView(View):
             except Message.DoesNotExist:
                 return self.complete(request)
         else:
-            return render(request, 'telephone/play.html', {'form': form})
+            parent = form.instance.parent
+            context_data = {
+                'game': self.game,
+                'url': parent.audio.url,
+                'form': form
+            }
+            return render(request, 'telephone/play.html', context_data)
 
     def complete(self, request):
         if request.is_ajax():
