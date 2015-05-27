@@ -11,6 +11,18 @@ class MakeGameTest(FunctionalTest):
         chain = Chain.objects.create(game = game) # will use defaults
         Message.objects.create(chain = chain)     # ready for upload
 
+    def test_make_new_game_via_form(self):
+        """ Simulate a user making a new game """
+        self.nav_to_games_list()
+
+        # Marcus sees a single button to create a new game.
+        games_list = self.browser.find_element_by_id('id_game_list')
+        games = games_list.find_elements_by_tag_name('li')
+        self.assertEqual(len(games), 1)
+        new_game_item = games[0]
+
+        self.fail('Finish the test!')
+
     def test_upload_seed(self):
         game_name = 'Empty Game'
         self.create_game(name = game_name)
