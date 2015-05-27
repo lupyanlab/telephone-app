@@ -5,6 +5,11 @@
     {{ block.super }}
 
     <ul id="id_game_list" class="list-group" style="text-align: right;">
+        <li class="list-group-item">
+            <a class="btn btn-default new" style="text-align: left;" aria-label="Left Align" href="">
+                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> New Game
+            </a>
+        </li>
         {% for game in game_list %}
         <li class="list-group-item">
             <h2>{{ game }}
@@ -17,8 +22,6 @@
                 </a>
             </h2>
         </li>
-        {% empty %}
-        <li class="list-group-item">No games have been created.</li>
         {% endfor %}
     </ul>
 
