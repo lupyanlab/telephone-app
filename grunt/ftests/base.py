@@ -56,16 +56,18 @@ class FunctionalTest(LiveServerTestCase):
     def accept_instructions(self):
         self.browser.find_element_by_id('accept').click()
 
-    def nav_to_play(self, name = None):
+    def nav_to_games_list(self):
         self.browser.get(self.live_server_url)
         self.click_on_telephone_game()
+
+    def nav_to_play(self, name = None):
+        self.nav_to_games_list()
         self.click_on_first_game()
         self.accept_instructions()
         return self.browser.current_url
 
     def nav_to_view(self, name = None):
-        self.browser.get(self.live_server_url)
-        self.click_on_telephone_game()
+        self.nav_to_games_list()
         self.click_on_first_game(role = 'inspect')
 
     def simulate_sharing_mic(self):
