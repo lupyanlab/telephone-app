@@ -4,7 +4,7 @@ from django.core.urlresolvers import reverse
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
-from django.views.generic import View, ListView, DetailView
+from django.views.generic import View, ListView, FormView, DetailView
 
 from .models import Game, Chain, Message
 from .forms import ResponseForm
@@ -16,6 +16,9 @@ class GamesView(ListView):
     def get_queryset(self):
         """ Only show active games """
         return self.model._default_manager.filter(status = 'ACTIV')
+
+class NewGameView(FormView):
+    pass
 
 class PlayView(View):
     def get(self, request, pk):
