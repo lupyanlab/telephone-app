@@ -44,7 +44,8 @@ class MakeGameTest(FunctionalTest):
         self.create_game(name = game_name)
 
         # Marcus clicks through from the homepage to the inspect view.
-        self.nav_to_view(name = game_name)
+        self.nav_to_games_list()
+        self.inspect_game(game_name)
 
         # He sees that the game has a single chain with a single message.
         messages = self.browser.find_elements_by_class_name('message')

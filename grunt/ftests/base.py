@@ -60,6 +60,23 @@ class FunctionalTest(LiveServerTestCase):
         self.browser.get(self.live_server_url)
         self.click_on_telephone_game()
 
+    def inspect_game(self, name):
+        game_list = self.browser.find_element_by_id('id_game_list')
+
+        # ignore the new game list item
+        existing_games = game_list.find_elements_by_class_name('existing-game')
+
+        get_game_name = lambda g: g.find_element_by_tag_name('h2').text
+        matched_games = filter(lambda g: get_game_name(g) == name, existing_games)
+
+        assert matched_games, \
+            'No games with name {} were found'.format(name)
+        assert len(matched_games) == 1, \
+            '{} matched more than 1 game'.format(name)
+
+        match = matched_games[0]
+        match.find_element_by_class_name('inspect').click()
+
     def nav_to_play(self, name = None):
         self.nav_to_games_list()
         self.click_on_first_game()

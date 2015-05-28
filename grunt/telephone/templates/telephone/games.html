@@ -5,13 +5,13 @@
     {{ block.super }}
 
     <ul id="id_game_list" class="list-group" style="text-align: center;">
-        <li class="list-group-item">
+        <li class="list-group-item new-game">
             <a class="btn btn-default new" aria-label="Left Align" href="{% url 'new_game' %}">
                 <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> New Game
             </a>
         </li>
         {% for game in game_list %}
-        <li class="list-group-item">
+        <li class="list-group-item existing-game">
 
             <h2> {{ game }} </h2>
 
