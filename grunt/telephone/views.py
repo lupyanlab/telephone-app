@@ -20,7 +20,7 @@ class GamesView(ListView):
 class NewGameView(FormView):
     template_name = 'telephone/new-game.html'
     form_class = NewGameForm
-    #success_url = reverse('games')
+    success_url = '/games/'
 
 class PlayView(View):
     def get(self, request, pk):

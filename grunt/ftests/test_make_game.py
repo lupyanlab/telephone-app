@@ -1,6 +1,8 @@
 from unipath import Path
+
 from django.conf import settings
 from django.core.files import File
+
 from telephone.models import Game, Chain, Message
 
 from .base import FunctionalTest

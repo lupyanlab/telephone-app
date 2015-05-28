@@ -4,4 +4,10 @@
 
     {{ block.super }}
 
+    <form action="{% url 'new_game' %}" method="post">
+      {% csrf_token %}
+      {{ form }}
+      <input id="id_submit" type="submit" value="Create New Game" />
+    </form>
+
 {% endblock jumbotron %}
