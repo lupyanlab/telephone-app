@@ -7,7 +7,7 @@ from django.test import TestCase, override_settings
 from unipath import Path
 from model_mommy import mommy
 
-from telephone.forms import ResponseForm, MessageForm
+from telephone.forms import NewGameForm, ResponseForm, MessageForm
 from telephone.models import Game, Chain, Message
 
 TEST_MEDIA_ROOT = Path(settings.MEDIA_ROOT + '-test')
@@ -159,6 +159,14 @@ class MessageViewTest(ViewTest):
         expected_url = '/games/1/{}/{}/'.format(chain, message.pk)
         self.assertEquals(expected_url, message.get_absolute_url())
 
+
+class NewGameViewTest(ViewTest):
+    def test_new_game_page_renders_new_game_form(self):
+        """ Simple, standalone page to make a new game """
+        new_game_page_url = reverse('new_game')
+        response = self.client.get(new_game_page_url)
+        form_in_response = response.context['form']
+        self.assertIsInstance(form_in_response, NewGameForm)
 
 class InspectViewTest(ViewTest):
     def test_game_inspect_url(self):
