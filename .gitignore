@@ -2,8 +2,8 @@
 .vagrant
 vagrant_ansible_inventory_default
 *.sqlite3
-media/
 local_settings.py
+/media/
 /static/
 *.swp
 ansible/env_vars/secrets.yml
