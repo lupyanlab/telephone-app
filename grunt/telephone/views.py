@@ -22,6 +22,10 @@ class NewGameView(FormView):
     form_class = NewGameForm
     success_url = '/games/'
 
+    def form_valid(self, form):
+        form.save()
+        return super(NewGameView, self).form_valid(form)
+
 class PlayView(View):
     def get(self, request, pk):
         """ Determine what to do when a user requests the game page.

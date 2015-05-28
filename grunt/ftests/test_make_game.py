@@ -36,9 +36,8 @@ class MakeGameTest(FunctionalTest):
         games = games_list.find_elements_by_tag_name('li')
         self.assertEquals(len(games), 2)
         my_new_game = games[1]
-        my_new_game_name = my_new_game.find_element_by_tag('h2').text
-        self.assertEquals(my_new_game_name, new_game_name,
-                          'Name on form not in games list')
+        my_new_game_name = my_new_game.find_element_by_tag_name('h2').text
+        self.assertEquals(my_new_game_name, new_game_name)
 
     def test_upload_seed(self):
         game_name = 'Empty Game'
