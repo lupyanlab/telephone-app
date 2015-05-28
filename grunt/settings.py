@@ -14,7 +14,8 @@ from unipath import Path
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
 
-from local_settings import _LOCATION, _DATABASE
+_LOCATION = 'local'
+_DATABASE = 'sqlite'
 
 if _LOCATION == 'local':
     DEBUG = True
