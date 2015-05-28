@@ -6,13 +6,13 @@ from django.test import TestCase, override_settings
 from model_mommy import mommy
 from unipath import Path
 
-from telephone.forms import ResponseForm
+from telephone.forms import NewGameForm, ResponseForm
 from telephone.models import Game, Chain, Message
 
 TEST_MEDIA_ROOT = Path(settings.MEDIA_ROOT + '-test')
 
 @override_settings(MEDIA_ROOT = TEST_MEDIA_ROOT)
-class FormTests(TestCase):
+class FormTest(TestCase):
     def setUp(self):
         fpath = Path(settings.APP_DIR, 'telephone/tests/media/test-audio.wav')
         self.audio = File(open(fpath, 'rb'))
@@ -24,7 +24,23 @@ class FormTests(TestCase):
     def tearDown(self):
         TEST_MEDIA_ROOT.rmtree()
 
-class ResponseFormTest(FormTests):
+
+class NewGameFormTest(FormTest):
+    def test_make_a_valid_game(self):
+        """ Simulate making a new game in the browser """
+        form = NewGameForm({'name': 'Valid Game Name'})
+        self.assertTrue(form.is_valid())
+
+    def test_valid_form_saves_new_game(self):
+        """ Ensure that saving a form creates a new game """
+        new_game_name = 'My Real Game'
+        form = NewGameForm({'name': new_game_name})
+        form.save()
+        last_saved_game = Game.objects.last()
+        self.assertEquals(last_saved_game.name, new_game_name)
+
+
+class ResponseFormTest(FormTest):
     def test_make_a_valid_message(self):
         """ Simulate making an message from a POST """
         form = ResponseForm(
