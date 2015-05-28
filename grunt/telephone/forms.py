@@ -1,7 +1,13 @@
 from django import forms
 from django.core.urlresolvers import reverse
 
-from .models import Chain, Message
+from .models import Game, Chain, Message
+
+class NewGameForm(forms.ModelForm):
+    pass
+    # class Meta:
+    #     model = Game
+    #     fields = ('name', )
 
 class ResponseForm(forms.ModelForm):
 

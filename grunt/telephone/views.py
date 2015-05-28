@@ -7,7 +7,7 @@ from django.views.decorators.http import require_POST
 from django.views.generic import View, ListView, FormView, DetailView
 
 from .models import Game, Chain, Message
-from .forms import ResponseForm
+from .forms import NewGameForm, ResponseForm
 
 class GamesView(ListView):
     template_name = 'telephone/games.html'
@@ -18,7 +18,9 @@ class GamesView(ListView):
         return self.model._default_manager.filter(status = 'ACTIV')
 
 class NewGameView(FormView):
-    pass
+    template_name = 'telephone/new-game.html'
+    form_class = NewGameForm
+    #success_url = reverse('games')
 
 class PlayView(View):
     def get(self, request, pk):
