@@ -99,7 +99,7 @@ class FunctionalTest(LiveServerTestCase):
         self.browser.execute_script('$( "#submit" ).prop("disabled", false);')
         self.browser.execute_script('audioRecorder = false;')
 
-    def wait_for(self, tag = None, id = None, text = None, timeout = 10):
+    def wait_for(self, tag = None, id = None, timeout = 10):
         locator = (By.TAG_NAME, tag) if tag else (By.ID, id)
 
         if text:
