@@ -1,41 +1,112 @@
 {% extends "base.html" %}
 
-<!-- preparing for adding D3.js
 {% block styling %}
-    <script src="d3.v3.min.js" type="text/JavaScript"></script>
-    <script src="colorbrewer.js" type="text/JavaScript"></script>
+    <script src="{% static 'd3/d3.v3.min.js' %}" type="text/JavaScript"></script>
+    <script src="{% static 'd3/colorbrewer.js' %}" type="text/JavaScript"></script>
+    <style>
+        svg {
+            height: 800px;
+            width: 600px;
+            border: 1px solid gray;
+        }
+    </style>
 {% endblock styling %}
--->
 
 {% block jumbotron %}
-
-    <!-- Iterate through clusters and generations to draw all entries.
-         Clusters are vertically separated on the page.
-         Generations are rows. -->
-    {% for chain in game.chain_set.all %}
-    <div>
-        {% for message in chain.message_set.all %}
-        <div class="message">
-            {{ message }}
-            {% if message.audio %}
-            <audio id="id_{{ message }}" src="{{ message.audio.url }}" controls></audio>
-            {% else %}
-            <form method="post" action="{{ message.get_absolute_url }}" enctype="multipart/form-data">
-                <input id="id_{{ message }}" name="audio" type="file" />
-                <input type="submit" value="Upload" id="submit" class="btn" />
-            </form>
-            {% endif %}
-
-        </div>
-        {% endfor %}
+    <div id="viz">
+        <svg>
+        </svg>
     </div>
-    {% endfor %}
-
 {% endblock jumbotron %}
 
-<!-- preparing for adding D3.js
 {% block javascript %}
     <script>
+d3.json("messages-3.json", function(data) { dataViz(data.messages); });
+
+function tree(nodes) {
+  var nodeById = {};
+
+  // Index the nodes by id, in case they come out of order.
+  nodes.forEach(function(d) {
+    nodeById[d.name] = d;
+  });
+
+  // Lazily compute children.
+  nodes.forEach(function(d) {
+    if ("parent" in d) {
+      var parent = nodeById[d.parent];
+      if (parent.children) parent.children.push(d);
+      else parent.children = [d];
+    }
+  });
+
+  return nodes[0];
+}
+
+function dataViz(incData) {
+    console.log(incData);
+
+    // nestedMessages = d3.nest()
+    //   .key(function (el) { return el.id })
+    //   .entries(incData);
+    //
+    // packableMessages = {id: "cluster1", values: nestedMessages}
+
+    nestedMessages = tree(incData);
+
+    var generationScale = d3.scale.category10([1,2,3,4]);
+
+    treeChart = d3.layout.tree();
+    treeChart.size([500, 500])
+        .children(function(d) { return d.children });
+
+    var bumpDown = 40;
+
+    var linkGenerator = d3.svg.diagonal();
+    linkGenerator
+        .projection(function (d) {return [d.x, d.y+bumpDown]})
+
+    d3.select("svg")
+        .append("g")
+        .attr("class", "treeG")
+        .selectAll("g")
+        .data(treeChart(nestedMessages))
+        .enter()
+        .append("g")
+        .attr("class", "node")
+        .attr("transform", function(d) {return "translate(" +d.x+","+(d.y+bumpDown)+")"});
+
+    d3.selectAll("g.node")
+        .append("circle")
+        .attr("r", 10)
+        .style("fill", function(d) {
+            if (d.children) {
+                return generationScale(d.generation)
+            } else {
+                return "white"
+            }
+        })
+        .style("stroke", function(d) {
+            if (d.children) {
+                return "white"
+            } else {
+                return generationScale(d.generation)
+            }
+        })
+        .style("stroke-width", "2px");
+
+    d3.selectAll("g.node")
+        .append("text")
+        .text(function(d) { return d.name })
+
+    d3.select("g.treeG").selectAll("path")
+        .data(treeChart.links(treeChart(nestedMessages)))
+        .enter().insert("path","g")
+        .attr("d", linkGenerator)
+        .style("fill", "none")
+        .style("stroke", "black")
+        .style("stroke-width", "2px");
+}
+
     </script>
 {% endblock javascript %}
--->

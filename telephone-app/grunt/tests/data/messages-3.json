@@ -1,0 +1,13 @@
+{
+    "messages": [
+        {"name": "seed-message", "generation": 0},
+        {"name": "seed-message-1", "parent": "seed-message", "generation": 1},
+        {"name": "seed-message-2", "parent": "seed-message", "generation": 1},
+        {"name": "message1", "parent": "seed-message-1", "generation": 2},
+        {"name": "message2", "parent": "seed-message-1", "generation": 2},
+        {"name": "message3", "parent": "seed-message-1", "generation": 2},
+        {"name": "message4", "parent": "message1", "generation": 3},
+        {"name": "message5", "parent": "message2", "generation": 3},
+        {"name": "message6", "parent": "message4", "generation": 4}
+    ]
+}
