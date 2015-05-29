@@ -94,7 +94,7 @@ class FunctionalTest(LiveServerTestCase):
         browser = browser or self.browser
         # Unhide the file input and give it the path to a file
         self.browser.execute_script('$( "#id_content" ).attr("type", "file");')
-        fpath = Path(settings.APP_DIR, 'telephone/tests/media/test-audio.wav')
+        fpath = Path(settings.APP_DIR, 'grunt/tests/media/test-audio.wav')
         content = self.browser.find_element_by_id('id_content').send_keys(fpath)
         self.browser.execute_script('$( "#submit" ).prop("disabled", false);')
         self.browser.execute_script('audioRecorder = false;')
