@@ -3,7 +3,7 @@ from unipath import Path
 from django.conf import settings
 from django.core.files import File
 
-from telephone.models import Game, Chain, Message
+from grunt.models import Game, Chain, Message
 
 from .base import FunctionalTest
 
@@ -65,7 +65,7 @@ class MakeGameTest(FunctionalTest):
 
         # He uploads a seed file
         upload_form = self.browser.find_element_by_tag_name('form')
-        local_audio_file = Path(settings.APP_DIR, 'telephone/tests/media/test-audio.wav')
+        local_audio_file = Path(settings.APP_DIR, 'grunt/tests/media/test-audio.wav')
         upload_form.find_element_by_id('id_audio').send_keys(local_audio_file)
         upload_form.submit()
         self.wait_for(tag = 'svg')

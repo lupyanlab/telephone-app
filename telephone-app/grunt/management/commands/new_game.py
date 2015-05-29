@@ -4,7 +4,7 @@ from django.conf import settings
 from django.core.files import File
 from django.core.management.base import BaseCommand, CommandError
 
-from telephone.models import Game, Chain
+from grunt.models import Game, Chain
 
 class Command(BaseCommand):
     option_list = BaseCommand.option_list + (

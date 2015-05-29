@@ -2,8 +2,8 @@
 from django.contrib.admin.sites import AdminSite
 from django.test import TestCase, override_settings
 
-from telephone.admin import GameAdmin
-from telephone.models import Game
+from grunt.admin import GameAdmin
+from grunt.models import Game
 
 class ModelAdminTests(TestCase):
     def setUp(self):

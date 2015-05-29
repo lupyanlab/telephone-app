@@ -29,7 +29,7 @@ class FunctionalTest(LiveServerTestCase):
     # def create_game(self, name = None, code = None,
     #                 seeds = ['bark', ], nchain = 1):
     #     """ Poplulate the database with a game to test interactions """
-    #     from telephone.management.commands.create_game import create_game
+    #     from grunt.management.commands.create_game import create_game
     #     create_game(name = name, code = code, seeds = seeds, nchain = nchain)
     #
     def new_user(self):
