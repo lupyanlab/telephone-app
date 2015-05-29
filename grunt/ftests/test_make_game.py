@@ -41,6 +41,8 @@ class MakeGameTest(FunctionalTest):
 
     def test_upload_seed(self):
         game_name = 'Empty Game'
+
+        # Simulate creating a game
         self.create_game(name = game_name)
 
         # Marcus clicks through from the homepage to the inspect view.
@@ -48,17 +50,37 @@ class MakeGameTest(FunctionalTest):
         self.inspect_game(game_name)
 
         # He sees that the game has a single chain with a single message.
-        messages = self.browser.find_elements_by_class_name('message')
+        svg = self.browser.find_element_by_tag_name('svg')
+        messages = svg.find_elements_by_tag_name('g')
         self.assertEquals(len(messages), 1)
 
         # The message doesn't yet have a seed.
-        # He can edit the message, uploading a file and giving it a name.
-        uploaded = Path(settings.APP_DIR, 'telephone/tests/media/test-audio.wav')
-        self.browser.find_element_by_id('id_audio').send_keys(uploaded)
-        self.browser.find_element_by_id('id_name').send_keys('seed-message')
-        self.browser.find_element_by_id('id_submit').click()
+        empty_message = messages[0]
+        empty_message_text_element = empty_message.find_element_by_tag_name('text')
+        self.assertEquals(empty_message_text_element.text, 'empty')
 
-        # He sees that the sound is now visible on the inspect page
-        audio_element = message.find_element_by_tag_name('audio')
-        playable_file = audio_element.get_attribute('src')
-        self.assertRegexpMatches(playable_file, 'seed-message-0.wav')
+        # He clicks the message text to trigger an upload form
+        empty_message_text_element.click()
+        self.wait_for(tag = 'form')
+
+        # He uploads a seed file
+        upload_form = self.browser.find_element_by_tag_name('form')
+        local_audio_file = Path(settings.APP_DIR, 'telephone/tests/media/test-audio.wav')
+        upload_form.find_element_by_id('id_audio').send_keys(local_audio_file)
+        upload_form.submit()
+        self.wait_for(tag = 'svg')
+
+        # He sees that two sounds are now visible on the inspect page
+        svg = self.browser.find_element_by_tag_name('svg')
+        messages = svg.find_elements_by_tag_name('g')
+        self.assertEquals(len(messages), 2)
+
+        # The first message now has name
+        first_message = messages[0]
+        first_message_text_element = first_message.find_element_by_tag_name('text')
+        self.assertEquals(first_message_text_element.text, 'message 1')
+
+        # The second message is empty
+        second_message = messages[0]
+        second_message_text_element = second_message.find_element_by_tag_name('text')
+        self.assertEquals(second_message_text_element.text, 'empty')
