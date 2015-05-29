@@ -10,7 +10,7 @@ from .models import Game, Chain, Message
 from .forms import NewGameForm, ResponseForm
 
 class GamesView(ListView):
-    template_name = 'telephone/games.html'
+    template_name = 'grunt/games.html'
     model = Game
 
     def get_queryset(self):
@@ -18,7 +18,7 @@ class GamesView(ListView):
         return self.model._default_manager.filter(status = 'ACTIV')
 
 class NewGameView(FormView):
-    template_name = 'telephone/new-game.html'
+    template_name = 'grunt/new-game.html'
     form_class = NewGameForm
     success_url = '/games/'
 
@@ -54,7 +54,7 @@ class PlayView(View):
 
     def instruct(self, request):
         """ Render the instructions for the telephone game """
-        return render(request, 'telephone/instruct.html', {'game': self.game})
+        return render(request, 'grunt/instruct.html', {'game': self.game})
 
     def play(self, request):
         """ Render an entry form for a cluster not already in the session.
@@ -76,7 +76,7 @@ class PlayView(View):
             return JsonResponse(form.as_dict())
 
         context_data['form'] = form
-        return render(request, 'telephone/play.html', context_data)
+        return render(request, 'grunt/play.html', context_data)
 
     def post(self, request, pk):
         """ Determine what to do with an entry.
@@ -110,20 +110,20 @@ class PlayView(View):
                 'url': parent.audio.url,
                 'form': form
             }
-            return render(request, 'telephone/play.html', context_data)
+            return render(request, 'grunt/play.html', context_data)
 
     def complete(self, request):
         if request.is_ajax():
             return JsonResponse({'complete': self.game.get_absolute_url()})
 
-        return render(request, 'telephone/complete.html', {'game': self.game})
+        return render(request, 'grunt/complete.html', {'game': self.game})
 
 class InspectView(DetailView):
-    template_name = 'telephone/inspect.html'
+    template_name = 'grunt/inspect.html'
     model = Game
 
 class MessageView(DetailView):
-    template_name = 'telephone/edit.html'
+    template_name = 'grunt/edit.html'
     model = Message
 
 @require_POST

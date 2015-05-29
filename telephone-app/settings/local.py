@@ -30,12 +30,12 @@ elif _LOCATION == 'dev':
 SECRET_KEY = 'v**w_+36aa+cd%#8%07a59b3&x#k9b%0id+ffr7e3c#8h24%mr'
 
 # Application definition
-BASE_DIR = Path(__file__).ancestor(2)
-APP_DIR = Path(BASE_DIR, 'grunt')
+BASE_DIR = Path(__file__).ancestor(3)
+APP_DIR = Path(BASE_DIR, 'telephone-app')
 
 TEMPLATE_DIRS = (
-    Path(APP_DIR, 'templates'),
     Path(APP_DIR, 'telephone/templates'),
+    Path(APP_DIR, 'grunt/templates'),
 )
 
 INSTALLED_APPS = (
@@ -47,7 +47,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
 
     # Local apps
-    'telephone',
+    'grunt',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -60,9 +60,9 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'urls'
+ROOT_URLCONF = 'telephone.urls'
 
-WSGI_APPLICATION = 'wsgi.application'
+WSGI_APPLICATION = 'telephone.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
@@ -70,13 +70,13 @@ WSGI_APPLICATION = 'wsgi.application'
 DATABASE_OPTIONS = {
     'sqlite': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'grunt.sqlite3',
+        'NAME': Path(BASE_DIR, 'db/db.sqlite3'),
      },
     'postgres': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'grunt',
-        'USER': 'grunt',
-        'PASSWORD': 'password',
+        'NAME': 'telephone',
+        'USER': 'telephone',
+        'PASSWORD': 'telephonepass',
         'HOST': environ.get('POSTGRESQL_HOST', 'localhost'),
         'PORT': '',
     },
@@ -104,16 +104,16 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-STATIC_ROOT = Path(BASE_DIR, 'static')  # will likely vary
+STATIC_ROOT = Path(BASE_DIR, 'static')
 
 STATICFILES_DIRS = (
-    Path(APP_DIR, 'static'),
-    Path(APP_DIR, 'telephone', 'static'),
+    Path(APP_DIR, 'telephone/static'),
+    Path(APP_DIR, 'grunt/static'),
 )
 
 MEDIA_URL = '/media/'
 
-MEDIA_ROOT = Path(BASE_DIR, 'media')  # will likely vary
+MEDIA_ROOT = Path(BASE_DIR, 'media')
 
 # Logging
 # https://docs.djangoproject.com/en/1.7/topics/logging/

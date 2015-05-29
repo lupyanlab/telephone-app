@@ -6,15 +6,15 @@ from django.test import TestCase, override_settings
 from model_mommy import mommy
 from unipath import Path
 
-from telephone.forms import NewGameForm, ResponseForm
-from telephone.models import Game, Chain, Message
+from grunt.forms import NewGameForm, ResponseForm
+from grunt.models import Game, Chain, Message
 
 TEST_MEDIA_ROOT = Path(settings.MEDIA_ROOT + '-test')
 
 @override_settings(MEDIA_ROOT = TEST_MEDIA_ROOT)
 class FormTest(TestCase):
     def setUp(self):
-        fpath = Path(settings.APP_DIR, 'telephone/tests/media/test-audio.wav')
+        fpath = Path(settings.APP_DIR, 'grunt/tests/media/test-audio.wav')
         self.audio = File(open(fpath, 'rb'))
 
         self.chain = mommy.make(Chain)

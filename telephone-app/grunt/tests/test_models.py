@@ -8,7 +8,7 @@ from django.test import TestCase, override_settings
 from model_mommy import mommy
 from unipath import Path
 
-from telephone.models import Game, Chain, Message
+from grunt.models import Game, Chain, Message
 
 TEST_MEDIA_ROOT = Path(settings.MEDIA_ROOT + '-test')
 
@@ -124,7 +124,7 @@ class MessageTest(ModelTest):
         self.chain = mommy.make(Chain)
 
         # test file for models.FileField
-        fpath = Path(settings.APP_DIR, 'telephone/tests/media/test-audio.wav')
+        fpath = Path(settings.APP_DIR, 'grunt/tests/media/test-audio.wav')
         self.audio = File(open(fpath, 'rb'))
 
     def test_make_a_message(self):
@@ -232,7 +232,7 @@ class MessageTest(ModelTest):
 # class SeedTest(ModelTest):
 #     def setUp(self):
 #         super(SeedTest, self).setUp()
-#         fpath = Path(settings.APP_DIR, 'telephone/tests/media/test-audio.wav')
+#         fpath = Path(settings.APP_DIR, 'grunt/tests/media/test-audio.wav')
 #         self.audio = File(open(fpath, 'rb'))
 #
 #     def test_make_a_seed(self):
@@ -348,7 +348,7 @@ class MessageTest(ModelTest):
 #         super(EntryTests, self).setUp()
 #         self.chain = mommy.make(Chain)
 #
-#         fpath = Path(settings.APP_DIR, 'telephone/tests/media/test-audio.wav')
+#         fpath = Path(settings.APP_DIR, 'grunt/tests/media/test-audio.wav')
 #         self.audio = File(open(fpath, 'rb'))
 #
 #     def make_entry(self, save = True):
