@@ -1,0 +1,8 @@
+---
+
+git_repo: https://github.com/pedmiston/evo-apps.git
+
+project_name: evo-apps
+application_name: grunt
+
+ssl_dest_dir: /etc/ssl
