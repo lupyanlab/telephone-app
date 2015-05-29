@@ -1,9 +1,14 @@
 *.pyc
+
+*.sqlite3
+
+# The following directories should only
+# contain reproducible content
+/media/
+/static/
+
 .vagrant
 vagrant_ansible_inventory_default
-*.sqlite3
-media/
-local_settings.py
-/static/
-*.swp
 ansible/env_vars/secrets.yml
+
+*.swp
