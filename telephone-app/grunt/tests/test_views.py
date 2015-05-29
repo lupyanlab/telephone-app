@@ -7,8 +7,8 @@ from django.test import TestCase, override_settings
 from unipath import Path
 from model_mommy import mommy
 
-from telephone.forms import NewGameForm, ResponseForm, MessageForm
-from telephone.models import Game, Chain, Message
+from grunt.forms import NewGameForm, ResponseForm, MessageForm
+from grunt.models import Game, Chain, Message
 
 TEST_MEDIA_ROOT = Path(settings.MEDIA_ROOT + '-test')
 
@@ -17,7 +17,7 @@ class ViewTest(TestCase):
     def setUp(self):
         self.audio_path = Path(
             settings.APP_DIR,
-            'telephone/tests/media/test-audio.wav')
+            'grunt/tests/media/test-audio.wav')
 
     def tearDown(self):
         TEST_MEDIA_ROOT.rmtree()
@@ -34,7 +34,7 @@ class GamesViewTest(ViewTest):
     """ Show all available games """
     def test_game_list_view_renderes_game_list_template(self):
         response = self.client.get(reverse('games'))
-        self.assertTemplateUsed(response, 'telephone/games.html')
+        self.assertTemplateUsed(response, 'grunt/games.html')
 
     def test_games_show_up_on_home_page(self):
         """ Games should be listed on the home page """
@@ -72,7 +72,7 @@ class PlayViewTest(ViewTest):
     def test_instructions_page(self):
         """ First visit should render instructions template """
         response = self.client.get(self.game.get_absolute_url())
-        self.assertTemplateUsed(response, 'telephone/instruct.html')
+        self.assertTemplateUsed(response, 'grunt/instruct.html')
 
     def test_response_form(self):
         """ Should return a ResponseForm """
@@ -102,7 +102,7 @@ class PlayViewTest(ViewTest):
     def test_post_redirects_to_complete(self):
         """ Posting an entry should redirect to the completion page """
         response = self.post_response()
-        self.assertTemplateUsed(response, 'telephone/complete.html')
+        self.assertTemplateUsed(response, 'grunt/complete.html')
 
     def test_invalid_post(self):
         """ Post an entry without a recording """
@@ -143,7 +143,7 @@ class PlayViewTest(ViewTest):
                 receipts = [self.chain.pk, ])
 
         response = self.client.get(self.game.get_absolute_url())
-        self.assertTemplateUsed(response, 'telephone/complete.html')
+        self.assertTemplateUsed(response, 'grunt/complete.html')
 
 
 class MessageViewTest(ViewTest):
@@ -179,4 +179,4 @@ class InspectViewTest(ViewTest):
         """ Inspecting a game uses the inspect.html template """
         game = mommy.make(Game)
         response = self.client.get(game.get_inspect_url())
-        self.assertTemplateUsed(response, 'telephone/inspect.html')
+        self.assertTemplateUsed(response, 'grunt/inspect.html')

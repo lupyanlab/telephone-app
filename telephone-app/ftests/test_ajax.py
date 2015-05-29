@@ -12,7 +12,7 @@ class AjaxTest(FunctionalTest):
             '$( "<input>", {id: "tmpInput", type: "file"}).appendTo("body");'
         )
 
-        fpath = Path(settings.APP_DIR, 'telephone/tests/media/test-audio.wav')
+        fpath = Path(settings.APP_DIR, 'grunt/tests/media/test-audio.wav')
         browser.find_element_by_id('tmpInput').send_keys(fpath)
 
         browser.execute_script('''
