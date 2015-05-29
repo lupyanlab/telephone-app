@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, url
 
 from .views import GamesView, NewGameView, PlayView, InspectView
-from .views import accept, clear
+from .views import get_messages, accept, clear
 
 urlpatterns = patterns('',
     url(
@@ -23,6 +23,11 @@ urlpatterns = patterns('',
         r'^(?P<pk>\d+)/inspect/$',
         InspectView.as_view(),
         name = 'inspect',
+    ),
+    url(
+        r'^(?P<pk>\d+)/messages$',
+        get_messages,
+        name = 'messages',
     ),
     url(r'^(?P<pk>\d+)/accept$', accept, name = 'accept'),
     url(r'^(?P<pk>\d+)/clear$', clear, name = 'clear'),

@@ -110,6 +110,9 @@ class Chain(models.Model):
 
         return messages[0]
 
+    def get_messages_url(self):
+        return reverse('messages', kwargs = {'pk': self.game.pk})
+
     def dirname(self):
         """ The name of the directory to hold all of this chain's messages """
         return 'chain-{pk}'.format(pk = self.pk)
