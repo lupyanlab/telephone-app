@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block styling %}
-    <link href="{% static "telephone/css/recorder.css" %}" rel="stylesheet" type="text/css">
+    <link href="{% static "grunt/css/recorder.css" %}" rel="stylesheet" type="text/css">
 {% endblock styling %}
 
 {% block header %}
@@ -56,14 +56,14 @@
 {% endblock footer %}
 
 {% block javascript %}
-    <script type="text/javascript" src="{% static "telephone/js/recorderjs/recorder.js" %}"></script>
-    <script type="text/javascript" src="{% static "telephone/js/audiorecorder.js" %}"></script>
-    <script type="text/javascript" src="{% static "telephone/js/ajax.js" %}"></script>
+    <script type="text/javascript" src="{% static "grunt/js/recorderjs/recorder.js" %}"></script>
+    <script type="text/javascript" src="{% static "grunt/js/audiorecorder.js" %}"></script>
+    <script type="text/javascript" src="{% static "grunt/js/ajax.js" %}"></script>
     <script>
 var audioRecorder = null;
 
 // recorderjs uses javascript workers that require a full path
-var cfg = { workerPath: "{% static "telephone/js/recorderjs/recorderWorker.js" %}" };
+var cfg = { workerPath: "{% static "grunt/js/recorderjs/recorderWorker.js" %}" };
 
 function updateValues( response ) {
 
