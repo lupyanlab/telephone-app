@@ -36,8 +36,7 @@ class FunctionalTest(LiveServerTestCase):
         if self.browser:
             self.browser.quit()
         self.browser = webdriver.Firefox()
-        self.browser.set_window_size(800, 1000)
-        self.browser.implicitly_wait(10)
+        self.browser.implicitly_wait(5)
 
     def click_on_telephone_game(self):
         self.browser.find_element_by_id('phone').click()
