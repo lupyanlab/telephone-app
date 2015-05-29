@@ -4,10 +4,10 @@ from django.core.urlresolvers import reverse
 from .models import Game, Chain, Message
 
 class NewGameForm(forms.ModelForm):
-    pass
-    # class Meta:
-    #     model = Game
-    #     fields = ('name', )
+    
+    class Meta:
+        model = Game
+        fields = ('name', )
 
 class ResponseForm(forms.ModelForm):
 
