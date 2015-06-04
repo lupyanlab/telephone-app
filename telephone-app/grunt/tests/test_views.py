@@ -50,6 +50,16 @@ class GamesViewTest(ViewTest):
         self.assertEqual(len(response.context['game_list']), 0)
 
 
+class NewGameViewTest(ViewTest):
+
+    def test_new_game_page_renders_new_game_form(self):
+        """ Simple, standalone page to make a new game """
+        new_game_page_url = reverse('new_game')
+        response = self.client.get(new_game_page_url)
+        form_in_response = response.context['form']
+        self.assertIsInstance(form_in_response, NewGameForm)
+
+
 class PlayViewTest(ViewTest):
     def setUp(self):
         super(PlayViewTest, self).setUp()
@@ -144,16 +154,8 @@ class PlayViewTest(ViewTest):
         response = self.post_response()
         self.assertIsInstance(response.context['form'], ResponseForm)
 
-
-class NewGameViewTest(ViewTest):
-    def test_new_game_page_renders_new_game_form(self):
-        """ Simple, standalone page to make a new game """
-        new_game_page_url = reverse('new_game')
-        response = self.client.get(new_game_page_url)
-        form_in_response = response.context['form']
-        self.assertIsInstance(form_in_response, NewGameForm)
-
 class InspectViewTest(ViewTest):
+
     def test_game_inspect_url(self):
         """ Games should return a url for viewing the clusters """
         game = mommy.make(Game)

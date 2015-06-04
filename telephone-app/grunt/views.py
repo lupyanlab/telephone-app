@@ -1,9 +1,10 @@
 
+from django.core import serializers
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_GET, require_POST
 from django.views.generic import View, ListView, FormView, DetailView
 
 from .models import Game, Chain, Message
@@ -123,6 +124,13 @@ class PlayView(View):
 class InspectView(DetailView):
     template_name = 'grunt/inspect.html'
     model = Game
+
+@require_GET
+def message_data(request, pk):
+    game = Game.objects.get(pk = pk)
+    chains = game.chain_set.all()
+    chains_json = serializers.serialize('json', chains)
+    return JsonResponse(chains_json, safe = False)
 
 class MessageView(DetailView):
     template_name = 'grunt/edit.html'
