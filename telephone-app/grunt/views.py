@@ -1,3 +1,4 @@
+import json
 
 from django.core import serializers
 from django.conf import settings
@@ -128,9 +129,11 @@ class InspectView(DetailView):
 @require_GET
 def message_data(request, pk):
     game = Game.objects.get(pk = pk)
-    chains = game.chain_set.all()
-    chains_json = serializers.serialize('json', chains)
-    return JsonResponse(chains_json, safe = False)
+    chain_set = game.chain_set.all()
+    print chain_set
+    chain_set_dicts = [chain.to_dict() for chain in chain_set]
+    chain_set_json = json.dumps(chain_set_dicts)
+    return JsonResponse(chain_set_json, safe = False)
 
 class MessageView(DetailView):
     template_name = 'grunt/edit.html'

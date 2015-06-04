@@ -110,6 +110,13 @@ class Chain(models.Model):
 
         return messages[0]
 
+    def to_dict(self):
+        """ Serialize this chain and it's messages """
+        chain_dict = {}
+        chain_dict['pk'] = self.pk
+        chain_dict['messages'] = [m.to_dict() for m in self.message_set.all()]
+        return chain_dict
+
     def dirname(self):
         """ The name of the directory to hold all of this chain's messages """
         return 'chain-{pk}'.format(pk = self.pk)
@@ -134,6 +141,14 @@ class Message(models.Model):
         if self.parent:
             self.generation = self.parent.generation + 1
         super(Message, self).full_clean(*args, **kwargs)
+
+    def to_dict(self):
+        message_dict = {}
+        message_dict['pk'] = self.pk
+        message_dict['generation'] = self.generation
+        message_dict['audio'] = self.audio.url if self.audio else None
+        message_dict['parent_id'] = self.parent.id if self.parent else None
+        return message_dict
 
     def __str__(self):
         if self.name:
