@@ -70,7 +70,7 @@ class PlayView(View):
         message = chain.pick_next_message()
 
         if message.audio:
-            context['url'] = message.audio.url
+            context_data['url'] = message.audio.url
 
         form = ResponseForm(initial = {'parent': message.pk})
 
