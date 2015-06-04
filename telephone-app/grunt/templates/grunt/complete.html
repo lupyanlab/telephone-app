@@ -18,6 +18,9 @@
         <p class="lead">Keep gruntin'!</p>
     {% endif %}
 
-    <a href="{% url 'games' %}"><input type="button" value="Play again" id="return" class="btn btn-lg btn-primary"/></a>
+    <form method="post" action="{% url 'clear' pk=game.pk %}">
+      {% csrf_token %}
+      <input type="submit" value="Play again" id="return" class="btn btn-lg btn-primary"/>
+    </form>
 
 {% endblock jumbotron %}
