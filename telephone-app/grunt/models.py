@@ -124,12 +124,11 @@ class Chain(models.Model):
 
 class Message(models.Model):
     """ Audio recordings """
-    chain = models.ForeignKey(Chain, blank = True, null = True)
-    name = models.CharField(blank = True, null = True, max_length = 30)
-    parent = models.ForeignKey('self', blank = True, null = True)
+    chain = models.ForeignKey(Chain)
+    name = models.CharField(blank = True, max_length = 30)
+    parent = models.ForeignKey('self', null = True)
     generation = models.IntegerField(default = 0, editable = False)
-    audio = models.FileField(upload_to = message_path, blank = True,
-            null = True)
+    audio = models.FileField(upload_to = message_path, blank = True)
 
     def full_clean(self, *args, **kwargs):
         if self.parent:

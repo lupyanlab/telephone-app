@@ -9,6 +9,12 @@ class NewGameForm(forms.ModelForm):
         model = Game
         fields = ('name', )
 
+    def save(self, *args, **kwargs):
+        game = super(NewGameForm, self).save(*args, **kwargs)
+        chain = game.chain_set.create()
+        message = chain.message_set.create()
+        return game
+
 class ResponseForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
