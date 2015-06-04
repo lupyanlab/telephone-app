@@ -64,13 +64,13 @@ class FunctionalTest(LiveServerTestCase):
 
     def upload_file(self):
         # Unhide the file input and give it the path to a file
-        self.browser.execute_script('$( "#id_content" ).attr("type", "file");')
+        self.browser.execute_script('$( "#id_audio" ).attr("type", "file");')
         fpath = Path(settings.APP_DIR, 'grunt/tests/media/test-audio.wav')
-        content = self.browser.find_element_by_id('id_content').send_keys(fpath)
+        content = self.browser.find_element_by_id('id_audio').send_keys(fpath)
         self.browser.execute_script('$( "#submit" ).prop("disabled", false);')
         self.browser.execute_script('audioRecorder = false;')
 
-    def wait_for(self, tag = None, id = None, timeout = 10):
+    def wait_for(self, tag = None, id = None, text = None, timeout = 10):
         locator = (By.TAG_NAME, tag) if tag else (By.ID, id)
 
         if text:

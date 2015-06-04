@@ -17,13 +17,13 @@ class NewGameForm(forms.ModelForm):
 
 class ResponseForm(forms.ModelForm):
 
-    def __init__(self, *args, **kwargs):
-        super(ResponseForm, self).__init__(*args, **kwargs)
-        self.fields['audio'].required = True
-
     class Meta:
         model = Message
         fields = ('parent', 'audio')
+
+    def __init__(self, *args, **kwargs):
+        super(ResponseForm, self).__init__(*args, **kwargs)
+        self.fields['audio'].required = True
 
     def clean(self, *args, **kwargs):
         """ Associate the new message with the same chain as the parent """
