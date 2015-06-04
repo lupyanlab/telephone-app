@@ -38,6 +38,39 @@ class MakeGameTest(FunctionalTest):
         my_new_game_name = my_new_game.find_element_by_tag_name('h2').text
         self.assertEquals(my_new_game_name, new_game_name)
 
+    def test_record_seed_message(self):
+        # Simulate creating a game
+        game_name = 'Fresh Game'
+        self.create_game(name = game_name)
+
+        # Marcus goes to play the game
+        self.nav_to_games_list()
+        self.play_game(game_name)
+
+        # He agrees to participate in the game
+        self.accept_instructions()
+
+        # He shares his microphone
+        self.simulate_sharing_mic()
+
+        # He creates a recording
+        self.upload_file()
+        self.browser.find_element_by_id('submit').click()  ## non-ajax POST
+        self.wait_for(tag = 'body')
+
+        # His submission was successful,
+        # and he lands on the completion page
+        message = self.browser.find_element_by_tag_name('p').text
+        self.assertEquals(message, "Keep gruntin'!")
+
+        # He checks to see if his entry made it into the game
+        self.nav_to_games_list()
+        self.inspect_game(game_name)
+
+        svg = self.browser.find_element_by_tag_name('svg')
+        messages = svg.find_elements_by_tag_name('g')
+        self.assertEquals(len(messages), 2)
+
     def test_upload_seed(self):
         game_name = 'Empty Game'
 
