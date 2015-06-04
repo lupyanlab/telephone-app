@@ -17,14 +17,13 @@ class MakeGameTest(FunctionalTest):
         """ Simulate a user making a new game """
         self.nav_to_games_list()
 
-        # Marcus sees a single button to create a new game
+        # There are no games on the list
         games_list = self.browser.find_element_by_id('id_game_list')
         games = games_list.find_elements_by_tag_name('li')
-        self.assertEqual(len(games), 1)
-        new_game_item = games[0]
+        self.assertEqual(len(games), 0)
 
         # He clicks the button to create a new game
-        new_game_item.find_element_by_tag_name('a').click()
+        self.browser.find_element_by_id('id_new_game').click()
 
         # Marcus fills out the new game form
         new_game_name = 'My New Game'
@@ -34,8 +33,8 @@ class MakeGameTest(FunctionalTest):
         # He sees his new game on the game list page
         games_list = self.browser.find_element_by_id('id_game_list')
         games = games_list.find_elements_by_tag_name('li')
-        self.assertEquals(len(games), 2)
-        my_new_game = games[1]
+        self.assertEquals(len(games), 1)
+        my_new_game = games[0]
         my_new_game_name = my_new_game.find_element_by_tag_name('h2').text
         self.assertEquals(my_new_game_name, new_game_name)
 
