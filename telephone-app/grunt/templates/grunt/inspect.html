@@ -10,6 +10,18 @@
             width: 600px;
             border: 1px solid gray;
         }
+
+        circle {
+            stroke: black;
+            stroke-width: 2px;
+        }
+
+        .filled {
+            fill: blue;
+        }
+        .empty {
+            fill: white;
+        }
     </style>
 {% endblock styling %}
 
@@ -74,46 +86,78 @@ function visualize(incData) {
     linkGenerator
         .projection(function (d) {return [d.x, d.y+bumpDown]})
 
+    // Make a g-element for every chain in the game
+    // Right now, assumes a single chain
     d3.select("svg")
         .append("g")
-        .attr("class", "treeG")
-        .selectAll("g")
+        .attr("class", "chain")
+
+    d3.select("g.chain").selectAll("g") // assumes single chain
         .data(treeChart(nestedMessages))
         .enter()
         .append("g")
-        .attr("class", "node")
-        .attr("transform", function(d) {return "translate(" +d.x+","+(d.y+bumpDown)+")"});
+        .attr("class", function(d) {
+            var type = d.audio ? "filled" : "empty";
+            return "message " + type;
+        })
+        .attr("transform", function(d) {
+          return "translate(" +d.x+","+(d.y+bumpDown)+")"
+        });
 
-    d3.selectAll("g.node")
+    d3.selectAll("g.message")
         .append("circle")
-        .attr("r", 10)
-        .style("fill", function(d) {
-            if (d.children) {
-                return generationScale(d.generation)
-            } else {
-                return "white"
-            }
-        })
-        .style("stroke", function(d) {
-            if (d.children) {
-                return "white"
-            } else {
-                return generationScale(d.generation)
-            }
-        })
-        .style("stroke-width", "2px");
+        .attr("r", 10);
 
-    d3.selectAll("g.node")
+    var bumpTextsRight = 15,
+        bumpTextsDown = 5;
+
+    playMessage = function(message) {
+      console.log("playing message");
+      console.log(message);
+    }
+
+    navToUploadPage = function(message) {
+      console.log("navigating to upload page");
+      console.log(message);
+    }
+
+    d3.selectAll("g.message")
+        .append("g")
+        .attr("transform", function(d) {
+          return "translate(" + bumpTextsRight + "," + bumpTextsDown + ")";
+        })
         .append("text")
-        .text(function(d) { return d.name })
+        .text(function(el) { return el.audio ? "play" : "upload"; })
+        .on("click", function(el) { return el.audio ? playMessage(el) : navToUploadPage(el); })
 
-    d3.select("g.treeG").selectAll("path")
+    splitChain = function(message) {
+      console.log("splitting message");
+      console.log(message);
+    }
+
+    closeBranch = function(message) {
+      console.log("close chain");
+      console.log(message);
+    }
+
+    d3.selectAll("g.message")
+        .append("g")
+        .attr("transform", function(d) {
+          return "translate(" + bumpTextsRight + "," + bumpTextsDown * 4 + ")";
+        })
+        .append("text")
+        .text(function(el) { return el.audio ? "split" : "close"; })
+        .on("click", function(el) { return el.audio ? splitChain(el) : closeBranch(el); })
+
+
+    d3.select("g.chain").selectAll("path")
         .data(treeChart.links(treeChart(nestedMessages)))
         .enter().insert("path","g")
         .attr("d", linkGenerator)
         .style("fill", "none")
         .style("stroke", "black")
         .style("stroke-width", "2px");
+
 }
 
     </script>
