@@ -22,7 +22,9 @@
 
 {% block javascript %}
     <script>
-d3.json("messages-3.json", function(data) { dataViz(data.messages); });
+var rawData;
+
+d3.json("{% url 'message_data' pk=game.pk %}", visualize);
 
 function tree(nodes) {
   var nodeById = {};
@@ -44,8 +46,10 @@ function tree(nodes) {
   return nodes[0];
 }
 
-function dataViz(incData) {
+function visualize(incData) {
+    incData = JSON.parse(incData);
     console.log(incData);
+    rawData = incData;
 
     // nestedMessages = d3.nest()
     //   .key(function (el) { return el.id })

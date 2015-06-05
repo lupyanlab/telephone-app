@@ -1,9 +1,11 @@
+import json
 
+from django.core import serializers
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_GET, require_POST
 from django.views.generic import View, ListView, FormView, DetailView
 
 from .models import Game, Chain, Message
@@ -68,7 +70,9 @@ class PlayView(View):
         receipts = request.session['receipts']
         chain = self.game.pick_next_chain(receipts)
         message = chain.pick_next_message()
-        context_data['url'] = message.audio.url
+
+        if message.audio:
+            context_data['url'] = message.audio.url
 
         form = ResponseForm(initial = {'parent': message.pk})
 
@@ -121,6 +125,15 @@ class PlayView(View):
 class InspectView(DetailView):
     template_name = 'grunt/inspect.html'
     model = Game
+
+@require_GET
+def message_data(request, pk):
+    game = Game.objects.get(pk = pk)
+    chain_set = game.chain_set.all()
+    print chain_set
+    chain_set_dicts = [chain.to_dict() for chain in chain_set]
+    chain_set_json = json.dumps(chain_set_dicts)
+    return JsonResponse(chain_set_json, safe = False)
 
 class MessageView(DetailView):
     template_name = 'grunt/edit.html'

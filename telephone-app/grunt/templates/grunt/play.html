@@ -24,7 +24,7 @@
     <form id="entry" method="post" action="{{ game.get_absolute_url }}" enctype="multipart/form-data">
         {% csrf_token %}
 
-        <p id="status" class="lead">{{ form.status }}</p>
+        <p id="status" class="lead"></p>
         <div class="row">
             <div class="col-md-2 col-sm-1"></div>
             <div class="col-md-4 col-sm-5 col-xs-6">
@@ -32,7 +32,11 @@
             </div>
             <div class="col-md-4 col-sm-5 col-xs-6">
                 <img id="listen" src="{% static 'grunt/img/listen.png' %}" class="img-responsive unavailable"/>
+                {% if url %}
                 <img id="record" src="{% static 'grunt/img/record.png' %}" class="img-responsive unavailable"/>
+                {% else %}
+                <img id="record" src="{% static 'grunt/img/record.png' %}" class="img-responsive"/>
+                {% endif %}
             </div>
             <div class="col-md-2 col-sm-1"></div>
         </div>
@@ -63,7 +67,7 @@
 var audioRecorder = null;
 
 // recorderjs uses javascript workers that require a full path
-var cfg = { workerPath: "{% static "grunt/js/recorderjs/recorderWorker.js" %}" };
+var cfg = { workerPath: "{% static 'grunt/js/recorderjs/recorderWorker.js' %}" };
 
 function updateValues( response ) {
 

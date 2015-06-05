@@ -50,6 +50,16 @@ class GamesViewTest(ViewTest):
         self.assertEqual(len(response.context['game_list']), 0)
 
 
+class NewGameViewTest(ViewTest):
+
+    def test_new_game_page_renders_new_game_form(self):
+        """ Simple, standalone page to make a new game """
+        new_game_page_url = reverse('new_game')
+        response = self.client.get(new_game_page_url)
+        form_in_response = response.context['form']
+        self.assertIsInstance(form_in_response, NewGameForm)
+
+
 class PlayViewTest(ViewTest):
     def setUp(self):
         super(PlayViewTest, self).setUp()
@@ -101,74 +111,51 @@ class PlayViewTest(ViewTest):
 
     def test_post_redirects_to_complete(self):
         """ Posting an entry should redirect to the completion page """
+        self.make_session(self.game, instructed = True)
         response = self.post_response()
         self.assertTemplateUsed(response, 'grunt/complete.html')
 
     def test_invalid_post(self):
         """ Post an entry without a recording """
-        invalid_post = {'chain': self.chain.pk, 'parent': self.message.pk}
+        invalid_post = {'parent': self.message.pk}
         response = self.client.post(self.game.get_absolute_url(), invalid_post)
         errors = response.context['form'].errors
-        self.assertEquals(errors['content'][0], "You didn't make a recording")
+        self.assertEquals(errors['audio'][0], "This field is required.")
 
     def test_exclude_chains_in_session(self):
         """ If there are receipts in the session, get the correct chain """
         second_chain = mommy.make(Chain, game = self.game)
+
+        with open(self.audio_path, 'rb') as audio_handle:
+            audio_file = File(audio_handle)
+            mommy.make(Message, chain = second_chain, audio = audio_file)
+
         self.make_session(self.game, instructed = True,
                 receipts = [self.chain.pk, ])
 
         response = self.client.get(self.game.get_absolute_url())
 
-        selected_chain_pk = response.context['form'].initial['chain']
+
+        initial_message_parent_pk = response.context['form'].initial['parent']
+        initial_message_parent = Message.objects.get(pk = initial_message_parent_pk)
+        selected_chain_pk = initial_message_parent.pk
         self.assertEquals(selected_chain_pk, second_chain.pk)
 
     def test_post_leads_to_next_cluster(self):
         """ Posting a message should redirect to another message """
         second_chain = mommy.make(Chain, game = self.game)
-        second_message = mommy.make(Message, chain = second_chain,
-            audio = self.audio)
+
+        with open(self.audio_path, 'rb') as audio_handle:
+            audio_file = File(audio_handle)
+            mommy.make(Message, chain = second_chain, audio = audio_file)
 
         self.make_session(self.game, instructed = True)
-        post = {
-            'chain': self.chain.pk,
-            'parent': self.message.pk,
-            'audio': self.audio
-        }
-        response = self.client.post(self.game.get_absolute_url(), post)
+
+        response = self.post_response()
         self.assertIsInstance(response.context['form'], ResponseForm)
 
-    def test_revisit_game(self):
-        """ Getting the game page after submitting should bring up dialog """
-        self.make_session(self.game, instructed = True,
-                receipts = [self.chain.pk, ])
-
-        response = self.client.get(self.game.get_absolute_url())
-        self.assertTemplateUsed(response, 'grunt/complete.html')
-
-
-class MessageViewTest(ViewTest):
-    def test_message_view_returns_correct_form(self):
-        chain = mommy.make(Chain)
-        message = mommy.make(Message, chain = chain)
-        response = self.client.get(message.get_absolute_url())
-        self.assertIsInstance(response.context['form'], MessageForm)
-
-    def test_message_view_url(self):
-        chain = mommy.make(Chain)
-        message = mommy.make(Message, chain = chain)
-        expected_url = '/games/1/{}/{}/'.format(chain, message.pk)
-        self.assertEquals(expected_url, message.get_absolute_url())
-
-
-class NewGameViewTest(ViewTest):
-    def test_new_game_page_renders_new_game_form(self):
-        """ Simple, standalone page to make a new game """
-        new_game_page_url = reverse('new_game')
-        response = self.client.get(new_game_page_url)
-        form_in_response = response.context['form']
-        self.assertIsInstance(form_in_response, NewGameForm)
-
 class InspectViewTest(ViewTest):
+
     def test_game_inspect_url(self):
         """ Games should return a url for viewing the clusters """
         game = mommy.make(Game)

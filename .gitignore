@@ -2,6 +2,8 @@
 
 *.sqlite3
 
+.DS_Store
+
 # The following directories should only
 # contain reproducible content
 /media/

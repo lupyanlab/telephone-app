@@ -9,15 +9,21 @@ class NewGameForm(forms.ModelForm):
         model = Game
         fields = ('name', )
 
-class ResponseForm(forms.ModelForm):
+    def save(self, *args, **kwargs):
+        game = super(NewGameForm, self).save(*args, **kwargs)
+        chain = game.chain_set.create()
+        message = chain.message_set.create()
+        return game
 
-    def __init__(self, *args, **kwargs):
-        super(ResponseForm, self).__init__(*args, **kwargs)
-        self.fields['audio'].required = True
+class ResponseForm(forms.ModelForm):
 
     class Meta:
         model = Message
         fields = ('parent', 'audio')
+
+    def __init__(self, *args, **kwargs):
+        super(ResponseForm, self).__init__(*args, **kwargs)
+        self.fields['audio'].required = True
 
     def clean(self, *args, **kwargs):
         """ Associate the new message with the same chain as the parent """

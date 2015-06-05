@@ -39,6 +39,11 @@ class NewGameFormTest(FormTest):
         last_saved_game = Game.objects.last()
         self.assertEquals(last_saved_game.name, new_game_name)
 
+    def test_new_game_form_saves_with_chain(self):
+        """ Ensure that new games are populated with a chain """
+        form = NewGameForm({'name': 'New Game'})
+        game = form.save()
+        self.assertEquals(game.chain_set.count(), 1)
 
 class ResponseFormTest(FormTest):
     def test_make_a_valid_message(self):

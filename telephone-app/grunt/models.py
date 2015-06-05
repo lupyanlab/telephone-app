@@ -110,8 +110,12 @@ class Chain(models.Model):
 
         return messages[0]
 
-    def get_messages_url(self):
-        return reverse('messages', kwargs = {'pk': self.game.pk})
+    def to_dict(self):
+        """ Serialize this chain and it's messages """
+        chain_dict = {}
+        chain_dict['pk'] = self.pk
+        chain_dict['messages'] = [m.to_dict() for m in self.message_set.all()]
+        return chain_dict
 
     def dirname(self):
         """ The name of the directory to hold all of this chain's messages """
@@ -127,17 +131,24 @@ class Chain(models.Model):
 
 class Message(models.Model):
     """ Audio recordings """
-    chain = models.ForeignKey(Chain, blank = True, null = True)
-    name = models.CharField(blank = True, null = True, max_length = 30)
+    chain = models.ForeignKey(Chain)
+    name = models.CharField(blank = True, max_length = 30)
     parent = models.ForeignKey('self', blank = True, null = True)
     generation = models.IntegerField(default = 0, editable = False)
-    audio = models.FileField(upload_to = message_path, blank = True,
-            null = True)
+    audio = models.FileField(upload_to = message_path, blank = True)
 
     def full_clean(self, *args, **kwargs):
         if self.parent:
             self.generation = self.parent.generation + 1
         super(Message, self).full_clean(*args, **kwargs)
+
+    def to_dict(self):
+        message_dict = {}
+        message_dict['pk'] = self.pk
+        message_dict['generation'] = self.generation
+        message_dict['audio'] = self.audio.url if self.audio else None
+        message_dict['parent_id'] = self.parent.id if self.parent else None
+        return message_dict
 
     def __str__(self):
         if self.name:
@@ -150,210 +161,3 @@ class Message(models.Model):
         child.full_clean()
         child.save()
         return child
-
-# class Seed(models.Model):
-#     """ An Entry with no parent.
-#
-#     Seeds are stored separately from other Entries. They are used as the first
-#     entry of new chains as needed.
-#
-#     TODO: name validation; no spaces or weird stuff allowed
-#     """
-#     name = models.CharField(unique = True, max_length = 30)
-#     content = models.FileField(upload_to = 'seeds/')
-#
-#     def __str__(self):
-#         """ The name of the seed.
-#
-#         str(seed) will be used as the stem name of all entries originating
-#         from this seed.
-#
-#             > str(entry) == '{0}-{1}'.format(seed, entry.generation)
-#         """
-#         return self.name
-#
-# class Cluster(models.Model):
-#     """ A collection of parallel chains.
-#
-#     A player only contributes to one chain in a cluster.
-#
-#     TODO: name validation; no spaces or weird stuff allowed
-#     """
-#     chain_selection_choices = [
-#         ('SRT', 'shortest'),
-#         ('RND', 'random')
-#     ]
-#     game = models.ForeignKey(Game)
-#     name = models.CharField(max_length = 30)
-#     method = models.CharField(choices = chain_selection_choices, default='SRT',
-#                               max_length = 3)
-#     seed = models.ForeignKey(Seed, null = True, blank = True)
-#
-#     def full_clean(self, *args, **kwargs):
-#         if not self.name:
-#             if not self.seed_id:
-#                 pass
-#             else:
-#                 self.name = self.seed.name
-#         super(Cluster, self).full_clean(*args, **kwargs)
-#
-#     def pick_chain(self):
-#         """ Select a chain.
-#
-#         Either pick a chain that is tied for the least amount of entries
-#         (the default), or select a chain at random.
-#
-#         Players only respond to a single chain in each cluster.
-#
-#         TODO: exclude chains that are full
-#
-#         Returns
-#         -------
-#         a Chain object
-#         """
-#         if self.chain_set.count() == 0:
-#             raise Chain.DoesNotExist('No chains in cluster')
-#
-#         if self.method == 'SRT':
-#             chains = list(self.chain_set.all())
-#             chains = sorted(chains, key=lambda ch: ch.entry_set.count())
-#         else:
-#             chains = self.chain_set.order_by('?')
-#
-#         return chains[0]
-#
-#     def dir(self):
-#         """ Parent directory for all chains in this cluster. """
-#         return self.name or str(self.seed)
-#
-#     def __str__(self):
-#         return self.dir()
-
-# class ChainManager(models.Manager):
-#     """ Custom methods added to the Chain manager make it easier to spawn
-#     multiple chains in each cluster.
-#     """
-#     def create_with_entry(self, **kwargs):
-#         """ Create a chain populated with a first entry created from the seed
-#
-#         Returns
-#         -------
-#         a Chain object with a related entry
-#         """
-#         chain = Chain(**kwargs)
-#         _ = chain.full_clean()
-#         chain.save()
-#         return chain
-#
-#     def create_multiple(self, _quantity, **kwargs):
-#         """ Create multiple chains at once.
-#
-#         Parameters
-#         ----------
-#         _quantity: int, The number of chains to create
-#         **kwargs: keyword args passed to the Chain constructor
-#
-#         Returns
-#         -------
-#         a list of Chain objects that were saved to the database
-#         """
-#         chains = [self.create_with_entry(**kwargs) for _ in range(_quantity)]
-#         return chains
-#
-# class Chain(models.Model):
-#     """ Chains comprise one or more Entries """
-#     cluster = models.ForeignKey(Cluster)
-#     seed = models.ForeignKey(Seed)
-#
-#     objects = ChainManager()
-#
-#     def full_clean(self, *args, **kwargs):
-#         """ If a seed wasn't provided, try the seed for the cluster. """
-#         if not self.seed_id:
-#             if not self.cluster_id:
-#                 pass  # punt to super()
-#             elif not self.cluster.seed:
-#                 raise ValidationError('No seed found')
-#             else:
-#                 self.seed = self.cluster.seed
-#         super(Chain, self).full_clean(*args, **kwargs)
-#
-#     def save(self, *args, **kwargs):
-#         """ Save the chain and create a seed entry """
-#         super(Chain, self).save(*args, **kwargs)
-#         _ = self.create_entry_from_seed()
-#
-#     def create_entry_from_seed(self):
-#         """ Create an entry from the seed.
-#
-#         Returns
-#         -------
-#         an Entry object
-#         """
-#         if self.entry_set.count() > 0:
-#             raise ValidationError("This chain already has a seed entry")
-#
-#         entry = Entry(chain = self, content = self.seed.content.file)
-#         entry.full_clean()
-#         entry.save()
-#
-#         return entry
-#
-#     def prepare_entry(self):
-#         """ Prepare the next entry in the chain.
-#
-#         Prepared entries are populated but not saved to the database. They
-#         are used for populating and rendering EntryForms.
-#
-#         Returns
-#         -------
-#         an entry instance with chain and parent entry already populated.
-#         """
-#         last_entry = self.entry_set.last()
-#         return Entry(chain = self, parent = last_entry)
-#
-#     def dir(self):
-#         """ Directory to hold all entries in this chain. """
-#         neighbors = self.cluster.chain_set.all()
-#         position = list(neighbors).index(self)
-#         return '{ix}-{seed}'.format(ix = position, seed = self.seed)
-#
-#     def __str__(self):
-#         return self.dir()
-#
-#     def path(self):
-#         """ The path from MEDIA_ROOT to the chain directory. """
-#         nesting = {
-#             'game': self.cluster.game.dir(),
-#             'cluster': self.cluster.dir(),
-#             'chain': self.dir(),
-#         }
-#         return '{game}/{cluster}/{chain}/'.format(**nesting)
-#
-
-# class Entry(models.Model):
-#     """ Entries are file uploads situated in a particular Chain """
-#     chain = models.ForeignKey(Chain)
-#     parent = models.ForeignKey('self', null = True, blank = True)
-#     content = models.FileField(upload_to = message_dir)
-#     generation = models.IntegerField(default = 0, editable = False)
-#
-#     def full_clean(self, *args, **kwargs):
-#         """ Custom validation for Entry objects
-#
-#         If the entry is not a seed entry, a parent entry is required.
-#         """
-#         super(Entry, self).full_clean(*args, **kwargs)
-#         if self.parent:
-#             self.generation = self.parent.generation + 1
-#         elif self.chain.entry_set.count() > 0:
-#             raise ValidationError("This chain already has a seed entry")
-#
-#     def __str__(self):
-#         """ The string representation of the entry
-#
-#         Entries are named based on the seed and the generation.
-#         """
-#         return '{seed}-{gen}'.format(
-#             seed = self.chain.seed, gen = self.generation
-#         )
