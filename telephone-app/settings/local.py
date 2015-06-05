@@ -46,9 +46,6 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # For object serialization
-    'rest_framework',
-
     # Local apps
     'grunt',
 )

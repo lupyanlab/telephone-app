@@ -46,11 +46,13 @@ class FunctionalTest(LiveServerTestCase):
     def select_game_item_by_game_name(self, name):
         games = self.select_game_items()
 
-        get_game_name = lambda g: g.find_element_by_tag_name('h2').text
-        matched_games = filter(lambda g: get_game_name(g) == name, games)
+        selected = None
+        for game in games:
+            if game.find_element_by_tag_name('h2').text == name:
+                selected = game
+                break
 
-        match = matched_games[0]
-        return match
+        return selected
 
     def play_game(self, name):
         game_list_item = self.select_game_item_by_game_name(name)

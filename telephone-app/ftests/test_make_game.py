@@ -9,6 +9,7 @@ from .base import FunctionalTest
 
 class MakeGameTest(FunctionalTest):
     def create_game(self, **kwargs):
+        print kwargs
         game = Game.objects.create(**kwargs)
         chain = Chain.objects.create(game = game) # will use defaults
         Message.objects.create(chain = chain)     # ready for upload
@@ -81,6 +82,11 @@ class MakeGameTest(FunctionalTest):
         self.nav_to_games_list()
         self.inspect_game(game_name)
 
+        from grunt.models import Game
+        game = Game.objects.get(name = game_name)
+        chain = game.chain_set.first()
+        print chain.message_set.all()
+
         # He sees that the game has a single chain with a single message.
         svg = self.browser.find_element_by_tag_name('svg')
         messages = svg.find_elements_by_tag_name('g')
@@ -88,11 +94,10 @@ class MakeGameTest(FunctionalTest):
 
         # The message doesn't yet have a seed.
         empty_message = messages[0]
-        empty_message_text_element = empty_message.find_element_by_tag_name('text')
-        self.assertEquals(empty_message_text_element.text, 'empty')
 
-        # He clicks the message text to trigger an upload form
-        empty_message_text_element.click()
+        # Click on the upload text to bring up an upload message form.
+        upload_text = empty_message.find_element_by_css_selector('text.upload')
+        upload_text.click()
         self.wait_for(tag = 'form')
 
         # He uploads a seed file

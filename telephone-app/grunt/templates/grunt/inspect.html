@@ -31,12 +31,12 @@ function tree(nodes) {
 
   // Index the nodes by id, in case they come out of order.
   nodes.forEach(function(d) {
-    nodeById[d.name] = d;
+    nodeById[d.pk] = d;
   });
 
   // Lazily compute children.
   nodes.forEach(function(d) {
-    if ("parent" in d) {
+    if (d.parent) {
       var parent = nodeById[d.parent];
       if (parent.children) parent.children.push(d);
       else parent.children = [d];
@@ -48,8 +48,10 @@ function tree(nodes) {
 
 function visualize(incData) {
     incData = JSON.parse(incData);
-    console.log(incData);
+
     rawData = incData;
+
+    var firstChain = incData[0];
 
     // nestedMessages = d3.nest()
     //   .key(function (el) { return el.id })
@@ -57,7 +59,8 @@ function visualize(incData) {
     //
     // packableMessages = {id: "cluster1", values: nestedMessages}
 
-    nestedMessages = tree(incData);
+    nestedMessages = tree(firstChain.messages);
+    //console.log(nestedMessages);
 
     var generationScale = d3.scale.category10([1,2,3,4]);
 

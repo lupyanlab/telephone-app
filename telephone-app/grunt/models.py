@@ -147,7 +147,7 @@ class Message(models.Model):
         message_dict['pk'] = self.pk
         message_dict['generation'] = self.generation
         message_dict['audio'] = self.audio.url if self.audio else None
-        message_dict['parent_id'] = self.parent.id if self.parent else None
+        message_dict['parent'] = self.parent.id if self.parent else None
         return message_dict
 
     def __str__(self):
