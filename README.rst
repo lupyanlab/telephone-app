@@ -1,5 +1,5 @@
-evo-apps
-========
+Telephone
+=========
 
 Simulate the iterative process of evolution.
 
@@ -19,34 +19,18 @@ Installing locally
 
 .. code::
 
-    git clone http://github.com/pedmiston/evo-apps.git
+    git clone http://github.com/pedmiston/telephone.git
 
 2. Install a virtualenv and the required packages.
 
 .. code::
 
     mkdir ~/.venvs  # make a dir for virtual environments
-    virtualenv --python=python2.7 ~/.venvs/evo-apps
+    virtualenv --python=python2.7 ~/.venvs/telephone
     ~/.venvs/evo-apps/bin/activate
     pip install -r requirements.txt
 
-3. Create a local_settings.py file.
-
-This is a technique for managing django settings I learned from 
-Chuck Martin <http://snakeycode.wordpress.com>. Thanks Chuck!
-
-You need to create a file called "local_settings.py" in the app root. It
-needs to define a string variable `_LOCATION`. For now, just use 'local'.
-In addition, you can specify the database to use. The easiest is just to
-use sqlite, but the actual app uses postgres.
-
-.. code::
-
-    touch grunt/local_settings.py
-    echo "_LOCATION = 'local'" >> grunt/local_settings.py
-    echo "_DATABASE = 'sqlite'" >> grunt/local_settings.py
-
-4. Run the django test server.
+3. Run the django test server.
 
 .. code::
 
@@ -86,4 +70,4 @@ Functional tests using the django test server are run with the following:
 
 .. code::
 
-    python manage.py test user_tests
+    python manage.py test ftests
