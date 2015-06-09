@@ -119,6 +119,7 @@ function visualize(incData) {
     navToUploadPage = function(message) {
       console.log("navigating to upload page");
       console.log(message);
+      window.location.href = message.upload_url
     }
 
     d3.selectAll("g.message")
@@ -133,11 +134,13 @@ function visualize(incData) {
     splitChain = function(message) {
       console.log("splitting message");
       console.log(message);
+      window.location.href = message.sprout_url
     }
 
     closeBranch = function(message) {
       console.log("close chain");
       console.log(message);
+      window.location.href = message.close_url
     }
 
     d3.selectAll("g.message")

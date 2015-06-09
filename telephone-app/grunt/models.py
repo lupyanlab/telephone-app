@@ -148,6 +148,14 @@ class Message(models.Model):
         message_dict['generation'] = self.generation
         message_dict['audio'] = self.audio.url if self.audio else None
         message_dict['parent'] = self.parent.id if self.parent else None
+
+        # add post URLs to the objects
+        message_dict['sprout_url'] = reverse('sprout', kwargs = {'pk': self.pk})
+        if not self.audio:
+            message_dict['close_url'] = reverse('close', kwargs = {'pk': self.pk})
+
+            message_dict['upload_url'] = reverse('upload', kwargs = {'pk': self.pk})
+
         return message_dict
 
     def __str__(self):

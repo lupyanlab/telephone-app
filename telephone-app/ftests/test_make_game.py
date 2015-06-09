@@ -9,7 +9,6 @@ from .base import FunctionalTest
 
 class MakeGameTest(FunctionalTest):
     def create_game(self, **kwargs):
-        print kwargs
         game = Game.objects.create(**kwargs)
         chain = Chain.objects.create(game = game) # will use defaults
         Message.objects.create(chain = chain)     # ready for upload
@@ -69,7 +68,7 @@ class MakeGameTest(FunctionalTest):
         self.inspect_game(game_name)
 
         svg = self.browser.find_element_by_tag_name('svg')
-        messages = svg.find_elements_by_tag_name('g')
+        messages = svg.find_elements_by_css_selector('g.message')
         self.assertEquals(len(messages), 2)
 
     def test_upload_seed(self):
@@ -85,11 +84,10 @@ class MakeGameTest(FunctionalTest):
         from grunt.models import Game
         game = Game.objects.get(name = game_name)
         chain = game.chain_set.first()
-        print chain.message_set.all()
 
         # He sees that the game has a single chain with a single message.
         svg = self.browser.find_element_by_tag_name('svg')
-        messages = svg.find_elements_by_tag_name('g')
+        messages = svg.find_elements_by_css_selector('g.message')
         self.assertEquals(len(messages), 1)
 
         # The message doesn't yet have a seed.
@@ -109,7 +107,7 @@ class MakeGameTest(FunctionalTest):
 
         # He sees that two sounds are now visible on the inspect page
         svg = self.browser.find_element_by_tag_name('svg')
-        messages = svg.find_elements_by_tag_name('g')
+        messages = svg.find_elements_by_css_selector('g.message')
         self.assertEquals(len(messages), 2)
 
         # The first message now has name

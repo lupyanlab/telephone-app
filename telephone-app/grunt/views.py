@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_GET, require_POST
-from django.views.generic import View, ListView, FormView, DetailView
+from django.views.generic import View, ListView, FormView, DetailView, UpdateView
 
 from .models import Game, Chain, Message
 from .forms import NewGameForm, ResponseForm
@@ -155,3 +155,23 @@ def accept(request, pk):
 def clear(request, pk):
     request.session['receipts'] = list()
     return redirect('play', pk = pk)
+
+@require_POST
+def sprout(request, pk):
+    message = get_object_or_404(Message, pk = pk)
+    message.replicate()
+
+    game_url = message.chain.game.get_inspect_url()
+    return redirect(game_url)
+
+@require_POST
+def close(request, pk):
+    message = get_object_or_404(Message, pk = pk)
+    message.delete()
+
+    game_url = message.chain.game.get_inspect_url()
+    return redirect(game_url)
+
+class UploadMessageView(UpdateView):
+    model = Message
+    fields = ('audio', )
