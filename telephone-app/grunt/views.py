@@ -9,7 +9,7 @@ from django.views.decorators.http import require_GET, require_POST
 from django.views.generic import View, ListView, FormView, DetailView, UpdateView
 
 from .models import Game, Chain, Message
-from .forms import NewGameForm, ResponseForm
+from .forms import NewGameForm, UploadMessageForm, ResponseForm
 
 class GamesView(ListView):
     template_name = 'grunt/games.html'
@@ -174,5 +174,5 @@ def close(request, pk):
 
 class UploadMessageView(UpdateView):
     model = Message
-    fields = ('audio', )
+    form_class = UploadMessageForm
     template_name = 'grunt/upload-message.html'

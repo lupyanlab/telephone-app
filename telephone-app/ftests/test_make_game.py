@@ -110,13 +110,3 @@ class MakeGameTest(FunctionalTest):
         # He sees that two sounds are now visible on the inspect page
         messages = self.select_svg_messages()
         self.assertEquals(len(messages), 2)
-
-        # The first message now has name
-        first_message = messages[0]
-        first_message_text_element = first_message.find_element_by_tag_name('text')
-        self.assertEquals(first_message_text_element.text, 'message 1')
-
-        # The second message is empty
-        second_message = messages[0]
-        second_message_text_element = second_message.find_element_by_tag_name('text')
-        self.assertEquals(second_message_text_element.text, 'empty')
