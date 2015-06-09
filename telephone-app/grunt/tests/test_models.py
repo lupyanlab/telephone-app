@@ -118,14 +118,6 @@ class ChainTest(ModelTest):
         young_message = mommy.make(Message, generation = 4, chain = chain)
         self.assertEquals(chain.pick_next_message(), young_message)
 
-    def test_get_message_url(self):
-        game = mommy.make(Game)
-        chain = mommy.make(Chain, game = game)
-        expected_url = reverse('messages', kwargs = {'pk': game.pk})
-        actual_url = chain.get_messages_url()
-        self.assertEquals(expected_url, actual_url)
-
-
 
 class MessageTest(ModelTest):
     def setUp(self):
