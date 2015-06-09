@@ -3,6 +3,40 @@ from .base import FunctionalTest
 
 class SingleUserTest(FunctionalTest):
 
+    def test_record_seed_message(self):
+        """ Simulate a player recording a seed message """
+
+        # Simulate creating a game
+        game_name = 'Fresh Game'
+        self.create_game(name = game_name)
+
+        # Marcus goes to play the game
+        self.nav_to_games_list()
+        self.play_game(game_name)
+
+        # He agrees to participate in the game
+        self.accept_instructions()
+
+        # He shares his microphone
+        self.simulate_sharing_mic()
+
+        # He creates a recording
+        self.upload_file()
+        self.browser.find_element_by_id('submit').click()  ## non-ajax POST
+        self.wait_for(tag = 'body')
+
+        # His submission was successful,
+        # and he lands on the completion page
+        message = self.browser.find_element_by_tag_name('p').text
+        self.assertEquals(message, "Keep gruntin'!")
+
+        # He checks to see if his entry made it into the game
+        self.nav_to_games_list()
+        self.inspect_game(game_name)
+
+        messages = self.select_svg_messages()
+        self.assertEquals(len(messages), 2)
+
     def test_single_entry(self):
         """ Simulate a player making an entry to a single cluster game """
         self.create_game(name = 'Test Game', seeds = ['crow', ], nchain = 1)

@@ -1,21 +1,6 @@
-from unipath import Path
-
-from django.conf import settings
-from django.core.files import File
-
-from grunt.models import Game, Chain, Message
-
 from .base import FunctionalTest
 
 class MakeGameTest(FunctionalTest):
-    def create_game(self, **kwargs):
-        game = Game.objects.create(**kwargs)
-        chain = Chain.objects.create(game = game) # will use defaults
-        Message.objects.create(chain = chain)     # ready for upload
-
-    def select_svg_messages(self):
-        svg = self.browser.find_element_by_tag_name('svg')
-        return svg.find_elements_by_css_selector('g.message')
 
     def test_make_new_game_via_form(self):
         """ Simulate a user making a new game """
@@ -41,72 +26,3 @@ class MakeGameTest(FunctionalTest):
         my_new_game = games[0]
         my_new_game_name = my_new_game.find_element_by_tag_name('h2').text
         self.assertEquals(my_new_game_name, new_game_name)
-
-    def test_record_seed_message(self):
-        # Simulate creating a game
-        game_name = 'Fresh Game'
-        self.create_game(name = game_name)
-
-        # Marcus goes to play the game
-        self.nav_to_games_list()
-        self.play_game(game_name)
-
-        # He agrees to participate in the game
-        self.accept_instructions()
-
-        # He shares his microphone
-        self.simulate_sharing_mic()
-
-        # He creates a recording
-        self.upload_file()
-        self.browser.find_element_by_id('submit').click()  ## non-ajax POST
-        self.wait_for(tag = 'body')
-
-        # His submission was successful,
-        # and he lands on the completion page
-        message = self.browser.find_element_by_tag_name('p').text
-        self.assertEquals(message, "Keep gruntin'!")
-
-        # He checks to see if his entry made it into the game
-        self.nav_to_games_list()
-        self.inspect_game(game_name)
-
-        messages = self.select_svg_messages()
-        self.assertEquals(len(messages), 2)
-
-    def test_upload_seed(self):
-        game_name = 'Empty Game'
-
-        # Simulate creating a game
-        self.create_game(name = game_name)
-
-        # Marcus clicks through from the homepage to the inspect view.
-        self.nav_to_games_list()
-        self.inspect_game(game_name)
-
-        from grunt.models import Game
-        game = Game.objects.get(name = game_name)
-        chain = game.chain_set.first()
-
-        # He sees that the game has a single chain with a single message.
-        messages = self.select_svg_messages()
-        self.assertEquals(len(messages), 1)
-
-        # The message doesn't yet have a seed.
-        empty_message = messages[0]
-
-        # Click on the upload text to bring up an upload message form.
-        upload_text = empty_message.find_element_by_css_selector('text.upload')
-        upload_text.click()
-        self.wait_for(tag = 'form')
-
-        # He uploads a seed file
-        upload_form = self.browser.find_element_by_tag_name('form')
-        local_audio_file = Path(settings.APP_DIR, 'grunt/tests/media/test-audio.wav')
-        upload_form.find_element_by_id('id_audio').send_keys(local_audio_file)
-        upload_form.submit()
-        self.wait_for(tag = 'svg')
-
-        # He sees that two sounds are now visible on the inspect page
-        messages = self.select_svg_messages()
-        self.assertEquals(len(messages), 2)

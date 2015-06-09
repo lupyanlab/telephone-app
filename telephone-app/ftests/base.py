@@ -1,4 +1,5 @@
 import sys
+from unipath import Path
 
 from django.conf import settings
 from django.test import LiveServerTestCase, override_settings
@@ -7,7 +8,8 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.ui import WebDriverWait
-from unipath import Path
+
+from grunt.models import Game, Chain, Message
 
 TEST_MEDIA_ROOT = Path(settings.MEDIA_ROOT + '-test')
 
@@ -25,6 +27,11 @@ class FunctionalTest(LiveServerTestCase):
             self.browser.quit()
 
         TEST_MEDIA_ROOT.rmtree()
+
+    def create_game(self, **kwargs):
+        game = Game.objects.create(**kwargs)
+        chain = Chain.objects.create(game = game) # will use defaults
+        Message.objects.create(chain = chain)     # ready for upload
 
     def new_user(self):
         if self.browser:
@@ -64,10 +71,13 @@ class FunctionalTest(LiveServerTestCase):
     def simulate_sharing_mic(self):
         self.browser.execute_script('audioRecorder = true; micShared();')
 
+    def path_to_test_audio(self):
+        return Path(settings.APP_DIR, 'grunt/tests/media/test-audio.wav')
+
     def upload_file(self):
         # Unhide the file input and give it the path to a file
         self.browser.execute_script('$( "#id_audio" ).attr("type", "file");')
-        fpath = Path(settings.APP_DIR, 'grunt/tests/media/test-audio.wav')
+        fpath = self.path_to_test_audio()
         content = self.browser.find_element_by_id('id_audio').send_keys(fpath)
         self.browser.execute_script('$( "#submit" ).prop("disabled", false);')
         self.browser.execute_script('audioRecorder = false;')
@@ -102,3 +112,7 @@ class FunctionalTest(LiveServerTestCase):
     def inspect_game(self, name):
         game_list_item = self.select_game_item_by_game_name(name)
         game_list_item.find_element_by_class_name('inspect').click()
+
+    def select_svg_messages(self):
+        svg = self.browser.find_element_by_tag_name('svg')
+        return svg.find_elements_by_css_selector('g.message')
