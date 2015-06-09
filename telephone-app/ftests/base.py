@@ -28,10 +28,16 @@ class FunctionalTest(LiveServerTestCase):
 
         TEST_MEDIA_ROOT.rmtree()
 
-    def create_game(self, **kwargs):
-        game = Game.objects.create(**kwargs)
+    def create_game(self, name, with_seed = False):
+        game = Game.objects.create(name = name)
         chain = Chain.objects.create(game = game) # will use defaults
-        Message.objects.create(chain = chain)     # ready for upload
+
+        if not with_seed:
+            Message.objects.create(chain = chain) # ready for upload
+        else:
+            with open(self.path_to_test_audio(), 'rb') as seed_handle:
+                seed_file = File(seed_audio)
+                Message.objects.create(chain = chain, audio = seed_file)
 
     def new_user(self):
         if self.browser:

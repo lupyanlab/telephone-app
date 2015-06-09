@@ -34,8 +34,7 @@ BASE_DIR = Path(__file__).ancestor(3)
 APP_DIR = Path(BASE_DIR, 'telephone-app')
 
 TEMPLATE_DIRS = (
-    Path(APP_DIR, 'telephone/templates'),
-    Path(APP_DIR, 'grunt/templates'),
+    Path(APP_DIR, 'templates'),
 )
 
 INSTALLED_APPS = (

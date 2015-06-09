@@ -31,12 +31,12 @@
                 <img id="phone" src="{% static 'grunt/img/phone.png' %}" class="img-responsive"/>
             </div>
             <div class="col-md-4 col-sm-5 col-xs-6">
+              {% if url %}
+                <img id="listen" src="{% static 'grunt/img/listen.png' %}" class="img-responsive"/>
+              {% else %}
                 <img id="listen" src="{% static 'grunt/img/listen.png' %}" class="img-responsive unavailable"/>
-                {% if url %}
+              {% endif %}
                 <img id="record" src="{% static 'grunt/img/record.png' %}" class="img-responsive unavailable"/>
-                {% else %}
-                <img id="record" src="{% static 'grunt/img/record.png' %}" class="img-responsive"/>
-                {% endif %}
             </div>
             <div class="col-md-2 col-sm-1"></div>
         </div>
@@ -91,7 +91,7 @@ function updateValues( response ) {
 function micShared() {
 
     $( "#share" ).addClass("active");
-    $( "#listen" ).removeClass("unavailable");
+    $( "#record" ).removeClass("unavailable");
     updateMessage("");
 
 }
