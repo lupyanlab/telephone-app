@@ -175,3 +175,4 @@ def close(request, pk):
 class UploadMessageView(UpdateView):
     model = Message
     fields = ('audio', )
+    template_name = 'grunt/upload-message.html'

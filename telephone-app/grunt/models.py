@@ -158,6 +158,9 @@ class Message(models.Model):
 
         return message_dict
 
+    def get_absolute_url(self):
+        return reverse('inspect', kwargs = {'pk': self.chain.game.pk})
+
     def __str__(self):
         if self.name:
             return self.name

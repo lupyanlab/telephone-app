@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block jumbotron %}
+
+    {{ block.super }}
+
+    <form action="" method="post">
+      {% csrf_token %}
+      {{ form }}
+      <input id="id_submit" type="submit" value="Upload Message" />
+    </form>
+
+{% endblock jumbotron %}
