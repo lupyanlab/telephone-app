@@ -69,30 +69,22 @@ class SingleUserTest(FunctionalTest):
         # She agrees to participate
         self.accept_instructions()
 
-        # She sees that she hasn't made any entries yet
-        self.assert_status("Message 1 of 1")
-
         # The correct audio file is presented on the page
-        self.assert_audio_src('crow-0.wav')
+        self.assert_audio_src('0.wav')
 
-        # She tries to play the audio but can't
-        self.browser.find_element_by_id('listen').click()
-        self.assert_error_message("Share your microphone to play")
-
-        # She shares her microphone and the sound becomes available
-        self.simulate_sharing_mic()
-        speaker = self.browser.find_element_by_id('listen')
-        self.assertNotIn('unavailable', speaker.get_attribute('class'))
-
-        # The recorder isn't available because she hasn't listend
-        # to the audio yet
+        # The recorder isn't available because she hasn't shared her
+        # microphone yet
         recorder = self.browser.find_element_by_id('record')
         self.assertIn('unavailable', recorder.get_attribute('class'))
         recorder.click()
-        self.assert_error_message("You must listen to the sound first.")
+        self.assert_error_message("Share your microphone to play.")
 
-        # She plays the sound and gets visual feedback
-        # that the sound is playing.
+        # She shares her microphone but she still can't play the sound.
+        self.simulate_sharing_mic()
+        recorder.click()
+        self.assert_error_message("You have to listen to the sound first.")
+
+        # She plays the sound
         self.browser.find_element_by_id('listen').click()
         speaker_img = self.browser.find_element_by_id('listen')
         self.assertIn('active', speaker_img.get_attribute('class'))
@@ -100,10 +92,6 @@ class SingleUserTest(FunctionalTest):
         # She hasn't made a recording yet so she can't submit
         submit = self.browser.find_element_by_id('submit')
         self.assertIn('true', submit.get_attribute('disabled'))
-
-        # Nothing on the page has changed
-        self.assert_status("Message 1 of 1")
-        self.assert_audio_src('crow-0.wav')
 
         # She uploads an audio file she already has on her computer
         self.upload_file()
@@ -121,7 +109,7 @@ class SingleUserTest(FunctionalTest):
 
         # She sees the name of the game on the status bar
         game_txt = self.browser.find_element_by_id('game').text
-        self.assertEquals(game_txt, 'Test Game')
+        self.assertEquals(game_txt, game_name)
 
     def test_multi_entries(self):
         """ Simulate a player making two entries to two clusters.

@@ -2,6 +2,7 @@ import sys
 from unipath import Path
 
 from django.conf import settings
+from django.core.files import File
 from django.test import LiveServerTestCase, override_settings
 
 from selenium import webdriver
@@ -36,8 +37,9 @@ class FunctionalTest(LiveServerTestCase):
             Message.objects.create(chain = chain) # ready for upload
         else:
             with open(self.path_to_test_audio(), 'rb') as seed_handle:
-                seed_file = File(seed_audio)
-                Message.objects.create(chain = chain, audio = seed_file)
+                seed_file = File(seed_handle)
+                message = Message.objects.create(chain = chain, audio = seed_file)
+                message.replicate()
 
     def new_user(self):
         if self.browser:

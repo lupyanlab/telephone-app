@@ -28,6 +28,8 @@ $( "#sound" ).bind("ended", function() {
         $("#record").removeClass("unavailable");
     }
 
+    $("#listen").addClass("played");
+
 });
 
 $( "#listen" ).click(function( event ) {
@@ -67,7 +69,7 @@ $( "#record" ).click(function( event ) {
     if( !audioRecorder ) {
         updateMessage("Share your microphone to play.");
         return;
-    } else if( $(this).hasClass("unavailable") ) {
+    } else if( !$("#listen").hasClass("played") ) {
         updateMessage("You have to listen to the sound first.");
         return;
     } else if( $("#listen").hasClass("active") ) {
