@@ -129,6 +129,7 @@ function visualize(incData) {
         })
         .append("text")
         .text(function(el) { return el.audio ? "play" : "upload"; })
+        .attr("class", function(el) { return el.audio ? "play" : "upload"; })
         .on("click", function(el) { return el.audio ? playMessage(el) : navToUploadPage(el); })
 
     splitChain = function(message) {

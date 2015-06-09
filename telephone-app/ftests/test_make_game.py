@@ -13,6 +13,10 @@ class MakeGameTest(FunctionalTest):
         chain = Chain.objects.create(game = game) # will use defaults
         Message.objects.create(chain = chain)     # ready for upload
 
+    def select_svg_messages(self):
+        svg = self.browser.find_element_by_tag_name('svg')
+        return svg.find_elements_by_css_selector('g.message')
+
     def test_make_new_game_via_form(self):
         """ Simulate a user making a new game """
         self.nav_to_games_list()
@@ -67,8 +71,7 @@ class MakeGameTest(FunctionalTest):
         self.nav_to_games_list()
         self.inspect_game(game_name)
 
-        svg = self.browser.find_element_by_tag_name('svg')
-        messages = svg.find_elements_by_css_selector('g.message')
+        messages = self.select_svg_messages()
         self.assertEquals(len(messages), 2)
 
     def test_upload_seed(self):
@@ -86,8 +89,7 @@ class MakeGameTest(FunctionalTest):
         chain = game.chain_set.first()
 
         # He sees that the game has a single chain with a single message.
-        svg = self.browser.find_element_by_tag_name('svg')
-        messages = svg.find_elements_by_css_selector('g.message')
+        messages = self.select_svg_messages()
         self.assertEquals(len(messages), 1)
 
         # The message doesn't yet have a seed.
@@ -106,8 +108,7 @@ class MakeGameTest(FunctionalTest):
         self.wait_for(tag = 'svg')
 
         # He sees that two sounds are now visible on the inspect page
-        svg = self.browser.find_element_by_tag_name('svg')
-        messages = svg.find_elements_by_css_selector('g.message')
+        messages = self.select_svg_messages()
         self.assertEquals(len(messages), 2)
 
         # The first message now has name
