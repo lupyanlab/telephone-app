@@ -111,6 +111,7 @@ function visualize(incData) {
     })
     .append("text")
     .text(function(el) { return el.audio ? "split" : "close"; })
+    .attr("class", function(el) { return el.audio ? "split" : "close"; })
     .on("click", function(el) { return el.audio ? splitChain(el) : closeBranch(el); })
 
 

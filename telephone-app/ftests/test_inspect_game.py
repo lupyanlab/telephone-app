@@ -2,6 +2,12 @@ from .base import FunctionalTest
 
 class InspectGameTest(FunctionalTest):
 
+    def assert_filled_message(self, message_group):
+        self.assertEquals(message_group.get_attribute('class'), 'message filled')
+
+    def assert_empty_message(self, message_group):
+        self.assertEquals(message_group.get_attribute('class'), 'message empty')
+
     def test_upload_seed(self):
         """ Simulate uploading a seed to an empty game via the inspect view """
         game_name = 'Empty Game'
@@ -50,5 +56,20 @@ class InspectGameTest(FunctionalTest):
         messages = self.select_svg_messages()
         self.assertEquals(len(messages), 2)
 
-        # He clicks to split the chain
+        # He finds the seed message
         seed_message = messages[0]
+        self.assert_filled_message(seed_message)
+
+        # He clicks to split the chain
+        seed_message.find_element_by_class_name('split').click()
+        self.wait_for(tag = 'body')
+
+        # After the page refreshes, he sees three message
+        messages = self.select_svg_messages()
+        self.assertEquals(len(messages), 3)
+
+        seed_message = messages.pop(0)
+        self.assert_filled_message(seed_message)
+
+        for msg in messages:
+            self.assert_empty_message(msg)
