@@ -10,11 +10,15 @@
     <svg>
     </svg>
   </div>
+
+  <!-- Form to submit when splitting a chain -->
+  <form id="controller" method="post" action="/" type="hidden"></form>
 {% endblock jumbotron %}
 
 {% block javascript %}
   <script src="{% static 'd3/d3.v3.min.js' %}" type="text/JavaScript"></script>
   <script src="{% static 'd3/colorbrewer.js' %}" type="text/JavaScript"></script>
+  <script src="{% static 'grunt/js/ajax.js' %}" type="text/javascript"></script>
   <script src="{% static 'grunt/js/inspect.js' %}" type="text/JavaScript"></script>
   <script>
 // temp global to make data accessible in js console

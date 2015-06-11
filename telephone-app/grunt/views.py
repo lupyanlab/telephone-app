@@ -6,6 +6,7 @@ from django.core.urlresolvers import reverse
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_GET, require_POST
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View, ListView, FormView, DetailView, UpdateView
 
 from .models import Game, Chain, Message
@@ -156,8 +157,10 @@ def clear(request, pk):
     request.session['receipts'] = list()
     return redirect('play', pk = pk)
 
+@csrf_exempt
 @require_POST
 def sprout(request, pk):
+    print 'sprouting'
     message = get_object_or_404(Message, pk = pk)
     message.replicate()
 

@@ -1,7 +1,5 @@
 /* Make sure that AJAX can POST to the server */
 
-//TODO: jQuery has a getCookie plugin
-// using jQuery
 function getCookie(name) {
     var cookieValue = null;
     if (document.cookie && document.cookie != '') {
@@ -18,7 +16,7 @@ function getCookie(name) {
     return cookieValue;
 }
 
-csrftoken = getCookie('csrftoken');
+var csrftoken = getCookie('csrftoken');
 
 function csrfSafeMethod(method) {
     // these HTTP methods do not require CSRF protection

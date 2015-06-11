@@ -62,6 +62,7 @@ class InspectGameTest(FunctionalTest):
 
         # He clicks to split the chain
         seed_message.find_element_by_class_name('split').click()
+
         self.wait_for(tag = 'body')
 
         # After the page refreshes, he sees three message

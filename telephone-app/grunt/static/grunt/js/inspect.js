@@ -93,10 +93,17 @@ function visualize(incData) {
     .on("click", function(el) { return el.audio ? playMessage(el) : navToUploadPage(el); })
 
   splitChain = function(message) {
-    console.log("splitting message");
-    console.log(message);
-    window.location.href = message.sprout_url
+    $.post(message.sprout_url, function() {
+      window.location.reload();
+    })
   }
+  
+  // splitChain = function(message) {
+  //   $.ajax({
+  //     url: message.sprout_url,
+  //     type: "POST",
+  //     success: function() { window.location.reload(); }
+  //   });
 
   closeBranch = function(message) {
     console.log("close chain");
