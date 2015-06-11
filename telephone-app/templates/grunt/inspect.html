@@ -2,43 +2,25 @@
 {% load static %}
 
 {% block styling %}
-    <style>
-        svg {
-            height: 800px;
-            width: 600px;
-            border: 1px solid gray;
-        }
-
-        circle {
-            stroke: black;
-            stroke-width: 2px;
-        }
-
-        .filled {
-            fill: blue;
-        }
-        .empty {
-            fill: white;
-        }
-    </style>
+  <link href="{% static 'grunt/css/inspect.css' %}" rel="stylesheet">
 {% endblock styling %}
 
 {% block jumbotron %}
-    <div id="viz">
-        <svg>
-        </svg>
-    </div>
+  <div id="viz">
+    <svg>
+    </svg>
+  </div>
 {% endblock jumbotron %}
 
 {% block javascript %}
-    <script src="{% static 'd3/d3.v3.min.js' %}" type="text/JavaScript"></script>
-    <script src="{% static 'd3/colorbrewer.js' %}" type="text/JavaScript"></script>
-    <script src="{% static 'grunt/js/inspect.js' %}" type="text/JavaScript"></script>
-    <script>
+  <script src="{% static 'd3/d3.v3.min.js' %}" type="text/JavaScript"></script>
+  <script src="{% static 'd3/colorbrewer.js' %}" type="text/JavaScript"></script>
+  <script src="{% static 'grunt/js/inspect.js' %}" type="text/JavaScript"></script>
+  <script>
 // temp global to make data accessible in js console
 var rawData;
 
 // give the D3 function the only thing it needs from Django
 d3.json("{% url 'message_data' pk=game.pk %}", visualize);
-    </script>
+  </script>
 {% endblock javascript %}
