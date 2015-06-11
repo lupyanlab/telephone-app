@@ -35,3 +35,20 @@ class InspectGameTest(FunctionalTest):
         # He sees that two sounds are now visible on the inspect page
         messages = self.select_svg_messages()
         self.assertEquals(len(messages), 2)
+
+    def test_split_chain(self):
+        """ Upload a seed and split the chain into two branches """
+        game_name = 'Two Chain Game'
+
+        # A game with a seed was already created
+        self.create_game(game_name, with_seed = True)
+
+        self.nav_to_games_list()
+        self.inspect_game(game_name)
+
+        # He sees a single chain with two messages
+        messages = self.select_svg_messages()
+        self.assertEquals(len(messages), 2)
+
+        # He clicks to split the chain
+        seed_message = messages[0]
