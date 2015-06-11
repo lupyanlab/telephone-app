@@ -15,11 +15,12 @@
 {% endblock header %}
 
 {% block jumbotron %}
+
   {{ block.super }}
 
   <p id="status" class="lead"></p>
 
-  {% include "_player.html" %}
+  {% include "grunt/_player.html" %}
 
   <audio id="sound" src="{{ url }}"></audio>
 
@@ -39,90 +40,12 @@
   {% endif %}
 {% endblock message %}
 
-{% block footer %}
-{% endblock footer %}
-
 {% block javascript %}
     <script type="text/javascript" src="{% static "grunt/js/recorderjs/recorder.js" %}"></script>
     <script type="text/javascript" src="{% static "grunt/js/audiorecorder.js" %}"></script>
     <script type="text/javascript" src="{% static "grunt/js/ajax.js" %}"></script>
     <script>
-var audioRecorder = null;
-
-// recorderjs uses javascript workers that require a full path
-var cfg = { workerPath: "{% static 'grunt/js/recorderjs/recorderWorker.js' %}" };
-
-function updateValues( response ) {
-
-    // Update the relevant parts of the page given the JSON response,
-    // and reset the button states for a new entry.
-
-    $( "#id_chain" ).val(response.chain);
-    $( "#id_parent" ).val(response.parent);
-    $( "#sound" ).attr("src", response.url);
-    $( "#status" ).text(response.status);
-
-    $( "#record" ).addClass("unavailable");
-    $( "#submit" ).prop("disabled", true);
-    $( "#listen" ).removeClass("active");
-    $( "#record" ).removeClass("active");
-
-    updateMessage("");
-
-}
-
-function micShared() {
-
-    $( "#share" ).addClass("active");
-    $( "#record" ).removeClass("unavailable");
-    updateMessage("");
-
-}
-
-
-function postEntry( blob ) {
-
-    // Post the entry via AJAX.
-    //
-    // Grab the data in the form, put it in a FormData object,
-    // append the blob, and submit it. Possible responses are:
-    // (1) -- valid form   -- new url
-    // (2)                 -- values for next entry
-    // (3) -- invalid form -- error message(s)
-
-    var entryForm = document.getElementById("entry");
-    var formData = new FormData(entryForm);
-    formData.append("content", blob);
-
-    $.ajax({
-        url: "{% url "play" pk=game.pk %}",
-        type: "POST",
-        data: formData,
-        processData: false,
-        contentType: false,
-        success: function(response) {
-
-            // The server responds with the URL of the completion page
-            // or the values to update for the next entry.
-
-            if (response.complete) {
-                window.location.replace(response.complete);
-            } else {
-                $( "#status" ).text("Success!");
-                $( "#status" ).addClass("bg-success");
-
-                setTimeout(function() {
-                    $( "#status" ).removeClass("bg-success");
-                    updateValues(response);
-                }, 2000);  // show success message for 2 seconds
-            }
-
-        },
-        error: function(xhr, msg, err) {
-            updateMessage("There was a problem processing your entry");
-        }
-    });
-}
-
+var audioRecorder = null,
+    recorderWorkerPath = "{% static 'grunt/js/recorderjs/recorderWorker.js' %}";
     </script>
 {% endblock javascript %}

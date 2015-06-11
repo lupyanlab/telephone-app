@@ -3,6 +3,78 @@ window.AudioContext = window.AudioContext || window.webkitAudioContext;
 var audioContext = new AudioContext(),
     audioInput = null;
 
+
+function updateValues( response ) {
+
+    // Update the relevant parts of the page given the JSON response,
+    // and reset the button states for a new entry.
+
+    $( "#id_chain" ).val(response.chain);
+    $( "#id_parent" ).val(response.parent);
+    $( "#sound" ).attr("src", response.url);
+    $( "#status" ).text(response.status);
+
+    $( "#record" ).addClass("unavailable");
+    $( "#submit" ).prop("disabled", true);
+    $( "#listen" ).removeClass("active");
+    $( "#record" ).removeClass("active");
+
+    updateMessage("");
+
+}
+
+function micShared() {
+
+    $( "#share" ).addClass("active");
+    $( "#record" ).removeClass("unavailable");
+    updateMessage("");
+
+}
+
+function postEntry( blob ) {
+
+    // Post the entry via AJAX.
+    //
+    // Grab the data in the form, put it in a FormData object,
+    // append the blob, and submit it. Possible responses are:
+    // (1) -- valid form   -- new url
+    // (2)                 -- values for next entry
+    // (3) -- invalid form -- error message(s)
+
+    var entryForm = document.getElementById("entry");
+    var formData = new FormData(entryForm);
+    formData.append("content", blob);
+
+    $.ajax({
+        url: $("#entry").attr("action"), // get
+        type: "POST",
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(response) {
+
+            // The server responds with the URL of the completion page
+            // or the values to update for the next entry.
+
+            if (response.complete) {
+                window.location.replace(response.complete);
+            } else {
+                $( "#status" ).text("Success!");
+                $( "#status" ).addClass("bg-success");
+
+                setTimeout(function() {
+                    $( "#status" ).removeClass("bg-success");
+                    updateValues(response);
+                }, 2000);  // show success message for 2 seconds
+            }
+
+        },
+        error: function(xhr, msg, err) {
+            updateMessage("There was a problem processing your entry");
+        }
+    });
+}
+
 $( "#share" ).click(function( event ) {
 
     // Get permission to get the audio stream
@@ -136,7 +208,7 @@ function connectAudio( callback ) {
         {audio: true},
         function(stream) {
             audioInput = audioContext.createMediaStreamSource(stream);
-            audioRecorder = new Recorder( audioInput, cfg );
+            audioRecorder = new Recorder( audioInput, {workerPath: recorderWorkerPath} );
             callback();
         },
         function(err) {
