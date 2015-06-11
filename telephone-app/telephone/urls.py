@@ -8,8 +8,4 @@ urlpatterns = patterns('',
     url(r'^$', TemplateView.as_view(template_name = 'home.html')),
     url(r'^games/', include('grunt.urls')),
     url(r'^admin/', include(admin.site.urls)),
-)
-
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL,
-                          document_root = settings.MEDIA_ROOT)
+) + static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

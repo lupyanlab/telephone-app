@@ -35,10 +35,7 @@ function postEntry( blob ) {
   // Post the entry via AJAX.
   //
   // Grab the data in the form, put it in a FormData object,
-  // append the blob, and submit it. Possible responses are:
-  // (1) -- valid form   -- new url
-  // (2)         -- values for next entry
-  // (3) -- invalid form -- error message(s)
+  // append the blob, and submit it.
 
   var entryForm = document.getElementById("entry");
   var formData = new FormData(entryForm);
@@ -92,11 +89,13 @@ $( "#share" ).click(function( event ) {
 });
 
 function sharedRecorder() {
+
+  // Called after audio is connected.
+
   if ($("#sound").attr("src")) {
-  $("#listen").removeClass("unavailable");
+    $("#listen").removeClass("unavailable");
   } else {
-  $("#listen").addClass("played");
-  $("#record").removeClass("unavailable");
+    listenedToSound();
   }
 }
 
@@ -105,13 +104,22 @@ $( "#sound" ).bind("ended", function() {
   // Update to indicate that the sound is done playing
 
   $("#listen").removeClass("active");
+  listenedToSound();
+
+});
+
+function listenedToSound() {
+
+  // Called after the audio is listened to
+  // or when audio isn't available
+
+  $("#listen").addClass("played");
+
   if( $("#record").hasClass("unavailable") ) {
     $("#record").removeClass("unavailable");
   }
 
-  $("#listen").addClass("played");
-
-});
+}
 
 $( "#listen" ).click(function( event ) {
 

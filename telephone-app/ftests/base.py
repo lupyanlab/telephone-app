@@ -77,7 +77,13 @@ class FunctionalTest(LiveServerTestCase):
         self.browser.find_element_by_id('accept').click()
 
     def simulate_sharing_mic(self):
-        self.browser.execute_script('audioRecorder = true; micShared();')
+        """ Execute the operations in micShared() """
+        self.browser.execute_script("""
+            audioRecorder = true;
+            $( "#share" ).addClass("active");
+            $( "#record" ).removeClass("unavailable");
+            updateMessage("");
+        """)
 
     def path_to_test_audio(self):
         return Path(settings.APP_DIR, 'grunt/tests/media/test-audio.wav')
