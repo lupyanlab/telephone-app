@@ -118,33 +118,27 @@ class SingleUserTest(FunctionalTest):
         self.assertEquals(game_txt, game_name)
 
     def test_multi_entries(self):
-        """ Simulate a player making two entries to two clusters.
-
-        Also ensure that games with completion codes are rendered in the
-        template. """
-        completion_code = 'test-multi-clusters'
-        self.create_game(code = completion_code, seeds = ['crow', 'bark'])
+        """ Simulate a player making two entries to two chains """
+        game_name = 'Two Chain Game'
+        self.create_game(name = game_name, nchains = 2, with_seed = True)
 
         # She navigates to the game page
-        game_url = self.nav_to_play()
+        self.nav_to_games_list()
+        self.play_game(game_name)
 
-        # She sees that she is going to make two entries
-        self.assert_status("Message 1 of 2")
+        # She accepts the instructions
+        self.accept_instructions()
 
         # The entry form is ready
-        self.assert_audio_src('crow-0.wav')
+        self.assert_audio_src(r'chain-[12]/0.wav')
 
         # She uploads her first entry
         self.upload_file()
         self.browser.find_element_by_id('submit').click()  ## non-ajax POST
         self.wait_for(tag = 'body')
 
-        # Her status has updated but she hasn't changed page
-        self.assert_status("Message 2 of 2")
-        self.assertEquals(self.browser.current_url, game_url)
-
         # Now she listens to a new entry
-        self.assert_audio_src('bark-0.wav')
+        self.assert_audio_src(r'chain-[12]/0.wav')
 
         # She makes her second entry
         self.upload_file()
@@ -152,13 +146,5 @@ class SingleUserTest(FunctionalTest):
         self.wait_for(tag = 'body')
 
         # Her entry was successful
-        #self.assert_status(self.browser, "You've made 2 of 2 entries")
-        self.assert_completion_code(completion_code)
-
-        # She clicks the button to go back to the game page
-        self.browser.find_element_by_id('return').click()
-        self.assertRegexpMatches(self.browser.current_url, r'/calls/$')
-
-        # She tries to play the same game again
-        self.click_on_first_game()
-        self.assert_completion_code(completion_code)
+        message = self.browser.find_element_by_tag_name('p').text
+        self.assertEquals(message, "Keep gruntin'!")
