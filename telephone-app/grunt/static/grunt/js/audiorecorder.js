@@ -11,6 +11,7 @@ $( "#share" ).click(function( event ) {
     if (!audioRecorder) {
         // connect the audio and change the button state
         connectAudio( micShared );
+        sharedRecorder();
     } else {
         audioRecorder = null;
         $( "#share" ).removeClass("active");
@@ -18,6 +19,15 @@ $( "#share" ).click(function( event ) {
     }
 
 });
+
+function sharedRecorder() {
+  if ($("#sound").attr("src")) {
+    $("#listen").removeClass("unavailable");
+  } else {
+    $("#listen").addClass("played");
+    $("#record").removeClass("unavailable");
+  }
+}
 
 $( "#sound" ).bind("ended", function() {
 

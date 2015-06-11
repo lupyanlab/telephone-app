@@ -79,9 +79,15 @@ class SingleUserTest(FunctionalTest):
         recorder.click()
         self.assert_error_message("Share your microphone to play.")
 
+        import time
+        time.sleep(60)
+
         # She shares her microphone but she still can't play the sound.
         self.simulate_sharing_mic()
         recorder.click()
+
+
+
         self.assert_error_message("You have to listen to the sound first.")
 
         # She plays the sound

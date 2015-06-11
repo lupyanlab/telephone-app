@@ -6,55 +6,46 @@
 {% endblock styling %}
 
 {% block header %}
-
-    <nav>
-        <ul class="nav nav-pills pull-right">
-            <li id="share" role="presentation"><a href="#">Share Mic</a></li>
-        </ul>
-    </nav>
-
-    <h3 id="game" class="text-muted">{{ game }}</h3>
-
+  <h3 id="game" class="text-muted">{{ game }}</h3>
+  <nav>
+    <ul class="nav nav-pills pull-right">
+      <li id="share" role="presentation"><a href="#">Share Mic</a></li>
+    </ul>
+  </nav>
 {% endblock header %}
 
 {% block jumbotron %}
+  {{ block.super }}
+  <p id="status" class="lead"></p>
+  <div class="row">
+    <div class="col-md-2 col-sm-1"></div>
+    <div class="col-md-4 col-sm-5 col-xs-6">
+      <img id="phone" src="{% static 'grunt/img/phone.png' %}" class="img-responsive"/>
+    </div>
+    <div class="col-md-4 col-sm-5 col-xs-6">
+      <img id="listen" src="{% static 'grunt/img/listen.png' %}" class="img-responsive unavailable"/>
+      <img id="record" src="{% static 'grunt/img/record.png' %}" class="img-responsive unavailable"/>
+    </div>
+    <div class="col-md-2 col-sm-1"></div>
+  </div>
 
-    {{ block.super }}
+  <audio id="sound" src="{{ url }}"></audio>
 
-    <form id="entry" method="post" action="{{ game.get_absolute_url }}" enctype="multipart/form-data">
-        {% csrf_token %}
+  <form id="entry" method="post" action="{{ game.get_absolute_url }}" enctype="multipart/form-data">
+    {% csrf_token %}
 
-        <p id="status" class="lead"></p>
-        <div class="row">
-            <div class="col-md-2 col-sm-1"></div>
-            <div class="col-md-4 col-sm-5 col-xs-6">
-                <img id="phone" src="{% static 'grunt/img/phone.png' %}" class="img-responsive"/>
-            </div>
-            <div class="col-md-4 col-sm-5 col-xs-6">
-              {% if url %}
-                <img id="listen" src="{% static 'grunt/img/listen.png' %}" class="img-responsive"/>
-              {% else %}
-                <img id="listen" src="{% static 'grunt/img/listen.png' %}" class="img-responsive unavailable"/>
-              {% endif %}
-                <img id="record" src="{% static 'grunt/img/record.png' %}" class="img-responsive unavailable"/>
-            </div>
-            <div class="col-md-2 col-sm-1"></div>
-        </div>
+    {{ form.parent.as_hidden }}
+    {{ form.audio.as_hidden }}
 
-        {{ form.parent.as_hidden }}
-        {{ form.audio.as_hidden }}
-        <audio id="sound" src="{{ url }}"></audio>
-
-        <p id="message" class="lead bg-danger">
-            {% if form.content.errors %}
-                {{ form.content.errors.as_text|cut:"* "}}
-            {% endif %}
-        </p>
-
-        <input type="submit" value="Send" id="submit" class="btn btn-lg btn-primary" disabled="disabled"/>
-    </form>
-
+    <input type="submit" value="Send" id="submit" class="btn btn-lg btn-primary" disabled="disabled"/>
+  </form>
 {% endblock jumbotron %}
+
+{% block message %}
+  {% if form.content.errors %}
+    {{ form.content.errors.as_text|cut:"* "}}
+  {% endif %}
+{% endblock message %}
 
 {% block footer %}
 {% endblock footer %}
@@ -140,5 +131,6 @@ function postEntry( blob ) {
         }
     });
 }
+
     </script>
 {% endblock javascript %}
