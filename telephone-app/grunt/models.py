@@ -99,7 +99,7 @@ class Chain(models.Model):
         -------
         a Message object
         """
-        messages = self.message_set.all()
+        messages = self.message_set.filter(audio = '')
         if messages.count() == 0:
             raise Message.DoesNotExist('No available messages')
 

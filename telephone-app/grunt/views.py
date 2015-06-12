@@ -59,7 +59,7 @@ class PlayView(View):
         return render(request, 'grunt/instruct.html', {'game': self.game})
 
     def play(self, request):
-        """ Render an entry form for a cluster not already in the session.
+        """ Render an entry form for a chain not already in the session.
 
         Raises an exception (Chain.DoesNotExist) if there are no more
         chains.

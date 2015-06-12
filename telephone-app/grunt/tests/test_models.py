@@ -57,10 +57,12 @@ class GameTest(ModelTest):
         self.assertEquals(str(game), 'game-{}'.format(game.pk))
 
     def test_dirname(self):
+        """ Games are stored in separate directories """
         game = mommy.make(Game)
         self.assertEquals(game.dirname(), 'game-{pk}'.format(pk = game.pk))
 
     def test_dirname_ignores_name(self):
+        """ Game directories are not named by the game name """
         game = mommy.make(Game, name = 'The Game Name')
         self.assertEquals(game.dirname(), 'game-{pk}'.format(pk = game.pk))
 
@@ -73,11 +75,13 @@ class GameTest(ModelTest):
         self.assertEquals(game.pick_next_chain(receipts[:1]), chains[1])
 
     def test_pick_next_chain_fails_when_game_is_empty(self):
+        """ Raise a DoesNotExist exception when picking from an empty game """
         game = mommy.make(Game)
         with self.assertRaises(Chain.DoesNotExist):
             game.pick_next_chain()
 
     def test_pick_next_chain_fails_when_all_chains_excluded(self):
+        """ Raise a DoesNotExist exception when all chains have been picked """
         game = mommy.make(Game)
         chain = mommy.make(Chain, game = game)
         with self.assertRaises(Chain.DoesNotExist):
@@ -118,6 +122,13 @@ class ChainTest(ModelTest):
         young_message = mommy.make(Message, generation = 4, chain = chain)
         self.assertEquals(chain.pick_next_message(), young_message)
 
+    def test_pick_only_empty_messages(self):
+        """ Chains only select messages that don't already have audio """
+        chain = mommy.make(Chain)
+        message = mommy.make(Message, chain = chain,
+                             _fill_optional = ['audio', ])
+        with self.assertRaises(Message.DoesNotExist):
+            chain.pick_next_message()
 
 class MessageTest(ModelTest):
     def setUp(self):
