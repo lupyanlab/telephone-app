@@ -1,3 +1,4 @@
+import time
 import sys
 from unipath import Path
 
@@ -46,6 +47,9 @@ class FunctionalTest(LiveServerTestCase):
     def new_user(self):
         if self.browser:
             self.browser.quit()
+
+        time.sleep(2)
+
         self.browser = webdriver.Firefox()
         self.browser.implicitly_wait(5)
 
@@ -132,3 +136,9 @@ class FunctionalTest(LiveServerTestCase):
     def select_svg_messages(self):
         svg = self.browser.find_element_by_tag_name('svg')
         return svg.find_elements_by_css_selector('g.message')
+
+    def assert_filled_message(self, message_group):
+        self.assertEquals(message_group.get_attribute('class'), 'message filled')
+
+    def assert_empty_message(self, message_group):
+        self.assertEquals(message_group.get_attribute('class'), 'message empty')

@@ -113,8 +113,9 @@ class PlayView(View):
                 'form': form
             }
 
-            if form.instance.parent:
-                context_data['url'] = form.instance.parent.audio.url
+            parent = form.instance.parent
+            if parent.audio:
+                context_data['url'] = parent.audio.url
 
             return render(request, 'grunt/play.html', context_data)
 

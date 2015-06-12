@@ -2,12 +2,6 @@ from .base import FunctionalTest
 
 class InspectGameTest(FunctionalTest):
 
-    def assert_filled_message(self, message_group):
-        self.assertEquals(message_group.get_attribute('class'), 'message filled')
-
-    def assert_empty_message(self, message_group):
-        self.assertEquals(message_group.get_attribute('class'), 'message empty')
-
     def test_upload_seed(self):
         """ Simulate uploading a seed to an empty game via the inspect view """
         game_name = 'Empty Game'

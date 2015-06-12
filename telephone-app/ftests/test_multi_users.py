@@ -2,41 +2,58 @@ from .base import FunctionalTest
 
 class MultiUserTest(FunctionalTest):
 
-    def upload_and_post(self):
+    def submit_entry(self):
         self.upload_file()
         self.browser.find_element_by_id('submit').click()
         self.wait_for(tag = 'body')
 
+    def simulate_listening_to_sound(self):
+        self.browser.find_element_by_id('listen').click()
+
     def test_sequential_generations(self):
-        """ Simulate two players making entries to the same chain """
-        completion_code = 'test-seq-gen'
-        self.create_game(name = 'Game Name', seeds = ['crow', ], nchain = 1,
-                         code = completion_code)
+        """ Two players contribute to the same chain """
 
-        # The first player arrives at the homepage and selects the first game
-        # in the list.
-        game_url = self.nav_to_play()
+        # Simulate creating a game
+        game_name = 'Two Player Game'
+        self.create_game(game_name, with_seed = True)
 
-        # She listens to the seed entry, makes her recording, and uploads it
-        self.assert_audio_src('crow-0.wav')
-        self.upload_and_post()
+        # Marcus plays the game first
+        self.nav_to_games_list()
+        self.play_game(game_name)
+        self.accept_instructions()
+        self.simulate_sharing_mic()
+        self.simulate_listening_to_sound()
+        self.submit_entry()
+        message = self.browser.find_element_by_tag_name('p').text
+        self.assertEquals(message, "Keep gruntin'!")
 
-        # She is taken to the confirmation page and leaves the site
-        self.assert_completion_code(completion_code)
+
+        # Lynn comes along and plays the same game
         self.new_user()
+        self.nav_to_games_list()
+        self.play_game(game_name)
+        self.accept_instructions()
+        self.simulate_sharing_mic()
 
-        # The second player arrives at the site.
-        # She clicks on the same game as player 1
-        new_user_url = self.nav_to_play()
-        self.assertEquals(new_user_url, game_url,
-            "Players weren't playing the same game")
+        # She listens to Marcus's recording (second generation)
+        self.assert_audio_src('2.wav')
+        self.simulate_listening_to_sound()
+        self.submit_entry()
 
-        # She listens to the first player's entry
-        self.assert_audio_src('crow-1.wav')
+        # Pierce comes along to check on the progress
+        self.new_user()
+        self.nav_to_games_list()
+        self.inspect_game(game_name)
 
-        # She uploads her own entry and is taken to the completion page
-        self.upload_and_post()
-        self.assert_completion_code(completion_code)
+        # He sees 3 filled messages and a single open message
+        messages = self.select_svg_messages()
+        self.assertEquals(len(messages), 4)
+
+        empty_message = messages.pop()
+        self.assert_empty_message(empty_message)
+
+        for msg in messages:
+            self.assert_filled_message(msg)
 
     def test_parallel_chains(self):
         """ Simulate two players making entries in two parallel chains """
