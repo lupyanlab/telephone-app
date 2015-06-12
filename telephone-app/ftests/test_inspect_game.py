@@ -78,3 +78,49 @@ class InspectGameTest(FunctionalTest):
 
         for msg in messages:
             self.assert_empty_message(msg)
+
+    def test_close_chain(self):
+        """ Close an empty message """
+        game_name = 'Dead End Game'
+
+        self.create_game(game_name, with_seed = True)
+
+        self.nav_to_games_list()
+        self.inspect_game(game_name)
+
+        # Lynn sees two messages on the page
+        messages = self.select_svg_messages()
+        self.assertEquals(len(messages), 2)
+
+        # The child message is empty
+        child_message = messages[1]
+        self.assert_empty_message(child_message)
+
+        # She closes the child message
+        child_message.find_element_by_class_name('close').click()
+        self.wait_for(tag = 'body')
+
+        # After the page refreshes, she sees just one message
+        messages = self.select_svg_messages()
+        self.assertEquals(len(messages), 1)
+
+        # It's the seed message
+        seed_message = messages[0]
+        self.assert_filled_message(seed_message)
+
+        # She clicks to create two new chains
+        seed_message.find_element_by_class_name('split').click()
+        self.wait_for(tag = 'body')
+
+        seed_message = self.select_svg_messages()[0]
+        seed_message.find_element_by_class_name('split').click()
+        self.wait_for(tag = 'body')
+
+        messages = self.select_svg_messages()
+        self.assertEquals(len(messages), 3)
+
+        seed_message = messages.pop(0)
+        self.assert_filled_message(seed_message)
+
+        for msg in messages:
+            self.assert_empty_message(msg)

@@ -194,3 +194,22 @@ class UploadMessageViewTest(ViewTest):
 
         last_message = chain.message_set.last()
         self.assertEquals(last_message.parent, seed_message)
+
+class CloseViewTest(ViewTest):
+
+    def test_close_message_chain(self):
+        chain = mommy.make(Chain)
+        seed = mommy.make(Message, chain = chain)
+        child = mommy.make(Message, parent = seed, chain = chain)
+
+        seed_children = seed.message_set.all()
+        self.assertEquals(len(seed_children), 1)
+
+        url = reverse('close', kwargs = {'pk': child.pk})
+        self.client.post(url)
+
+        chain_messages = chain.message_set.all()
+        self.assertEquals(len(chain_messages), 1)
+
+        seed_children = seed.message_set.all()
+        self.assertEquals(len(seed_children), 0)

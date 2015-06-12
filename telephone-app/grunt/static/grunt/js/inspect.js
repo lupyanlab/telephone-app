@@ -77,8 +77,6 @@ function visualize(incData) {
   }
 
   navToUploadPage = function(message) {
-    console.log("navigating to upload page");
-    console.log(message);
     window.location.href = message.upload_url
   }
 
@@ -95,20 +93,13 @@ function visualize(incData) {
   splitChain = function(message) {
     $.post(message.sprout_url, function() {
       window.location.reload();
-    })
+    });
   }
-  
-  // splitChain = function(message) {
-  //   $.ajax({
-  //     url: message.sprout_url,
-  //     type: "POST",
-  //     success: function() { window.location.reload(); }
-  //   });
 
   closeBranch = function(message) {
-    console.log("close chain");
-    console.log(message);
-    window.location.href = message.close_url
+    $.post(message.close_url, function() {
+      window.location.reload();
+    });
   }
 
   d3.selectAll("g.message")
@@ -120,7 +111,6 @@ function visualize(incData) {
     .text(function(el) { return el.audio ? "split" : "close"; })
     .attr("class", function(el) { return el.audio ? "split" : "close"; })
     .on("click", function(el) { return el.audio ? splitChain(el) : closeBranch(el); })
-
 
   d3.select("g.chain").selectAll("path")
     .data(treeChart.links(treeChart(nestedMessages)))

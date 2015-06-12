@@ -158,6 +158,7 @@ def sprout(request, pk):
     game_url = message.chain.game.get_inspect_url()
     return redirect(game_url)
 
+@csrf_exempt
 @require_POST
 def close(request, pk):
     message = get_object_or_404(Message, pk = pk)
