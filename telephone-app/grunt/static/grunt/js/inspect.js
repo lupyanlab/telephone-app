@@ -72,8 +72,8 @@ function visualize(incData) {
     bumpTextsDown = 5;
 
   playMessage = function(message) {
-    console.log("playing message");
-    console.log(message);
+    $("audio").attr("src", message.audio);
+    $("audio").trigger("play");
   }
 
   navToUploadPage = function(message) {
