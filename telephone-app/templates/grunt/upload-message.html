@@ -4,7 +4,7 @@
 
     {{ block.super }}
 
-    <form action="" method="post">
+    <form action="{% url 'upload' pk=message.pk %}" method="post" enctype="multipart/form-data">
       {% csrf_token %}
       {{ form }}
       <input id="id_submit" type="submit" value="Upload Message" />

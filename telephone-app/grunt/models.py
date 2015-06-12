@@ -172,3 +172,6 @@ class Message(models.Model):
         child.full_clean()
         child.save()
         return child
+
+    def save(self, *args, **kwargs):
+        return super(Message, self).save(*args, **kwargs)

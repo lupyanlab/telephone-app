@@ -42,6 +42,10 @@ class InspectGameTest(FunctionalTest):
         messages = self.select_svg_messages()
         self.assertEquals(len(messages), 2)
 
+        seed_message, empty_message = messages
+        self.assert_filled_message(seed_message)
+        self.assert_empty_message(empty_message)
+
     def test_split_chain(self):
         """ Upload a seed and split the chain into two branches """
         game_name = 'Two Chain Game'
