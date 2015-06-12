@@ -21,7 +21,8 @@
   <script src="{% static 'grunt/js/inspect.js' %}" type="text/JavaScript"></script>
   <script>
 // temp global to make data accessible in js console
-var rawData;
+var rawData,
+    csrf_token = "{{ csrf_token }}";
 
 // give the D3 function the only thing it needs from Django
 d3.json("{% url 'message_data' pk=game.pk %}", visualize);

@@ -25,14 +25,7 @@ function visualize(incData) {
 
   var firstChain = incData[0];
 
-  // nestedMessages = d3.nest()
-  //   .key(function (el) { return el.id })
-  //   .entries(incData);
-  //
-  // packableMessages = {id: "cluster1", values: nestedMessages}
-
   nestedMessages = tree(firstChain.messages);
-  //console.log(nestedMessages);
 
   var generationScale = d3.scale.category10([1,2,3,4]);
 
@@ -91,13 +84,13 @@ function visualize(incData) {
     .on("click", function(el) { return el.audio ? playMessage(el) : navToUploadPage(el); })
 
   splitChain = function(message) {
-    $.post(message.sprout_url, function() {
+    $.post(message.sprout_url, {csrfmiddlewaretoken: csrf_token}, function() {
       window.location.reload();
     });
   }
 
   closeBranch = function(message) {
-    $.post(message.close_url, function() {
+    $.post(message.close_url, {csrfmiddlewaretoken: csrf_token}, function() {
       window.location.reload();
     });
   }
