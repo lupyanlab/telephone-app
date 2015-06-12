@@ -4,6 +4,7 @@ from django.core.urlresolvers import reverse
 from .models import Game, Chain, Message
 
 class NewGameForm(forms.ModelForm):
+    num_chains = forms.IntegerField(initial = 1, min_value = 1)
 
     class Meta:
         model = Game
@@ -11,8 +12,11 @@ class NewGameForm(forms.ModelForm):
 
     def save(self, *args, **kwargs):
         game = super(NewGameForm, self).save(*args, **kwargs)
-        chain = game.chain_set.create()
-        message = chain.message_set.create()
+
+        for _ in range(self.cleaned_data['num_chains']):
+            chain = game.chain_set.create()
+            message = chain.message_set.create()
+
         return game
 
 class UploadMessageForm(forms.ModelForm):

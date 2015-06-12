@@ -26,3 +26,32 @@ class MakeGameTest(FunctionalTest):
         my_new_game = games[0]
         my_new_game_name = my_new_game.find_element_by_tag_name('h2').text
         self.assertEquals(my_new_game_name, new_game_name)
+
+    def test_make_game_with_multiple_chains(self):
+        """ Make a game with multiple chains """
+        self.nav_to_games_list()
+
+        self.browser.find_element_by_id('id_new_game').click()
+
+        new_game_name = 'Two Chain Game'
+        num_chains = 2
+        self.browser.find_element_by_id('id_name').send_keys(new_game_name)
+        # self.browser.find_element_by_id('id_num_chains').send_keys(num_chains)
+        self.browser.execute_script(
+            'document.getElementById("id_num_chains").setAttribute("value", {});'.format(num_chains)
+        )
+        self.browser.find_element_by_id('id_submit').click()
+
+        # He sees his new game on the game list page
+        games_list = self.browser.find_element_by_id('id_game_list')
+        games = games_list.find_elements_by_tag_name('li')
+        self.assertEquals(len(games), 1)
+        my_new_game = games[0]
+        my_new_game_name = my_new_game.find_element_by_tag_name('h2').text
+        self.assertEquals(my_new_game_name, new_game_name)
+
+        # He inspects the game and sees the two chains
+        self.inspect_game(new_game_name)
+
+        svg_elements = self.browser.find_elements_by_tag_name('svg')
+        self.assertEquals(len(svg_elements), num_chains)
