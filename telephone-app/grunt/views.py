@@ -140,14 +140,6 @@ class MessageView(DetailView):
     model = Message
 
 @require_POST
-def upload(request, pk):
-    form = MessageForm(request.POST, request.FILES)
-    if form.is_valid():
-        message = form.save()
-
-        message.replicate()
-
-@require_POST
 def accept(request, pk):
     request.session['instructed'] = True
     return redirect('play', pk = pk)

@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, url
 
 from .views import GamesView, NewGameView, PlayView, InspectView, UploadMessageView
-from .views import accept, clear, message_data, sprout, close, upload
+from .views import accept, clear, message_data, sprout, close
 
 urlpatterns = patterns('',
     url(

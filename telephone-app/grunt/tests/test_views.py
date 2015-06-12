@@ -7,7 +7,7 @@ from django.test import TestCase, override_settings
 from unipath import Path
 from model_mommy import mommy
 
-from grunt.forms import NewGameForm, ResponseForm, MessageForm
+from grunt.forms import NewGameForm, ResponseForm
 from grunt.models import Game, Chain, Message
 
 TEST_MEDIA_ROOT = Path(settings.MEDIA_ROOT + '-test')
