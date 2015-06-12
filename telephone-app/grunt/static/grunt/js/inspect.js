@@ -18,13 +18,34 @@ function tree(nodes) {
   return nodes[0];
 }
 
+function playMessage(message) {
+  $("audio").attr("src", message.audio);
+  $("audio").trigger("play");
+}
+
+function navToUploadPage(message) {
+  window.location.href = message.upload_url
+}
+
+
+function splitChain(message) {
+  $.post(message.sprout_url, {csrfmiddlewaretoken: csrf_token}, function() {
+    window.location.reload();
+  });
+}
+
+function closeBranch(message) {
+  $.post(message.close_url, {csrfmiddlewaretoken: csrf_token}, function() {
+    window.location.reload();
+  });
+}
+
 function visualize(incData) {
   incData = JSON.parse(incData);
 
   rawData = incData;
 
   var firstChain = incData[0];
-
   nestedMessages = tree(firstChain.messages);
 
   var generationScale = d3.scale.category10([1,2,3,4]);
@@ -62,16 +83,7 @@ function visualize(incData) {
     .attr("r", 10);
 
   var bumpTextsRight = 15,
-    bumpTextsDown = 5;
-
-  playMessage = function(message) {
-    $("audio").attr("src", message.audio);
-    $("audio").trigger("play");
-  }
-
-  navToUploadPage = function(message) {
-    window.location.href = message.upload_url
-  }
+      bumpTextsDown = 5;
 
   d3.selectAll("g.message")
     .append("g")
@@ -82,18 +94,6 @@ function visualize(incData) {
     .text(function(el) { return el.audio ? "play" : "upload"; })
     .attr("class", function(el) { return el.audio ? "play" : "upload"; })
     .on("click", function(el) { return el.audio ? playMessage(el) : navToUploadPage(el); })
-
-  splitChain = function(message) {
-    $.post(message.sprout_url, {csrfmiddlewaretoken: csrf_token}, function() {
-      window.location.reload();
-    });
-  }
-
-  closeBranch = function(message) {
-    $.post(message.close_url, {csrfmiddlewaretoken: csrf_token}, function() {
-      window.location.reload();
-    });
-  }
 
   d3.selectAll("g.message")
     .append("g")
@@ -112,5 +112,4 @@ function visualize(incData) {
     .style("fill", "none")
     .style("stroke", "black")
     .style("stroke-width", "2px");
-
 }
