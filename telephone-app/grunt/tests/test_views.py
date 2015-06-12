@@ -167,3 +167,18 @@ class InspectViewTest(ViewTest):
         game = mommy.make(Game)
         response = self.client.get(game.get_inspect_url())
         self.assertTemplateUsed(response, 'grunt/inspect.html')
+
+class UploadMessageViewTest(ViewTest):
+
+    def test_uploading_audio_to_empty_message_sprouts_new_message(self):
+        chain = mommy.make(Chain)
+        seed_message = mommy.make(Message, chain = chain)
+        url = reverse('upload', kwargs = {'pk': seed_message.pk})
+        with open(self.audio_path, 'rb') as audio_handle:
+            self.client.post(url, {'audio': audio_handle})
+
+        messages_in_chain = chain.message_set.all()
+        self.assertEquals(len(messages_in_chain), 2)
+
+        last_message = chain.message_set.last()
+        self.assertEquals(last_message.parent, seed_message)

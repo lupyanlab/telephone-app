@@ -15,17 +15,6 @@ class NewGameForm(forms.ModelForm):
         message = chain.message_set.create()
         return game
 
-class UploadMessageForm(forms.ModelForm):
-
-    class Meta:
-        model = Message
-        fields = ('audio', )
-
-    def save(self, *args, **kwargs):
-        message = super(UploadMessageForm, self).save(*args, **kwargs)
-        message.replicate()
-        return message
-
 class ResponseForm(forms.ModelForm):
 
     class Meta:
