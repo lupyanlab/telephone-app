@@ -45,8 +45,6 @@ function createChainTree(chain) {
   var chainName = "chain-" + chain.pk.toString();
   var nestedMessages = tree(chain.messages);
 
-  var generationScale = d3.scale.category10([1,2,3,4]);
-
   treeChart = d3.layout.tree();
   treeChart.size([500, 500])
     .children(function(d) { return d.children });
