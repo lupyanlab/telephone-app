@@ -119,8 +119,8 @@ class PlayViewTest(ViewTest):
         """ Post an entry without a recording """
         invalid_post = {'parent': self.message.pk}
         response = self.client.post(self.game.get_absolute_url(), invalid_post)
-        errors = response.context['form'].errors
-        self.assertEquals(errors['audio'][0], "This field is required.")
+        errors = response.context['form'].non_field_errors()
+        self.assertEquals(errors[0], "No audio file found")
 
     def test_exclude_chains_in_session(self):
         """ If there are receipts in the session, get the correct chain """

@@ -1,4 +1,5 @@
 from django import forms
+from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 
 from .models import Game, Chain, Message
@@ -35,15 +36,14 @@ class ResponseForm(forms.ModelForm):
         model = Message
         fields = ('parent', 'audio')
 
-    def __init__(self, *args, **kwargs):
-        super(ResponseForm, self).__init__(*args, **kwargs)
-        self.fields['audio'].required = True
-
     def clean(self, *args, **kwargs):
         """ Associate the new message with the same chain as the parent """
         super(ResponseForm, self).clean(*args, **kwargs)
         parent = self.cleaned_data['parent']
         self.instance.chain = parent.chain
+
+        if not self.cleaned_data['audio']:
+            raise ValidationError('No audio file found')
 
     def as_dict(self):
         parent = self.instance.parent

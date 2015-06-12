@@ -108,12 +108,14 @@ class PlayView(View):
 
             return self.get(request, pk)
         else:
-            parent = form.instance.parent
             context_data = {
                 'game': self.game,
-                'url': parent.audio.url,
                 'form': form
             }
+
+            if form.instance.parent:
+                context_data['url'] = form.instance.parent.audio.url
+
             return render(request, 'grunt/play.html', context_data)
 
     def complete(self, request):
