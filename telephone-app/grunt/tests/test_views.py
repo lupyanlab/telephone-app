@@ -170,6 +170,18 @@ class InspectViewTest(ViewTest):
 
 class UploadMessageViewTest(ViewTest):
 
+    def test_uploading_audio_to_empty_message_fills_that_message(self):
+        empty_message = mommy.make(Message)
+
+        self.assertEquals(empty_message.audio, '')
+
+        url = reverse('upload', kwargs = {'pk': empty_message.pk})
+        with open(self.audio_path, 'rb') as audio_handle:
+            self.client.post(url, {'audio': audio_handle})
+
+        seed_message = Message.objects.get(pk = empty_message.pk)
+        self.assertNotEqual(seed_message.audio, '')
+
     def test_uploading_audio_to_empty_message_sprouts_new_message(self):
         chain = mommy.make(Chain)
         seed_message = mommy.make(Message, chain = chain)

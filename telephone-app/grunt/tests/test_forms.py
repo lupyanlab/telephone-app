@@ -6,7 +6,7 @@ from django.test import TestCase, override_settings
 from model_mommy import mommy
 from unipath import Path
 
-from grunt.forms import NewGameForm, ResponseForm
+from grunt.forms import NewGameForm, ResponseForm, UploadMessageForm
 from grunt.models import Game, Chain, Message
 
 TEST_MEDIA_ROOT = Path(settings.MEDIA_ROOT + '-test')
@@ -81,3 +81,16 @@ class ResponseFormTest(FormTest):
                 chain = self.chain)
         form = ResponseForm(data = {'parent': message.pk})
         self.assertFalse(form.is_valid())
+
+class UploadMessageFormTest(FormTest):
+
+    def test_upload_audio_to_empty_message(self):
+        message = mommy.make(Message)
+        self.assertEqual(message.audio, '')
+
+        form = UploadMessageForm(instance = message,
+                                 files = {'audio': self.audio})
+        self.assertTrue(form.is_valid())
+
+        updated_message = form.save()
+        self.assertNotEqual(updated_message.audio, '')

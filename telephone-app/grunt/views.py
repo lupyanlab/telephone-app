@@ -10,7 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View, ListView, FormView, DetailView, UpdateView
 
 from .models import Game, Chain, Message
-from .forms import NewGameForm, ResponseForm
+from .forms import NewGameForm, ResponseForm, UploadMessageForm
 
 class GamesView(ListView):
     template_name = 'grunt/games.html'
@@ -168,14 +168,12 @@ def close(request, pk):
 
 class UploadMessageView(UpdateView):
     model = Message
-    fields = ('audio', )
+    form_class = UploadMessageForm
     template_name = 'grunt/upload-message.html'
 
     def form_valid(self, form):
         response = super(UploadMessageView, self).form_valid(form)
 
-        # give the now-filled message a child
-        message = self.object
-        message.replicate()
+        self.object.replicate()
 
         return response
