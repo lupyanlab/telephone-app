@@ -160,7 +160,6 @@ def clear(request, pk):
 @csrf_exempt
 @require_POST
 def sprout(request, pk):
-    print 'sprouting'
     message = get_object_or_404(Message, pk = pk)
     message.replicate()
 
