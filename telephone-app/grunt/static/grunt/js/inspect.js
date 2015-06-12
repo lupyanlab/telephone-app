@@ -27,26 +27,23 @@ function navToUploadPage(message) {
   window.location.href = message.upload_url
 }
 
-
 function splitChain(message) {
-  $.post(message.sprout_url, {csrfmiddlewaretoken: csrf_token}, function() {
-    window.location.reload();
-  });
+  $.post(message.sprout_url,
+    {csrfmiddlewaretoken: csrf_token},
+    function() { window.location.reload(); }
+  );
 }
 
 function closeBranch(message) {
-  $.post(message.close_url, {csrfmiddlewaretoken: csrf_token}, function() {
-    window.location.reload();
-  });
+  $.post(message.close_url,
+    {csrfmiddlewaretoken: csrf_token},
+    function() { window.location.reload(); }
+  );
 }
 
-function visualize(incData) {
-  incData = JSON.parse(incData);
-
-  rawData = incData;
-
-  var firstChain = incData[0];
-  nestedMessages = tree(firstChain.messages);
+function createChainTree(chain) {
+  var chainName = "chain-" + chain.pk.toString();
+  var nestedMessages = tree(chain.messages);
 
   var generationScale = d3.scale.category10([1,2,3,4]);
 
@@ -56,17 +53,16 @@ function visualize(incData) {
 
   var bumpDown = 40;
 
-  var linkGenerator = d3.svg.diagonal();
-  linkGenerator
+  var linkGenerator = d3.svg.diagonal()
     .projection(function (d) {return [d.x, d.y+bumpDown]})
 
-  // Make a g-element for every chain in the game
-  // Right now, assumes a single chain
-  d3.select("svg")
-    .append("g")
-    .attr("class", "chain")
+  // Make an svg element for each chain
+  d3.select("div.jumbotron")
+    .append("svg")
+    .attr("id", chainName)
 
-  d3.select("g.chain").selectAll("g") // assumes single chain
+  d3.select("#" + chainName)
+    .selectAll("g")
     .data(treeChart(nestedMessages))
     .enter()
     .append("g")
@@ -105,11 +101,23 @@ function visualize(incData) {
     .attr("class", function(el) { return el.audio ? "split" : "close"; })
     .on("click", function(el) { return el.audio ? splitChain(el) : closeBranch(el); })
 
-  d3.select("g.chain").selectAll("path")
+  d3.select("#" + chainName)
+    .selectAll("path")
     .data(treeChart.links(treeChart(nestedMessages)))
     .enter().insert("path","g")
     .attr("d", linkGenerator)
     .style("fill", "none")
     .style("stroke", "black")
     .style("stroke-width", "2px");
+}
+
+function visualize(messageData) {
+  messageData = JSON.parse(messageData);
+
+  messageData.forEach(
+    function (chain) {
+      createChainTree(chain);
+    }
+  );
+
 }
