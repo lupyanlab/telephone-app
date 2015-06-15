@@ -28,6 +28,7 @@ class UploadMessageForm(forms.ModelForm):
 
     def save(self, *args, **kwargs):
         message = super(UploadMessageForm, self).save(*args, **kwargs)
+        message.replicate()
         return message
 
 class ResponseForm(forms.ModelForm):

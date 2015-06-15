@@ -171,10 +171,3 @@ class UploadMessageView(UpdateView):
     model = Message
     form_class = UploadMessageForm
     template_name = 'grunt/upload-message.html'
-
-    def form_valid(self, form):
-        response = super(UploadMessageView, self).form_valid(form)
-
-        self.object.replicate()
-
-        return response
