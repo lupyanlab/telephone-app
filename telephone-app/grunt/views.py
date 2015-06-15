@@ -16,8 +16,10 @@ class GamesView(ListView):
     model = Game
 
     def get_queryset(self):
-        """ Only show active games """
-        return self.model._default_manager.filter(status = 'ACTIV')
+        """ Show active games with newest games first """
+        active_games = self.model._default_manager.filter(status = 'ACTIV')
+        newest_first = active_games.order_by('-id')
+        return newest_first
 
 class NewGameView(FormView):
     template_name = 'grunt/new-game.html'

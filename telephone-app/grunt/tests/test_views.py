@@ -38,16 +38,24 @@ class GamesViewTest(ViewTest):
 
     def test_games_show_up_on_home_page(self):
         """ Games should be listed on the home page """
-        expected_games = mommy.make(Game, _quantity = 10)
+        num_games = 10
+        expected_games = mommy.make(Game, _quantity = num_games)
         response = self.client.get(reverse('games'))
         visible_games = response.context['game_list']
-        self.assertListEqual(expected_games, list(visible_games))
+        self.assertEqual(len(visible_games), num_games)
 
     def test_inactive_games_not_shown(self):
         """ Games can be active or inactive """
         inactive_games = mommy.make(Game, status = "INACT", _quantity = 10)
         response = self.client.get(reverse('games'))
         self.assertEqual(len(response.context['game_list']), 0)
+
+    def test_most_recent_games_shown_first(self):
+        """ The newest games should be shown at the top """
+        _, newer_game = mommy.make(Game, _quantity = 2)
+        response = self.client.get(reverse('games'))
+        top_game = response.context['game_list'][0]
+        self.assertEquals(top_game, newer_game)
 
 
 class NewGameViewTest(ViewTest):
