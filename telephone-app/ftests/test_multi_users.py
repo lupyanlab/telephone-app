@@ -10,6 +10,12 @@ class MultiUserTest(FunctionalTest):
     def simulate_listening_to_sound(self):
         self.browser.find_element_by_id('listen').click()
 
+    def split_seed_message(self, svg):
+        messages = svg.find_elements_by_css_selector('g.message')
+        self.assertEqual(len(messages), 2)
+        seed_message = messages[0]
+        seed_message.find_element_by_class_name('split').click()
+
     def test_sequential_generations(self):
         """ Two players contribute to the same chain """
 
@@ -22,6 +28,7 @@ class MultiUserTest(FunctionalTest):
         self.play_game(game_name)
         self.accept_instructions()
         self.simulate_sharing_mic()
+        self.assert_audio_src('0.wav')
         self.simulate_listening_to_sound()
         self.submit_entry()
         message = self.browser.find_element_by_tag_name('p').text
@@ -35,8 +42,8 @@ class MultiUserTest(FunctionalTest):
         self.accept_instructions()
         self.simulate_sharing_mic()
 
-        # She listens to Marcus's recording (second generation)
-        self.assert_audio_src('2.wav')
+        # She listens to Marcus's recording (first generation)
+        self.assert_audio_src('1.wav')
         self.simulate_listening_to_sound()
         self.submit_entry()
 
@@ -57,30 +64,80 @@ class MultiUserTest(FunctionalTest):
 
     def test_parallel_chains(self):
         """ Simulate two players making entries in two parallel chains """
-        completion_code = 'new-code'
-        self.create_game(name = 'Multi Game', seeds = ['bark', ], nchain = 2,
-                         code = completion_code)
+        game_name = 'Two Player Two Chain'
+        self.create_game(game_name, nchains = 2, with_seed = True)
 
-        # Player 1 joins the game
-        game_url = self.nav_to_play()
+        # Pierce inspects the game
+        self.nav_to_games_list()
+        self.inspect_game(game_name)
 
-        # She hears a seed entry
-        self.assert_audio_src('bark-0.wav')
+        # He sees two chains
+        svgs = self.browser.find_elements_by_tag_name('svg')
+        self.assertEquals(len(svgs), 2)
 
-        # She makes her entry, is redirected, and quits
-        self.upload_and_post()
-        self.assert_completion_code(completion_code)
+        # He splits the seed message
+        svgs = self.browser.find_elements_by_tag_name('svg')
+        self.split_seed_message(svgs[0])
+
+        svgs = self.browser.find_elements_by_tag_name('svg')
+        self.split_seed_message(svgs[1])
+
+        # Marcus comes along to play the game
         self.new_user()
+        self.nav_to_games_list()
+        self.play_game(game_name)
+        self.accept_instructions()
 
-        # Player 2 joins the game
-        new_user_url = self.nav_to_play()
-        self.assertEquals(new_user_url, game_url,
-            "Players weren't playing the same game")
+        # He shares his mic
+        self.simulate_sharing_mic()
 
-        # Since there exists a shorter chain, player 2 hears the same seed
-        # entry in another chain
-        self.assert_audio_src('bark-0.wav')
+        # He hears a seed sound and makes a response
+        self.assert_audio_src('0.wav')
+        self.simulate_listening_to_sound()
+        self.submit_entry()
+        self.wait_for(tag = 'body')
 
-        # She makes her entry, is redirected, and quits
-        self.upload_and_post()
-        self.assert_completion_code(completion_code)
+        # He hears another seed sound and makes another response
+        self.assert_audio_src('0.wav')
+        self.simulate_listening_to_sound()
+        self.submit_entry()
+        self.wait_for(tag = 'body')
+
+        # He gets taken to the completion page
+        self.assert_completion_page()
+
+        # Lynn comes along
+        self.new_user()
+        self.nav_to_games_list()
+        self.play_game(game_name)
+        self.accept_instructions()
+
+        # She shares her mic
+        self.simulate_sharing_mic()
+
+        # She hears the seed sound (not Marcus's sound)
+        self.assert_audio_src('0.wav')
+
+        # She makes her response
+        self.simulate_listening_to_sound()
+        self.submit_entry()
+        self.wait_for(tag = 'body')
+
+        # She hears another seed sound and makes another response
+        self.assert_audio_src('0.wav')
+        self.simulate_listening_to_sound()
+        self.submit_entry()
+        self.wait_for(tag = 'body')
+
+        # She's taken to the completion page
+        self.assert_completion_page()
+
+        # Pierce comes back to check on progress
+        self.new_user()
+        self.nav_to_games_list()
+        self.inspect_game(game_name)
+
+        svgs = self.browser.find_elements_by_tag_name('svg')
+        for chain_svg in svgs:
+            messages = chain_svg.find_elements_by_css_selector('g.message')
+            self.assertEquals(len(messages), 5)

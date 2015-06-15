@@ -9,15 +9,17 @@ from django.views.decorators.http import require_GET, require_POST
 from django.views.generic import View, ListView, FormView, DetailView, UpdateView
 
 from .models import Game, Chain, Message
-from .forms import NewGameForm, ResponseForm, UploadMessageForm
+from .forms import NewGameForm, UpdateMessageForm, ResponseForm
 
 class GamesView(ListView):
     template_name = 'grunt/games.html'
     model = Game
 
     def get_queryset(self):
-        """ Only show active games """
-        return self.model._default_manager.filter(status = 'ACTIV')
+        """ Show active games with newest games first """
+        active_games = self.model._default_manager.filter(status = 'ACTIV')
+        newest_first = active_games.order_by('-id')
+        return newest_first
 
 class NewGameView(FormView):
     template_name = 'grunt/new-game.html'
@@ -69,17 +71,15 @@ class PlayView(View):
 
         receipts = request.session['receipts']
         chain = self.game.pick_next_chain(receipts)
-        message = chain.pick_next_message()
+        message = chain.select_empty_message()
+        context_data['message'] = message
 
-        if message.audio:
-            context_data['url'] = message.audio.url
-
-        form = ResponseForm(initial = {'parent': message.pk})
+        form = ResponseForm(initial = {'message': message.pk})
+        context_data['form'] = form
 
         if request.is_ajax():
-            return JsonResponse(form.as_dict())
+            return JsonResponse({'message': message.pk, 'url': message.parent.audio.url})
 
-        context_data['form'] = form
         return render(request, 'grunt/play.html', context_data)
 
     def post(self, request, pk):
@@ -110,12 +110,12 @@ class PlayView(View):
         else:
             context_data = {
                 'game': self.game,
-                'form': form
+                'message': form.instance,
+                'form': form,
             }
 
-            parent = form.instance.parent
-            if parent.audio:
-                context_data['url'] = parent.audio.url
+            if request.is_ajax():
+                return JsonResponse({'errors': form.errors})
 
             return render(request, 'grunt/play.html', context_data)
 
@@ -169,12 +169,5 @@ def close(request, pk):
 
 class UploadMessageView(UpdateView):
     model = Message
-    form_class = UploadMessageForm
+    form_class = UpdateMessageForm
     template_name = 'grunt/upload-message.html'
-
-    def form_valid(self, form):
-        response = super(UploadMessageView, self).form_valid(form)
-
-        self.object.replicate()
-
-        return response

@@ -6,7 +6,7 @@ from django.test import TestCase, override_settings
 from model_mommy import mommy
 from unipath import Path
 
-from grunt.forms import NewGameForm, ResponseForm, UploadMessageForm
+from grunt.forms import NewGameForm, UpdateMessageForm, ResponseForm
 from grunt.models import Game, Chain, Message
 
 TEST_MEDIA_ROOT = Path(settings.MEDIA_ROOT + '-test')
@@ -14,12 +14,10 @@ TEST_MEDIA_ROOT = Path(settings.MEDIA_ROOT + '-test')
 @override_settings(MEDIA_ROOT = TEST_MEDIA_ROOT)
 class FormTest(TestCase):
     def setUp(self):
-        fpath = Path(settings.APP_DIR, 'grunt/tests/media/test-audio.wav')
-        self.audio = File(open(fpath, 'rb'))
-
-        self.chain = mommy.make(Chain)
-        self.parent_message = mommy.make(Message, chain = self.chain,
-                audio = self.audio)
+        super(FormTest, self).setUp()
+        self.audio_path = Path(
+            settings.APP_DIR,
+            'grunt/tests/media/test-audio.wav')
 
     def tearDown(self):
         TEST_MEDIA_ROOT.rmtree()
@@ -52,51 +50,75 @@ class NewGameFormTest(FormTest):
         self.assertEquals(game.chain_set.count(), 2)
 
 class ResponseFormTest(FormTest):
-    def test_make_a_valid_message(self):
+    def setUp(self):
+        super(ResponseFormTest, self).setUp()
+        self.empty_message = mommy.make(Message)
+
+    def test_use_response_form_to_update_an_empty_message(self):
         """ Simulate making an message from a POST """
-        form = ResponseForm(
-            data = {'parent': self.parent_message.pk},
-            files = {'audio': self.audio},
-        )
+        updated_message = None
 
-        self.assertTrue(form.is_valid())
+        with open(self.audio_path, 'rb') as audio_handle:
+            audio_file = File(audio_handle)
+            form = ResponseForm(instance = self.empty_message,
+                                files = {'audio': audio_file})
+            updated_message = form.save()
+        self.assertEquals(updated_message.pk, self.empty_message.pk)
+        self.assertEquals(updated_message.chain, self.empty_message.chain)
 
-    def test_save_a_valid_message(self):
-        """ Save a ResponseForm without validation """
-        form = ResponseForm(
-            data = {'parent': self.parent_message.pk,
-                    'chain': self.chain.pk},
-            files = {'audio': self.audio},
-        )
-        message = form.save()
-        self.assertIn(message, self.parent_message.message_set.all())
+    def test_updating_an_empty_message_sprouts_new_empty_message(self):
+        updated_message = None
 
-    def test_validate_form_to_populate_chain(self):
-        """ Full clean a ResponseForm and save it """
-        form = ResponseForm(
-            data = {'parent': self.parent_message.pk},
-            files = {'audio': self.audio},
-        )
+        with open(self.audio_path, 'rb') as audio_handle:
+            audio_file = File(audio_handle)
+            form = ResponseForm(instance = self.empty_message,
+                                files = {'audio': audio_file})
+            updated_message = form.save()
 
-        self.assertTrue(form.is_valid())  # full clean
-        message = form.save()
-        self.assertEquals(message.chain, self.chain)
+        # sprouts a single child
+        child_messages = updated_message.message_set.all()
+        self.assertEquals(len(child_messages), 1)
 
-    def test_response_forms_require_audio(self):
-        message = mommy.make(Message, parent = self.parent_message,
-                chain = self.chain)
-        form = ResponseForm(data = {'parent': message.pk})
+        # the sprouted child has no audio
+        empty_child_message = child_messages[0]
+        self.assertEquals(empty_child_message.audio, '')
+
+        # the sprouted child has the same chain as the parent
+        self.assertEquals(empty_child_message.chain, updated_message.chain)
+
+    def test_provide_response_form_message_pk_to_update_existing(self):
+        updated_message = None
+
+        with open(self.audio_path, 'rb') as audio_handle:
+            audio_file = File(audio_handle)
+            form = ResponseForm({'message': self.empty_message.pk},
+                                files = {'audio': audio_file})
+            self.assertTrue(form.is_valid())
+            updated_message = form.save()
+
+        self.assertEquals(updated_message.pk, self.empty_message.pk)
+        self.assertEquals(updated_message.chain, self.empty_message.chain)
+
+    def test_response_form_without_audio_is_invalid(self):
+        form = ResponseForm({'message': self.empty_message.pk})
         self.assertFalse(form.is_valid())
 
-class UploadMessageFormTest(FormTest):
+class UpdateMessageFormTest(FormTest):
+    def setUp(self):
+        super(UpdateMessageFormTest, self).setUp()
+        self.empty_message = mommy.make(Message)
 
     def test_upload_audio_to_empty_message(self):
-        message = mommy.make(Message)
-        self.assertEqual(message.audio, '')
+        self.assertEqual(self.empty_message.audio, '')
 
-        form = UploadMessageForm(instance = message,
-                                 files = {'audio': self.audio})
-        self.assertTrue(form.is_valid())
+        updated_message = None
 
-        updated_message = form.save()
+        with open(self.audio_path, 'rb') as audio_handle:
+            audio_file = File(audio_handle)
+            form = UpdateMessageForm(instance = self.empty_message,
+                                     files = {'audio': audio_file})
+            self.assertTrue(form.is_valid())
+
+            updated_message = form.save()
+
         self.assertNotEqual(updated_message.audio, '')

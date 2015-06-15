@@ -38,16 +38,24 @@ class GamesViewTest(ViewTest):
 
     def test_games_show_up_on_home_page(self):
         """ Games should be listed on the home page """
-        expected_games = mommy.make(Game, _quantity = 10)
+        num_games = 10
+        expected_games = mommy.make(Game, _quantity = num_games)
         response = self.client.get(reverse('games'))
         visible_games = response.context['game_list']
-        self.assertListEqual(expected_games, list(visible_games))
+        self.assertEqual(len(visible_games), num_games)
 
     def test_inactive_games_not_shown(self):
         """ Games can be active or inactive """
         inactive_games = mommy.make(Game, status = "INACT", _quantity = 10)
         response = self.client.get(reverse('games'))
         self.assertEqual(len(response.context['game_list']), 0)
+
+    def test_most_recent_games_shown_first(self):
+        """ The newest games should be shown at the top """
+        _, newer_game = mommy.make(Game, _quantity = 2)
+        response = self.client.get(reverse('games'))
+        top_game = response.context['game_list'][0]
+        self.assertEquals(top_game, newer_game)
 
 
 class NewGameViewTest(ViewTest):
@@ -64,17 +72,13 @@ class PlayViewTest(ViewTest):
         super(PlayViewTest, self).setUp()
         self.game = mommy.make(Game)
         self.chain = mommy.make(Chain, game = self.game)
-
-        with open(self.audio_path, 'rb') as audio_handle:
-            audio_file = File(audio_handle)
-            self.message = mommy.make(Message, chain = self.chain,
-                                      audio = audio_file)
+        self.message = mommy.make(Message, chain = self.chain)
 
     def post_response(self):
         with open(self.audio_path, 'rb') as audio_handle:
             audio_file = File(audio_handle)
             post_url = self.game.get_absolute_url()
-            post_data = {'parent': self.message.pk, 'audio': audio_file}
+            post_data = {'message': self.message.pk, 'audio': audio_file}
             response = self.client.post(post_url, post_data)
         return response
 
@@ -95,7 +99,7 @@ class PlayViewTest(ViewTest):
         response = self.client.get(self.game.get_absolute_url())
 
         initial = response.context['form'].initial
-        self.assertEquals(initial['parent'], self.message.pk)
+        self.assertEquals(initial['message'], self.message.pk)
 
     def test_post_a_message(self):
         """ Post a message """
@@ -116,42 +120,36 @@ class PlayViewTest(ViewTest):
 
     def test_invalid_post(self):
         """ Post an entry without a recording """
-        invalid_post = {'parent': self.message.pk}
+        invalid_post = {'message': self.message.pk}
         response = self.client.post(self.game.get_absolute_url(), invalid_post)
-        errors = response.context['form'].non_field_errors()
-        self.assertEquals(errors[0], "No audio file found")
+        form = response.context['form']
+
+        errors = form.errors['audio']
+        self.assertEquals(errors[0], "This field is required.")
 
     def test_exclude_chains_in_session(self):
         """ If there are receipts in the session, get the correct chain """
         second_chain = mommy.make(Chain, game = self.game)
-
-        with open(self.audio_path, 'rb') as audio_handle:
-            audio_file = File(audio_handle)
-            mommy.make(Message, chain = second_chain, audio = audio_file)
+        mommy.make(Message, chain = second_chain)
 
         self.make_session(self.game, instructed = True,
                 receipts = [self.chain.pk, ])
 
         response = self.client.get(self.game.get_absolute_url())
 
-
-        initial_message_parent_pk = response.context['form'].initial['parent']
-        initial_message_parent = Message.objects.get(pk = initial_message_parent_pk)
-        selected_chain_pk = initial_message_parent.pk
-        self.assertEquals(selected_chain_pk, second_chain.pk)
+        selected_message = response.context['message']
+        self.assertIn(selected_message, second_chain.message_set.all())
 
     def test_post_leads_to_next_cluster(self):
         """ Posting a message should redirect to another message """
         second_chain = mommy.make(Chain, game = self.game)
-
-        with open(self.audio_path, 'rb') as audio_handle:
-            audio_file = File(audio_handle)
-            mommy.make(Message, chain = second_chain, audio = audio_file)
+        mommy.make(Message, chain = second_chain)
 
         self.make_session(self.game, instructed = True)
 
         response = self.post_response()
         self.assertIsInstance(response.context['form'], ResponseForm)
+
 
 class InspectViewTest(ViewTest):
     def test_game_inspect_url(self):
@@ -165,6 +163,7 @@ class InspectViewTest(ViewTest):
         game = mommy.make(Game)
         response = self.client.get(game.get_inspect_url())
         self.assertTemplateUsed(response, 'grunt/inspect.html')
+
 
 class UploadMessageViewTest(ViewTest):
     def test_uploading_audio_to_empty_message_fills_that_message(self):
@@ -191,6 +190,7 @@ class UploadMessageViewTest(ViewTest):
 
         last_message = chain.message_set.last()
         self.assertEquals(last_message.parent, seed_message)
+
 
 class CloseViewTest(ViewTest):
     def test_close_message_chain(self):

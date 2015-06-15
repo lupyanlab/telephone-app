@@ -109,18 +109,18 @@ class ChainTest(ModelTest):
         chain = mommy.make(Chain)
         self.assertEquals(chain.selection_method, 'YNG')
 
-    def test_pick_next_message(self):
+    def test_select_empty_message(self):
         """ Chains pick the next message out of related messages """
         chain = mommy.make(Chain)
         message = mommy.make(Message, chain = chain)
-        self.assertEquals(chain.pick_next_message(), message)
+        self.assertEquals(chain.select_empty_message(), message)
 
-    def test_pick_next_message_youngest(self):
+    def test_select_empty_message_youngest(self):
         """ Chains pick youngest messages based on the generation """
         chain = mommy.make(Chain, selection_method = 'YNG')
         old_message = mommy.make(Message, generation = 5, chain = chain)
         young_message = mommy.make(Message, generation = 4, chain = chain)
-        self.assertEquals(chain.pick_next_message(), young_message)
+        self.assertEquals(chain.select_empty_message(), young_message)
 
     def test_pick_only_empty_messages(self):
         """ Chains only select messages that don't already have audio """
@@ -128,7 +128,7 @@ class ChainTest(ModelTest):
         message = mommy.make(Message, chain = chain,
                              _fill_optional = ['audio', ])
         with self.assertRaises(Message.DoesNotExist):
-            chain.pick_next_message()
+            chain.select_empty_message()
 
 class MessageTest(ModelTest):
     def setUp(self):

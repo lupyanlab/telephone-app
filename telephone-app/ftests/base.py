@@ -129,6 +129,10 @@ class FunctionalTest(LiveServerTestCase):
         audio_src = self.browser.find_element_by_id('sound').get_attribute('src')
         self.assertRegexpMatches(audio_src, expected)
 
+    def assert_completion_page(self):
+        message = self.browser.find_element_by_tag_name('p').text
+        self.assertEquals(message, "Keep gruntin'!")
+
     def inspect_game(self, name):
         game_list_item = self.select_game_item_by_game_name(name)
         game_list_item.find_element_by_class_name('inspect').click()

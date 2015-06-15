@@ -90,7 +90,7 @@ class Chain(models.Model):
     selection_method = models.CharField(choices = message_selection_choices,
             max_length = 3, default = 'YNG')
 
-    def pick_next_message(self):
+    def select_empty_message(self):
         """ Determine which message should be viewed next
 
         Fails when there are no messages available.
