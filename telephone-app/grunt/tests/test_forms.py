@@ -99,6 +99,10 @@ class ResponseFormTest(FormTest):
         self.assertEquals(updated_message.pk, self.empty_message.pk)
         self.assertEquals(updated_message.chain, self.empty_message.chain)
 
+    def test_response_form_without_audio_is_invalid(self):
+        form = ResponseForm({'message': self.empty_message.pk})
+        self.assertFalse(form.is_valid())
+
 class UploadMessageFormTest(FormTest):
     def setUp(self):
         super(UploadMessageFormTest, self).setUp()

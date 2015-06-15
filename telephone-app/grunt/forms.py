@@ -37,6 +37,10 @@ class ResponseForm(forms.ModelForm):
         model = Message
         fields = ('audio', )
 
+    def __init__(self, *args, **kwargs):
+        super(ResponseForm, self).__init__(*args, **kwargs)
+        self.fields['audio'].required = True
+
     def clean(self):
         cleaned_data = super(ResponseForm, self).clean()
         if cleaned_data['message']:
