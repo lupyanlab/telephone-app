@@ -16,10 +16,6 @@ class MultiUserTest(FunctionalTest):
         seed_message = messages[0]
         seed_message.find_element_by_class_name('split').click()
 
-    def assert_completion_page(self):
-        message = self.browser.find_element_by_tag_name('p').text
-        self.assertEquals(message, "Keep gruntin'!")
-
     def test_sequential_generations(self):
         """ Two players contribute to the same chain """
 

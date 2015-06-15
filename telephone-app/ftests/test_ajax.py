@@ -1,72 +1,69 @@
-from .base import FunctionalTest
-
+import time
 from unipath import Path
+
 from django.conf import settings
+
+from .base import FunctionalTest
 
 class AjaxTest(FunctionalTest):
 
-    def ajax_post(self, browser = None):
+    def ajax_post(self):
         # Load a file blob to post via AJAX (hack!!)
-        browser = browser or self.browser
-        browser.execute_script(
+        self.browser.execute_script(
             '$( "<input>", {id: "tmpInput", type: "file"}).appendTo("body");'
         )
 
         fpath = Path(settings.APP_DIR, 'grunt/tests/media/test-audio.wav')
-        browser.find_element_by_id('tmpInput').send_keys(fpath)
+        self.browser.find_element_by_id('tmpInput').send_keys(fpath)
 
-        browser.execute_script('''
+        self.browser.execute_script('''
             file = document.getElementById("tmpInput").files[0];
             $( "#tmpInput ").remove();
             postEntry(file);
         ''')
 
-        #self.wait_for(tag = 'h3', browser = browser)  # status text
+        time.sleep(2.5) # wait for success message to go away
 
-    def test_ajax_single_cluster(self):
+    def test_record_seed_message_with_ajax(self):
         """ Simulate a single user submitting an entry via the recorder """
-        completion_code = 'test-ajax-code'
-        self.create_game(name = 'Ajax Game', seeds = ['crow', ], nchain = 1,
-                         code = completion_code)
+        game_name = 'Real Ajax Game'
+        self.create_game(name = game_name)
 
-        # She navigates to the game page
-        game_url = self.nav_to_play()
+        # Pierce goes to play the game
+        self.nav_to_games_list()
+        self.play_game(game_name)
 
-        # She sees that she is going to make a single entry
-        self.assert_status("Message 1 of 1")
+        # He agrees to participate
+        self.accept_instructions()
 
-        # The entry form is ready
-        self.assert_audio_src('crow-0.wav')
-
-        # She makes her own recording and posts it via AJAX
-        self.ajax_post(self.browser)
-
-        # She is taken to the completion page
-        self.wait_for(tag = 'p', text = "Your completion code is:")
-        self.assert_completion_code(completion_code)
-
-    def test_ajax_two_clusters(self):
-        """ Simulate sequential AJAX posts """
-        completion_code = 'test-ajax-code-2'
-        self.create_game(name = 'Ajax Game 2', seeds = ['bark', 'phone'],
-                         nchain = 1, code = completion_code)
-
-        # She navigates to the game page
-        game_url = self.nav_to_play()
-
-        # She sees that she is going to make two entries
-        self.assert_status("Message 1 of 2")
-
-        # She makes her first recording and her status updates
-        self.assert_audio_src('bark-0.wav')
-        self.ajax_post(self.browser)
-        self.wait_for(id = 'status', text = "Message 2 of 2")
-
-        # She listens to the next entry
-        self.assert_audio_src('phone-0.wav')
+        # He posts an entry via ajax
         self.ajax_post()
-        self.wait_for(tag = 'p', text = "Your completion code is:")
-        #self.assert_status(self.browser, "You've made 2 of 2 entries")
+        self.wait_for(tag = 'body')
 
         # She is taken to the completion page
-        self.assert_completion_code(completion_code)
+        self.assert_completion_page()
+
+    def test_multi_entries_with_ajax(self):
+        """ Simulate sequential AJAX posts """
+        game_name = 'Real Ajax Game Two Chains'
+        self.create_game(name = game_name, nchains = 2, with_seed = True)
+
+        # She navigates to the game page
+        self.nav_to_games_list()
+        self.play_game(game_name)
+
+        # She accepts the instructions
+        self.accept_instructions()
+
+        # She listens to a seed message
+        self.assert_audio_src('0.wav')
+
+        # She records a response
+        self.ajax_post()
+        self.wait_for(tag = 'body')
+
+        # She listens to another seed message and records a response
+        self.assert_audio_src('0.wav')
+        self.ajax_post()
+
+        self.assert_completion_page()
