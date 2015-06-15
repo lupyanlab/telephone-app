@@ -51,10 +51,3 @@ class ResponseForm(forms.ModelForm):
         message = super(ResponseForm, self).save(*args, **kwargs)
         message.replicate()
         return message
-
-    def as_dict(self):
-        parent = self.instance.parent
-        context = {
-            'parent': parent.pk,
-            'url': parent.audio.url,
-        }
