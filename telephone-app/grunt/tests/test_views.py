@@ -51,7 +51,6 @@ class GamesViewTest(ViewTest):
 
 
 class NewGameViewTest(ViewTest):
-
     def test_new_game_page_renders_new_game_form(self):
         """ Simple, standalone page to make a new game """
         new_game_page_url = reverse('new_game')
@@ -65,11 +64,7 @@ class PlayViewTest(ViewTest):
         super(PlayViewTest, self).setUp()
         self.game = mommy.make(Game)
         self.chain = mommy.make(Chain, game = self.game)
-
-        with open(self.audio_path, 'rb') as audio_handle:
-            audio_file = File(audio_handle)
-            self.message = mommy.make(Message, chain = self.chain,
-                                      audio = audio_file)
+        self.message = mommy.make(Message, chain = self.chain)
 
     def post_response(self):
         with open(self.audio_path, 'rb') as audio_handle:
@@ -125,16 +120,12 @@ class PlayViewTest(ViewTest):
     def test_exclude_chains_in_session(self):
         """ If there are receipts in the session, get the correct chain """
         second_chain = mommy.make(Chain, game = self.game)
-
-        with open(self.audio_path, 'rb') as audio_handle:
-            audio_file = File(audio_handle)
-            mommy.make(Message, chain = second_chain, audio = audio_file)
+        mommy.make(Message, chain = second_chain)
 
         self.make_session(self.game, instructed = True,
                 receipts = [self.chain.pk, ])
 
         response = self.client.get(self.game.get_absolute_url())
-
 
         initial_message_parent_pk = response.context['form'].initial['parent']
         initial_message_parent = Message.objects.get(pk = initial_message_parent_pk)
@@ -144,10 +135,7 @@ class PlayViewTest(ViewTest):
     def test_post_leads_to_next_cluster(self):
         """ Posting a message should redirect to another message """
         second_chain = mommy.make(Chain, game = self.game)
-
-        with open(self.audio_path, 'rb') as audio_handle:
-            audio_file = File(audio_handle)
-            mommy.make(Message, chain = second_chain, audio = audio_file)
+        mommy.make(Message, chain = second_chain)
 
         self.make_session(self.game, instructed = True)
 
