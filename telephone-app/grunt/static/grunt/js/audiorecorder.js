@@ -1,7 +1,7 @@
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
 
 var audioContext = new AudioContext(),
-  audioInput = null;
+    audioInput = null;
 
 function updateValues( response ) {
 
@@ -39,7 +39,7 @@ function postEntry( blob ) {
 
   var entryForm = document.getElementById("entry");
   var formData = new FormData(entryForm);
-  formData.append("content", blob);
+  formData.append("audio", blob);
 
   $.ajax({
     url: $("#entry").attr("action"), // get
