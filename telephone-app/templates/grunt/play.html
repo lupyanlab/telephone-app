@@ -22,12 +22,12 @@
 
   {% include "grunt/_player.html" %}
 
-  <audio id="sound" src="{{ url }}"></audio>
+  <audio id="sound" src="{{ message.parent.audio.url }}"></audio>
 
   <form id="entry" method="post" action="{{ game.get_absolute_url }}" enctype="multipart/form-data">
     {% csrf_token %}
 
-    {{ form.parent.as_hidden }}
+    {{ form.message.as_hidden }}
     {{ form.audio.as_hidden }}
 
     <input type="submit" value="Send" id="submit" class="btn btn-lg btn-primary" disabled="disabled"/>

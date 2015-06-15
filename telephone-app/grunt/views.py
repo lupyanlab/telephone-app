@@ -70,19 +70,14 @@ class PlayView(View):
         receipts = request.session['receipts']
         chain = self.game.pick_next_chain(receipts)
         message = chain.select_empty_message()
+        context_data['message'] = message
 
-        if message.parent:
-            if message.parent.audio:
-                context_data['url'] = message.parent.audio
-            else:
-                print 'Warning: Parent message has no audio!'
-
-        form = ResponseForm(instance = message)
+        form = ResponseForm(initial = {'message': message.pk})
+        context_data['form'] = form
 
         if request.is_ajax():
-            return JsonResponse(form.as_dict())
+            return JsonResponse({'message': message.pk, 'url': message.parent.audio.url})
 
-        context_data['form'] = form
         return render(request, 'grunt/play.html', context_data)
 
     def post(self, request, pk):
@@ -113,12 +108,12 @@ class PlayView(View):
         else:
             context_data = {
                 'game': self.game,
-                'form': form
+                'message': form.instance,
+                'form': form,
             }
 
-            parent = form.instance.parent
-            if parent.audio:
-                context_data['url'] = parent.audio.url
+            if request.is_ajax():
+                return JsonResponse({'errors': form.errors})
 
             return render(request, 'grunt/play.html', context_data)
 

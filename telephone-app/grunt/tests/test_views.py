@@ -70,7 +70,7 @@ class PlayViewTest(ViewTest):
         with open(self.audio_path, 'rb') as audio_handle:
             audio_file = File(audio_handle)
             post_url = self.game.get_absolute_url()
-            post_data = {'parent': self.message.pk, 'audio': audio_file}
+            post_data = {'message': self.message.pk, 'audio': audio_file}
             response = self.client.post(post_url, post_data)
         return response
 
@@ -91,7 +91,7 @@ class PlayViewTest(ViewTest):
         response = self.client.get(self.game.get_absolute_url())
 
         initial = response.context['form'].initial
-        self.assertEquals(initial['parent'], self.message.pk)
+        self.assertEquals(initial['message'], self.message.pk)
 
     def test_post_a_message(self):
         """ Post a message """
@@ -112,10 +112,12 @@ class PlayViewTest(ViewTest):
 
     def test_invalid_post(self):
         """ Post an entry without a recording """
-        invalid_post = {'parent': self.message.pk}
+        invalid_post = {'message': self.message.pk}
         response = self.client.post(self.game.get_absolute_url(), invalid_post)
-        errors = response.context['form'].non_field_errors()
-        self.assertEquals(errors[0], "No audio file found")
+        form = response.context['form']
+
+        errors = form.errors['audio']
+        self.assertEquals(errors[0], "This field is required.")
 
     def test_exclude_chains_in_session(self):
         """ If there are receipts in the session, get the correct chain """
@@ -127,10 +129,8 @@ class PlayViewTest(ViewTest):
 
         response = self.client.get(self.game.get_absolute_url())
 
-        initial_message_parent_pk = response.context['form'].initial['parent']
-        initial_message_parent = Message.objects.get(pk = initial_message_parent_pk)
-        selected_chain_pk = initial_message_parent.pk
-        self.assertEquals(selected_chain_pk, second_chain.pk)
+        selected_message = response.context['message']
+        self.assertIn(selected_message, second_chain.message_set.all())
 
     def test_post_leads_to_next_cluster(self):
         """ Posting a message should redirect to another message """

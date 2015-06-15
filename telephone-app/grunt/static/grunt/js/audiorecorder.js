@@ -8,10 +8,8 @@ function updateValues( response ) {
   // Update the relevant parts of the page given the JSON response,
   // and reset the button states for a new entry.
 
-  $( "#id_chain" ).val(response.chain);
-  $( "#id_parent" ).val(response.parent);
+  $( "#id_message" ).val(response.message);
   $( "#sound" ).attr("src", response.url);
-  $( "#status" ).text(response.status);
 
   $( "#record" ).addClass("unavailable");
   $( "#submit" ).prop("disabled", true);
@@ -54,6 +52,8 @@ function postEntry( blob ) {
 
       if (response.complete) {
         window.location.replace(response.complete);
+      } else if (response.errors) {
+        updateMessage("Error in form:" + response.errors);
       } else {
         $( "#status" ).text("Success!");
         $( "#status" ).addClass("bg-success");
