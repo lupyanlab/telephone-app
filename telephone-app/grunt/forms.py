@@ -20,23 +20,19 @@ class NewGameForm(forms.ModelForm):
 
         return game
 
-class UploadMessageForm(forms.ModelForm):
+class UpdateMessageForm(forms.ModelForm):
 
     class Meta:
         model = Message
         fields = ('audio', )
 
     def save(self, *args, **kwargs):
-        message = super(UploadMessageForm, self).save(*args, **kwargs)
+        message = super(UpdateMessageForm, self).save(*args, **kwargs)
         message.replicate()
         return message
 
-class ResponseForm(forms.ModelForm):
+class ResponseForm(UpdateMessageForm):
     message = forms.IntegerField(required = False)
-
-    class Meta:
-        model = Message
-        fields = ('audio', )
 
     def __init__(self, *args, **kwargs):
         super(ResponseForm, self).__init__(*args, **kwargs)
@@ -46,8 +42,3 @@ class ResponseForm(forms.ModelForm):
         cleaned_data = super(ResponseForm, self).clean()
         if cleaned_data['message']:
             self.instance = Message.objects.get(pk = cleaned_data['message'])
-
-    def save(self, *args, **kwargs):
-        message = super(ResponseForm, self).save(*args, **kwargs)
-        message.replicate()
-        return message
