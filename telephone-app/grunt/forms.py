@@ -31,10 +31,16 @@ class UploadMessageForm(forms.ModelForm):
         return message
 
 class ResponseForm(forms.ModelForm):
+    message = forms.IntegerField(required = False)
 
     class Meta:
         model = Message
-        fields = ('parent', 'audio')
+        fields = ('audio', )
+
+    def clean(self):
+        cleaned_data = super(ResponseForm, self).clean()
+        if cleaned_data['message']:
+            self.instance = Message.objects.get(pk = cleaned_data['message'])
 
     def save(self, *args, **kwargs):
         message = super(ResponseForm, self).save(*args, **kwargs)

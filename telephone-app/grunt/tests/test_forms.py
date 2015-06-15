@@ -86,6 +86,19 @@ class ResponseFormTest(FormTest):
         # the sprouted child has the same chain as the parent
         self.assertEquals(empty_child_message.chain, updated_message.chain)
 
+    def test_provide_response_form_message_pk_to_update_existing(self):
+        updated_message = None
+
+        with open(self.audio_path, 'rb') as audio_handle:
+            audio_file = File(audio_handle)
+            form = ResponseForm({'message': self.empty_message.pk},
+                                files = {'audio': audio_file})
+            self.assertTrue(form.is_valid())
+            updated_message = form.save()
+
+        self.assertEquals(updated_message.pk, self.empty_message.pk)
+        self.assertEquals(updated_message.chain, self.empty_message.chain)
+
 class UploadMessageFormTest(FormTest):
     def setUp(self):
         super(UploadMessageFormTest, self).setUp()
