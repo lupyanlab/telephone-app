@@ -36,14 +36,10 @@ class ResponseForm(forms.ModelForm):
         model = Message
         fields = ('parent', 'audio')
 
-    def clean(self, *args, **kwargs):
-        """ Associate the new message with the same chain as the parent """
-        super(ResponseForm, self).clean(*args, **kwargs)
-        parent = self.cleaned_data['parent']
-        self.instance.chain = parent.chain
-
-        if not self.cleaned_data['audio']:
-            raise ValidationError('No audio file found')
+    def save(self, *args, **kwargs):
+        message = super(ResponseForm, self).save(*args, **kwargs)
+        message.replicate()
+        return message
 
     def as_dict(self):
         parent = self.instance.parent

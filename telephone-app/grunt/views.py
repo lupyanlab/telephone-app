@@ -69,12 +69,15 @@ class PlayView(View):
 
         receipts = request.session['receipts']
         chain = self.game.pick_next_chain(receipts)
-        message = chain.pick_next_message()
+        message = chain.select_empty_message()
 
-        if message.audio:
-            context_data['url'] = message.audio.url
+        if message.parent:
+            if message.parent.audio:
+                context_data['url'] = message.parent.audio
+            else:
+                print 'Warning: Parent message has no audio!'
 
-        form = ResponseForm(initial = {'parent': message.pk})
+        form = ResponseForm(instance = message)
 
         if request.is_ajax():
             return JsonResponse(form.as_dict())

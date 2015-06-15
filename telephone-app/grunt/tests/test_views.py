@@ -142,8 +142,8 @@ class PlayViewTest(ViewTest):
         response = self.post_response()
         self.assertIsInstance(response.context['form'], ResponseForm)
 
-class InspectViewTest(ViewTest):
 
+class InspectViewTest(ViewTest):
     def test_game_inspect_url(self):
         """ Games should return a url for viewing the clusters """
         game = mommy.make(Game)
@@ -156,8 +156,8 @@ class InspectViewTest(ViewTest):
         response = self.client.get(game.get_inspect_url())
         self.assertTemplateUsed(response, 'grunt/inspect.html')
 
-class UploadMessageViewTest(ViewTest):
 
+class UploadMessageViewTest(ViewTest):
     def test_uploading_audio_to_empty_message_fills_that_message(self):
         empty_message = mommy.make(Message)
 
@@ -183,8 +183,8 @@ class UploadMessageViewTest(ViewTest):
         last_message = chain.message_set.last()
         self.assertEquals(last_message.parent, seed_message)
 
-class CloseViewTest(ViewTest):
 
+class CloseViewTest(ViewTest):
     def test_close_message_chain(self):
         chain = mommy.make(Chain)
         seed = mommy.make(Message, chain = chain)
