@@ -130,7 +130,7 @@ class SingleUserTest(FunctionalTest):
         self.accept_instructions()
 
         # The entry form is ready
-        self.assert_audio_src(r'chain-[12]/0.wav')
+        self.assert_audio_src(r'0.wav')
 
         # She uploads her first entry
         self.upload_file()
@@ -138,7 +138,7 @@ class SingleUserTest(FunctionalTest):
         self.wait_for(tag = 'body')
 
         # Now she listens to a new entry
-        self.assert_audio_src(r'chain-[12]/0.wav')
+        self.assert_audio_src(r'0.wav')
 
         # She makes her second entry
         self.upload_file()
