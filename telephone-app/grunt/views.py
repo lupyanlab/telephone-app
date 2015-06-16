@@ -78,7 +78,10 @@ class PlayView(View):
         context_data['form'] = form
 
         if request.is_ajax():
-            return JsonResponse({'message': message.pk, 'url': message.parent.audio.url})
+            data = {'message': message.pk}
+            if message.parent and message.parent.audio:
+                data['url'] = message.parent.audio.url
+            return JsonResponse(data)
 
         return render(request, 'grunt/play.html', context_data)
 

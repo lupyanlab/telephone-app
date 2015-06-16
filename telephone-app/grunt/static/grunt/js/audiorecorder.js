@@ -11,7 +11,11 @@ function updateValues( response ) {
   $( "#id_message" ).val(response.message);
   $( "#sound" ).attr("src", response.url);
 
-  $( "#record" ).addClass("unavailable");
+  // only disable the recorder if there is a sound to listen to
+  if (response.url) {
+    $( "#record" ).addClass("unavailable");
+  }
+
   $( "#submit" ).prop("disabled", true);
   $( "#listen" ).removeClass("active");
   $( "#record" ).removeClass("active");
