@@ -86,8 +86,9 @@ function createChainTree(chain) {
     .append("circle")
     .attr("r", 10);
 
-  var bumpTextsRight = 15,
-      bumpTextsDown = 5;
+  var bumpTextsRight = 18,
+      bumpTextsDown = -5,
+      buttonGutter = 20;
 
   d3.selectAll("g.message")
     .append("g")
@@ -102,12 +103,20 @@ function createChainTree(chain) {
   d3.selectAll("g.message")
     .append("g")
     .attr("transform", function(d) {
-      return "translate(" + bumpTextsRight + "," + bumpTextsDown * 4 + ")";
+      return "translate(" + bumpTextsRight + "," + (bumpTextsDown + buttonGutter) + ")";
     })
     .append("text")
     .text(function(el) { return el.audio ? "split" : "close"; })
     .attr("class", function(el) { return el.audio ? "split" : "delete"; })
     .on("click", function(el) { return el.audio ? splitChain(el) : deleteBranch(el); })
+
+  d3.selectAll("text")
+    .on("mouseover", function () {
+      d3.select(this).classed("active", true);
+    })
+    .on("mouseout", function () {
+      d3.select(this).classed("active", false);
+    });
 
   d3.select("#" + chainName)
     .selectAll("path")

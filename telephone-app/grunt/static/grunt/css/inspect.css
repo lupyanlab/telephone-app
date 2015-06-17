@@ -11,5 +11,9 @@ circle {
 }
 
 text {
+  fill: gray;
+}
+
+.active {
   fill: black;
 }
