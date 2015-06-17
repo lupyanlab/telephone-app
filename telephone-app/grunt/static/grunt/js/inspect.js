@@ -48,7 +48,21 @@ function createChainTree(chain) {
   var maxDepth = d3.max(chain.messages, function (el) { return el.generation; }),
       heightPerGeneration = 200;
 
-  var svgWidth = 600,
+  var maxWidth = 0,
+      sumMessagesByGeneration = {},
+      widthPerChain = 120;
+
+  chain.messages.forEach(function (el) {
+    if (sumMessagesByGeneration[el.generation]) {
+      sumMessagesByGeneration[el.generation] = sumMessagesByGeneration[el.generation] + 1;
+    } else {
+      sumMessagesByGeneration[el.generation] = 1;
+    }
+
+    maxWidth = sumMessagesByGeneration[el.generation] > maxWidth ? sumMessagesByGeneration[el.generation] : maxWidth;
+  })
+
+  var svgWidth = maxWidth * widthPerChain,
       svgHeight = maxDepth * heightPerGeneration;
 
   var bumpDown = 40;
@@ -59,6 +73,16 @@ function createChainTree(chain) {
 
   var linkGenerator = d3.svg.diagonal()
     .projection(function (d) {return [d.x, d.y+bumpDown]})
+
+
+  var bumpTextsRight = 18,
+      bumpTextsDown = -5,
+      buttonGutter = 20;
+
+  var containerWidth = parseFloat(d3.select("div.container").style("max-width"));
+  if (containerWidth < svgWidth) {
+    d3.select("div.container").style("max-width", (svgWidth + 2*bumpDown + bumpTextsRight) + "px");
+  }
 
   // Make an svg element for each chain
   d3.select("div.chains")
@@ -86,9 +110,6 @@ function createChainTree(chain) {
     .append("circle")
     .attr("r", 10);
 
-  var bumpTextsRight = 18,
-      bumpTextsDown = -5,
-      buttonGutter = 20;
 
   d3.selectAll("g.message")
     .append("g")
