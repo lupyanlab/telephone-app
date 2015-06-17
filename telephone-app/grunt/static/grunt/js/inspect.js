@@ -34,7 +34,7 @@ function splitChain(message) {
   );
 }
 
-function closeBranch(message) {
+function deleteBranch(message) {
   $.post(message.close_url,
     {csrfmiddlewaretoken: csrf_token},
     function() { window.location.reload(); }
@@ -98,8 +98,8 @@ function createChainTree(chain) {
     })
     .append("text")
     .text(function(el) { return el.audio ? "split" : "close"; })
-    .attr("class", function(el) { return el.audio ? "split" : "close"; })
-    .on("click", function(el) { return el.audio ? splitChain(el) : closeBranch(el); })
+    .attr("class", function(el) { return el.audio ? "split" : "delete"; })
+    .on("click", function(el) { return el.audio ? splitChain(el) : deleteBranch(el); })
 
   d3.select("#" + chainName)
     .selectAll("path")

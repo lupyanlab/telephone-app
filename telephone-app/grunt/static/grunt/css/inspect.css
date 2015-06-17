@@ -14,3 +14,7 @@ circle {
 .empty {
     fill: white;
 }
+
+text {
+  fill: black;
+}

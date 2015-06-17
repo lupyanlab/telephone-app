@@ -91,7 +91,7 @@ class InspectGameTest(FunctionalTest):
         self.assert_empty_message(child_message)
 
         # She closes the child message
-        child_message.find_element_by_class_name('close').click()
+        child_message.find_element_by_class_name('delete').click()
         self.wait_for(tag = 'body')
 
         # After the page refreshes, she sees just one message
