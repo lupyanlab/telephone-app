@@ -51,6 +51,8 @@ function postEntry(blob) {
     contentType: false,
 
     success: function(response) {
+      console.log("success response");
+      console.log(response);
 
       // The server responds with the URL of the completion page
       // or the values to update for the next entry.
@@ -72,6 +74,7 @@ function postEntry(blob) {
 
     },
     error: function(xhr, msg, err) {
+      console.log("error");
       updateMessage("Whoops! There was a problem processing your entry");
     }
   });
@@ -86,7 +89,7 @@ function updateValues(response) {
     $("#sound").attr("src", response.url);
     $("#record").addClass("unavailable");
   } else {
-    #("#sound").attr("src", "");
+    $("#sound").attr("src", "");
   }
 
   $("#submit").prop("disabled", true);
@@ -180,12 +183,13 @@ $("#listen").click(function (event) {
       // Toggle the listener
       $(this).toggleClass("active");
       updateMessage("");
-  }
+    }
 
-  if ($(this).hasClass("active")) {
-    $("#sound").trigger("play");
-  } else {
-    $("#sound").trigger("pause");
+    if ($(this).hasClass("active")) {
+      $("#sound").trigger("play");
+    } else {
+      $("#sound").trigger("pause");
+    }
   }
 
 });
