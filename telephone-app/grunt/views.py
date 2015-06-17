@@ -111,9 +111,12 @@ class PlayView(View):
 
             return self.get(request, pk)
         else:
+            message_pk = form.cleaned_data['message']
+            message = Message.objects.get(pk = message_pk)
+
             context_data = {
                 'game': self.game,
-                'message': form.instance,
+                'message': message,
                 'form': form,
             }
 
