@@ -5,6 +5,15 @@
   <link href="{% static 'grunt/css/inspect.css' %}" rel="stylesheet">
 {% endblock styling %}
 
+{% block header %}
+  <h1>{{ game }}</h1>
+{% endblock header %}
+
+{% block body %}
+<div class="chains">
+</div>
+{% endblock body %}
+
 {% block footer %}
   <audio src=""></audio>
 {% endblock footer %}

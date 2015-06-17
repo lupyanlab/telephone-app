@@ -55,7 +55,9 @@ function createChainTree(chain) {
     .projection(function (d) {return [d.x, d.y+bumpDown]})
 
   // Make an svg element for each chain
-  d3.select("div.jumbotron")
+  d3.select("div.chains")
+    .append("div")
+    .attr("class", "jumbotron")
     .append("svg")
     .attr("id", chainName)
 

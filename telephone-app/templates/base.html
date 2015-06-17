@@ -28,11 +28,13 @@
                 {% endblock header %}
             </div>
 
+            {% block body %}
             <div class="jumbotron">
                 {% block jumbotron %}
                     <h1>Telephone Game</h1>
                 {% endblock jumbotron %}
             </div>
+            {% endblock body %}
 
             <p id="message" class="bg-danger">{% block message %}{% endblock %}</p>
 
