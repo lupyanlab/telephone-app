@@ -3,52 +3,53 @@ window.AudioContext = window.AudioContext || window.webkitAudioContext;
 var audioContext = new AudioContext(),
     audioInput = null;
 
-function updateValues( response ) {
+function connectAudio(callback) {
 
-  // Update the relevant parts of the page given the JSON response,
-  // and reset the button states for a new entry.
+  // Create a Recorder.js object
+  //
+  // Requires "recorderWorkerPath" to be set.
 
-  $( "#id_message" ).val(response.message);
-  $( "#sound" ).attr("src", response.url);
-
-  // only disable the recorder if there is a sound to listen to
-  if (response.url) {
-    $( "#record" ).addClass("unavailable");
+  if (!navigator.getUserMedia) {
+    navigator.getUserMedia = navigator.webkitGetUserMedia ||
+                             navigator.mozGetUserMedia;
   }
 
-  $( "#submit" ).prop("disabled", true);
-  $( "#listen" ).removeClass("active");
-  $( "#record" ).removeClass("active");
-
-  updateMessage("");
-
+  navigator.getUserMedia(
+    {audio: true},
+    function(stream) {
+      audioInput = audioContext.createMediaStreamSource(stream);
+      audioRecorder = new Recorder(audioInput, {workerPath: recorderWorkerPath});
+      callback();
+    },
+    function(err) {
+      updateMessage("There was a problem sharing your mic");
+    }
+  );
 }
 
-function micShared() {
 
-  $( "#share" ).addClass("active");
-  $( "#record" ).removeClass("unavailable");
-  updateMessage("");
-
-}
-
-function postEntry( blob ) {
+function postEntry(blob) {
 
   // Post the entry via AJAX.
   //
   // Grab the data in the form, put it in a FormData object,
-  // append the blob, and submit it.
+  // append the blob from recorder.js, and submit it.
 
-  var entryForm = document.getElementById("entry");
-  var formData = new FormData(entryForm);
+  var entryForm = document.getElementById("entry"),
+      formData = new FormData(entryForm),
+      formAction = $("#entry").attr("action");
+
   formData.append("audio", blob);
 
   $.ajax({
-    url: $("#entry").attr("action"), // get
+    url: formAction,
     type: "POST",
     data: formData,
+
+    // sending raw data, so don't process or label
     processData: false,
     contentType: false,
+
     success: function(response) {
 
       // The server responds with the URL of the completion page
@@ -56,54 +57,84 @@ function postEntry( blob ) {
 
       if (response.complete) {
         window.location.replace(response.complete);
-      } else if (response.errors) {
-        updateMessage("Error in form:" + response.errors);
       } else {
-        $( "#status" ).text("Success!");
-        $( "#status" ).addClass("bg-success");
+        $("#status").text("Success!");
+        $("#status").addClass("bg-success");
 
+        updateValues(response);
+
+        // show success message for 2 seconds
         setTimeout(function() {
-          $( "#status" ).removeClass("bg-success");
-          updateValues(response);
-        }, 2000);  // show success message for 2 seconds
+          $("#status").text("");
+          $("#status").removeClass("bg-success");
+        }, 2000);
       }
 
     },
     error: function(xhr, msg, err) {
-      updateMessage("There was a problem processing your entry");
+      updateMessage("Whoops! There was a problem processing your entry");
     }
   });
 }
 
-$( "#share" ).click(function( event ) {
+function updateValues(response) {
+
+  // Update the relevant parts of the page given the JSON response,
+  // and reset the button states for a new entry.
+
+  if (response.url) {
+    $("#sound").attr("src", response.url);
+    $("#record").addClass("unavailable");
+  } else {
+    #("#sound").attr("src", "");
+  }
+
+  $("#submit").prop("disabled", true);
+
+  $("#listen").removeClass("active");
+  $("#record").removeClass("active");
+
+  updateMessage("");
+}
+
+
+
+$("#share").click(function (event) {
 
   // Get permission to get the audio stream
   // and make the audioRecorder object.
 
   if (!audioRecorder) {
     // connect the audio and change the button state
-    connectAudio( micShared );
-    sharedRecorder();
+    connectAudio(micShared);
+    updateMessage("");
   } else {
     audioRecorder = null;
-    $( "#share" ).removeClass("active");
+    $("#share").removeClass("active");
     updateMessage("");
   }
 
 });
 
-function sharedRecorder() {
+function micShared() {
 
-  // Called after audio is connected.
+  $("#share").addClass("active");
+  updatePlayerState();
+
+}
+
+function updatePlayerState() {
 
   if ($("#sound").attr("src")) {
     $("#listen").removeClass("unavailable");
+    $("#record").addClass("unavailable");
   } else {
     listenedToSound();
   }
+
 }
 
-$( "#sound" ).bind("ended", function() {
+$("#sound").bind("ended", function () {
 
   // Update to indicate that the sound is done playing
 
@@ -119,34 +150,42 @@ function listenedToSound() {
 
   $("#listen").addClass("played");
 
-  if( $("#record").hasClass("unavailable") ) {
+  if($("#record").hasClass("unavailable")) {
     $("#record").removeClass("unavailable");
   }
 
 }
 
-$( "#listen" ).click(function( event ) {
+$("#listen").click(function (event) {
 
   // Trigger the (hidden) audio element.
   //
   // If the speaker is available and you're not making a recording,
   // play or pause the audio.
 
-  if( $(this).hasClass("unavailable") ) {
-    updateMessage("Share your microphone to play.");
-    return;
-  } else if( $("#record").hasClass("active") ) {
-    updateMessage("You can't record the original sound.");
+  if ($(this).hasClass("unavailable")) {
+    if ($("#sound").attr("src")) {
+      // Sound is present, but the player is inactive
+      updateMessage("Share your microphone to play.");
+    } else {
+      // No sound is present, so make a seed recording
+      updateMessage("There is nothing to listen to.");
+    }
     return;
   } else {
-    $(this).toggleClass("active");
-    updateMessage("");
+    if ($("#record").hasClass("active")) {
+      updateMessage("You can't record the original sound.");
+      return;
+    } else {
+      // Toggle the listener
+      $(this).toggleClass("active");
+      updateMessage("");
   }
 
-  if( $(this).hasClass("active") ) {
-    $( "#sound" ).trigger("play");
+  if ($(this).hasClass("active")) {
+    $("#sound").trigger("play");
   } else {
-    $( "#sound" ).trigger("pause");
+    $("#sound").trigger("pause");
   }
 
 });
@@ -159,21 +198,22 @@ $( "#record" ).click(function( event ) {
   // If the recorder is available and the sound is not playing,
   // turn the recorder on and off.
 
-  if( !audioRecorder ) {
+  if (!audioRecorder) {
     updateMessage("Share your microphone to play.");
     return;
-  } else if( !$("#listen").hasClass("played") ) {
+  } else if(!$("#listen").hasClass("played")) {
     updateMessage("You have to listen to the sound first.");
     return;
-  } else if( $("#listen").hasClass("active") ) {
+  } else if($("#listen").hasClass("active")) {
     updateMessage("You can't record the original sound.");
     return;
   } else {
+    // Toggle the recorder
     updateMessage("");
-    $( this ).toggleClass("active");
+    $(this).toggleClass("active");
   }
 
-  if( $(this).hasClass("active") ) {
+  if ($(this).hasClass("active")) {
     audioRecorder.clear();
     audioRecorder.record();
   } else {
@@ -183,7 +223,7 @@ $( "#record" ).click(function( event ) {
 
 });
 
-$( "#entry" ).submit(function( event ) {
+$("#entry").submit(function (event) {
 
   // Gather the audio and submit the form with AJAX.
   // If there isn't an audioRecorder, try to submit
@@ -194,36 +234,17 @@ $( "#entry" ).submit(function( event ) {
   if (audioRecorder) {
     event.preventDefault();
     audioRecorder.getBuffers();
-    audioRecorder.exportWAV( postEntry );
+    audioRecorder.exportWAV(postEntry);
   } else {
     console.log('No audioRecorder so trying non-ajax post');
   }
 
 });
 
-function updateMessage( msg ) {
+function updateMessage(msg) {
 
   // Sets/clears the message queue.
 
-  $( "#message" ).text(msg);
+  $("#message").text(msg);
 
-}
-
-function connectAudio( callback ) {
-  if (!navigator.getUserMedia) {
-    navigator.getUserMedia = navigator.webkitGetUserMedia ||
-                             navigator.mozGetUserMedia;
-  }
-
-  navigator.getUserMedia(
-    {audio: true},
-    function(stream) {
-      audioInput = audioContext.createMediaStreamSource(stream);
-      audioRecorder = new Recorder( audioInput, {workerPath: recorderWorkerPath} );
-      callback();
-    },
-    function(err) {
-      updateMessage("There was a problem sharing your mic");
-    }
-  );
 }
