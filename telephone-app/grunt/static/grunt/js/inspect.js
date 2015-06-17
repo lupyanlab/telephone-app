@@ -45,11 +45,17 @@ function createChainTree(chain) {
   var chainName = "chain-" + chain.pk.toString();
   var nestedMessages = tree(chain.messages);
 
-  treeChart = d3.layout.tree();
-  treeChart.size([500, 500])
-    .children(function(d) { return d.children });
+  var maxDepth = d3.max(chain.messages, function (el) { return el.generation; }),
+      heightPerGeneration = 200;
+
+  var svgWidth = 600,
+      svgHeight = maxDepth * heightPerGeneration;
 
   var bumpDown = 40;
+
+  treeChart = d3.layout.tree();
+  treeChart.size([svgWidth, svgHeight-(2*bumpDown)])
+    .children(function(d) { return d.children });
 
   var linkGenerator = d3.svg.diagonal()
     .projection(function (d) {return [d.x, d.y+bumpDown]})
@@ -60,6 +66,8 @@ function createChainTree(chain) {
     .attr("class", "jumbotron")
     .append("svg")
     .attr("id", chainName)
+    .attr("width", svgWidth)
+    .attr("height", svgHeight);
 
   d3.select("#" + chainName)
     .selectAll("g")
