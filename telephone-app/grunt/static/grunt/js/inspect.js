@@ -45,7 +45,7 @@ function createChainTree(chain) {
   var chainName = "chain-" + chain.pk.toString();
   var nestedMessages = tree(chain.messages);
 
-  var maxDepth = d3.max(chain.messages, function (el) { return el.generation; }),
+  var maxDepth = d3.max(chain.messages, function (el) { return el.generation; }) + 1,
       heightPerGeneration = 200;
 
   var maxWidth = 0,
