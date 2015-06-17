@@ -31,14 +31,26 @@ class UpdateMessageForm(forms.ModelForm):
         message.replicate()
         return message
 
-class ResponseForm(UpdateMessageForm):
+class ResponseForm(forms.Form):
     message = forms.IntegerField(required = False)
+    audio = forms.FileField(required = True)
 
-    def __init__(self, *args, **kwargs):
-        super(ResponseForm, self).__init__(*args, **kwargs)
-        self.fields['audio'].required = True
+    def save(self):
+        super(ResponseForm, self).is_valid()
+        message_pk = self.cleaned_data['message']
+        message = Message.objects.get(pk = message_pk)
 
-    def clean(self):
-        cleaned_data = super(ResponseForm, self).clean()
-        if cleaned_data['message']:
-            self.instance = Message.objects.get(pk = cleaned_data['message'])
+        if message.audio != '':
+            if message.parent:
+                message = message.parent.replicate()
+            else:
+                # Message has no parent, so overwriting audio
+                pass
+        else:
+            # Message has no audio, so update as normal
+            pass
+
+        audio_file = self.cleaned_data['audio']
+        model_form = UpdateMessageForm(instance = message,
+                                       files = {'audio': audio_file})
+        return model_form.save()
