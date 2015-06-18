@@ -1,8 +1,8 @@
 ---
 
-git_repo: https://github.com/pedmiston/evo-apps.git
+git_repo: https://github.com/pedmiston/telephone.git
 
-project_name: evo-apps
-application_name: grunt
+project_name: telephone-app
+application_name: telephone
 
 ssl_dest_dir: /etc/ssl
