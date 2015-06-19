@@ -1,13 +1,10 @@
 {% extends "base.html" %}
+{% load crispy_forms_tags %}
 
 {% block jumbotron %}
 
     {{ block.super }}
 
-    <form action="{% url 'upload' pk=message.pk %}" method="post" enctype="multipart/form-data">
-      {% csrf_token %}
-      {{ form }}
-      <input id="id_submit" type="submit" value="Upload Message" />
-    </form>
+    {% crispy form form.helper %}
 
 {% endblock jumbotron %}

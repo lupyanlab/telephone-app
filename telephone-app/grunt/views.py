@@ -9,7 +9,7 @@ from django.views.decorators.http import require_GET, require_POST
 from django.views.generic import ListView, CreateView, DetailView, UpdateView
 
 from .models import Game, Chain, Message
-from .forms import NewGameForm, UpdateMessageForm, ResponseForm
+from .forms import NewGameForm, UploadMessageForm
 
 class GameListView(ListView):
     template_name = 'grunt/games.html'
@@ -26,9 +26,16 @@ class NewGameView(CreateView):
     form_class = NewGameForm
     success_url = '/'
 
-    def form_valid(self, form):
-        form.save()
-        return super(NewGameView, self).form_valid(form)
+class UploadMessageView(UpdateView):
+    model = Message
+    form_class = UploadMessageForm
+    template_name = 'grunt/upload-message.html'
+
+    def get_form(self, form_class):
+        """ Populate the form's action attribute with the correct url """
+        form = super(UploadMessageView, self).get_form(form_class)
+        form.helper.form_action = reverse('upload', kwargs = {'pk': form.instance.pk})
+        return form
 
 @require_GET
 def play_game(request, pk):
@@ -144,8 +151,3 @@ def close(request, pk):
 
     game_url = message.chain.game.get_inspect_url()
     return redirect(game_url)
-
-class UploadMessageView(UpdateView):
-    model = Message
-    form_class = UpdateMessageForm
-    template_name = 'grunt/upload-message.html'
