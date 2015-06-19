@@ -5,14 +5,12 @@
     <link href="{% static "grunt/css/recorder.css" %}" rel="stylesheet" type="text/css">
 {% endblock styling %}
 
-{% block header %}
-  <h3 id="game" class="text-muted">{{ game }}</h3>
-  <nav>
-    <ul class="nav nav-pills pull-right">
-      <li id="share" role="presentation"><a href="#">Share Mic</a></li>
-    </ul>
-  </nav>
-{% endblock header %}
+{% block navbar %}
+<li class="navbar-brand navbar-left">{{ game }}</li>
+<li class="btn btn-default pull-right" role="presentation">
+  <a href="#">Share Mic</a>
+</li>
+{% endblock navbar %}
 
 {% block jumbotron %}
 
@@ -28,29 +26,16 @@
     <script type="text/javascript" src="{% static "grunt/js/player.js" %}"></script>
     <script>
 var config = {},
-    query = {};
+    currentMessage = {{ message.pk }};
 
 config = {
   workerPath: "{% static 'grunt/js/recorderjs/recorderWorker.js' %}",
   callback: sendRecorderMessage
 }
 
-query = {
-  message: {{ message.pk }} // initial message
-};
-
 function sendRecorderMessage(blob) {
-   // create an object url
-   //var url = (window.URL || window.webkitURL).createObjectURL(blob);
-
-   // create a new request and send it via the objectUrl
-  //  var request = new XMLHttpRequest();
-  //  request.open("GET", url, true);
-  //  request.responseType = blob;
-
-  //  request.onload = function () {
    messageForm = new FormData();
-   messageForm.append("message", query.message);
+   messageForm.append("message", currentMessage);
    messageForm.append("audio", blob);
 
    $.ajax({
@@ -64,12 +49,7 @@ function sendRecorderMessage(blob) {
        if (!data.message) {
          window.location.href = "{% url 'complete' pk=message.chain.game.pk%}";
        } else {
-         console.log("Old query.message");
-         console.log(query.message);
-         query.message = data.message;
-         console.log("New query.message");
-         console.log(query.message);
-
+         currentMessage = data.message;
          $("#sound").attr("src", data.src || "");
          setPlayer();
        }
@@ -78,16 +58,23 @@ function sendRecorderMessage(blob) {
        console.log("error");
        console.log(error);
      }
-
    });
-  //  }
-  //  request.send();
 }
 
 $(function () {
   var src = "{{ message.parent.audio.url }}" || "";
+
+  $("#share").click(shareMic);
+  $("#listen").click(listenToMessage);
+  $("#record").click(toggleRecording);
+
+  $("#sound").bind("ended", function () {
+    $("#listen").removeClass("active");
+    $("#listen").addClass("played");
+    $("#record").removeClass("unavailable");
+  });
+
   setPlayer(src);
 });
-
     </script>
 {% endblock javascript %}

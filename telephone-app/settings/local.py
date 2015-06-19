@@ -69,7 +69,7 @@ WSGI_APPLICATION = 'telephone.wsgi.application'
 DATABASE_OPTIONS = {
     'sqlite': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': Path(BASE_DIR, 'db/db.sqlite3'),
+        'NAME': Path(BASE_DIR, 'telephone.sqlite3'),
      },
     'postgres': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',

@@ -24,7 +24,7 @@ class GameListView(ListView):
 class NewGameView(CreateView):
     template_name = 'grunt/new-game.html'
     form_class = NewGameForm
-    success_url = '/games/'
+    success_url = '/'
 
     def form_valid(self, form):
         form.save()
@@ -59,7 +59,7 @@ def play_game(request, pk):
         # something weird happened
         raise Http404("No empty messages were found in the chain")
 
-    return render(request, 'grunt/play.html', {'message': message})
+    return render(request, 'grunt/play.html', {'game': game, 'message': message})
 
 @require_POST
 def accept(request, pk):

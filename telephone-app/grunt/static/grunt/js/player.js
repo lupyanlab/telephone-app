@@ -39,71 +39,66 @@ function setPlayer(src) {
     $("#sound").attr("src", "");
     $("#listen").addClass("unavailable");
     $("#listen").addClass("played");
-    $("#record").removeClass("unavailable");
+
+    if (audioRecorder) {
+      $("#record").removeClass("unavailable");
+    }
   }
 }
 
-$(function () {
+function updateMessage(msg) {
+  $("#message").text(msg);
+}
 
-  $("#share").click(function () {
-    if (!audioRecorder) {
-      connectAudio();
-    } else {
-      audioRecorder = null;
-      $(this).removeClass("active");
-    }
-  });
+function shareMic() {
+  if (!audioRecorder) {
+    connectAudio();
+  } else {
+    audioRecorder = null;
+    $("#share").removeClass("active");
+  }
+}
 
-  $("#listen").click(function () {
-    if (!$("#sound").attr("src")) {
-      updateMessage("There is nothing to listen to.");
-      return;
-    } else {
-      if ($(this).hasClass("unavailable")) {
-        updateMessage("Share your microphone to play.");
-        return;
-      } else {
-        $(this).toggleClass("active");
-
-        if ($(this).hasClass("active")) {
-          $("#sound").trigger("play");
-        } else {
-          $("#sound").trigger("pause");
-        }
-
-        return;
-      }
-    }
-  });
-
-  $("#sound").bind("ended", function () {
-    $("#listen").removeClass("active");
-    $("#listen").addClass("played");
-    $("#record").removeClass("unavailable");
-  });
-
-  $("#record").click(function () {
+function listenToMessage() {
+  if (!$("#sound").attr("src")) {
+    updateMessage("There is nothing to listen to.");
+    return;
+  } else {
     if ($(this).hasClass("unavailable")) {
       updateMessage("Share your microphone to play.");
       return;
     } else {
-      if (!$("#listen").hasClass("played")) {
-        updateMessage("Listen to the message before making your recording.");
-        return;
+      $(this).toggleClass("button-on");
+
+      if ($(this).hasClass("button-on")) {
+        $("#sound").trigger("play");
       } else {
-        $(this).toggleClass("active");
-
-        if ($(this).hasClass("active")) {
-          audioRecorder.clear();
-          audioRecorder.record();
-        } else {
-          audioRecorder.stop();
-          audioRecorder.exportWAV();
-        }
-
-        return;
+        $("#sound").trigger("pause");
       }
     }
-  });
+  }
+}
 
-});
+function toggleRecording() {
+  if ($(this).hasClass("unavailable")) {
+    updateMessage("Share your microphone to play.");
+    return;
+  } else {
+    if (!$("#listen").hasClass("played")) {
+      updateMessage("Listen to the message before making your recording.");
+      return;
+    } else {
+      $(this).toggleClass("button-on");
+
+      if ($(this).hasClass("button-on")) {
+        audioRecorder.clear();
+        audioRecorder.record();
+      } else {
+        audioRecorder.stop();
+        audioRecorder.exportWAV();
+      }
+
+      return;
+    }
+  }
+}

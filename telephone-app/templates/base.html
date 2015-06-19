@@ -21,12 +21,15 @@
     </head>
 
     <body>
+
         <div class="container">
 
-            <div class="header">
-                {% block header %}
-                {% endblock header %}
-            </div>
+            <nav class="nav nav-pills">
+              <ul class="nav nav-pills">
+              {% block navbar %}
+              {% endblock navbar %}
+              </ul>
+            </nav>
 
             {% block body %}
             <div class="jumbotron">
@@ -37,11 +40,6 @@
             {% endblock body %}
 
             <p id="message" class="bg-danger">{% block message %}{% endblock %}</p>
-
-            <div class="footer">
-                {% block footer %}
-                {% endblock %}
-            </div>
 
         </div>
 

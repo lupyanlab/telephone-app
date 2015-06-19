@@ -19,6 +19,7 @@ function tree(nodes) {
 }
 
 function playMessage(message) {
+  console.log(message);
   $("audio").attr("src", message.audio);
   $("audio").trigger("play");
 }

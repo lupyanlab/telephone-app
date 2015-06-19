@@ -2,7 +2,7 @@
     opacity: 0.1;
 }
 
-.active {
+.button-on {
      background: -webkit-radial-gradient(40px, #FF0000, #EEE 100%, #EEE 100%, #FFFFFF);
      background: -moz-radial-gradient(40px, #FF0000, #EEE 100%, #EEE 100%, #FFFFFF);
      background: radial-gradient(40px, #FF0000, #EEE     100%, #EEE 100%, #FFFFFF);
