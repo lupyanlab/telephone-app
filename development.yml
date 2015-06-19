@@ -11,6 +11,7 @@
   vars_files:
     - env_vars/base.yml
     - env_vars/prod.yml
+    - env_vars/secrets.yml
   roles:
     - base
     - db
