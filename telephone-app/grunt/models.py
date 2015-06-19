@@ -17,14 +17,6 @@ class Game(models.Model):
     # used.
     name = models.CharField(blank = True, null = True, max_length = 30)
 
-    possible_game_types = [('PUB', 'public'), ('MTK', 'mturk')]
-    type = models.CharField(choices = possible_game_types, default = 'PUB',
-            max_length = 3)
-
-    # Completion codes are presented to MTurk players
-    completion_code = models.CharField(blank = True, null = True,
-            max_length = 20)
-
     # When playing a game, how should the next call be determined?
     chain_order_choices  = [('SEQ', 'sequential'), ('RND', 'random')]
     chain_order = models.CharField(choices = chain_order_choices,

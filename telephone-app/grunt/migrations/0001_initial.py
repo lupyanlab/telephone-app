@@ -26,8 +26,6 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=30, null=True, blank=True)),
-                ('type', models.CharField(default=b'PUB', max_length=3, choices=[(b'PUB', b'public'), (b'MTK', b'mturk')])),
-                ('completion_code', models.CharField(max_length=20, null=True, blank=True)),
                 ('chain_order', models.CharField(default=b'SEQ', max_length=3, choices=[(b'SEQ', b'sequential'), (b'RND', b'random')])),
                 ('status', models.CharField(default=b'ACTIV', max_length=5, choices=[(b'ACTIV', b'active'), (b'INACT', b'inactive')])),
             ],
@@ -43,7 +41,7 @@ class Migration(migrations.Migration):
                 ('generation', models.IntegerField(default=0, editable=False)),
                 ('audio', models.FileField(upload_to=grunt.handlers.message_path, blank=True)),
                 ('chain', models.ForeignKey(to='grunt.Chain')),
-                ('parent', models.ForeignKey(to='grunt.Message', null=True)),
+                ('parent', models.ForeignKey(blank=True, to='grunt.Message', null=True)),
             ],
             options={
             },
