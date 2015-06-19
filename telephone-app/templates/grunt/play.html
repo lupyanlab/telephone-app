@@ -18,37 +18,76 @@
 
   {{ block.super }}
 
-  <p id="status" class="lead"></p>
-
   {% include "grunt/_player.html" %}
 
-  <audio id="sound" src="{{ message.parent.audio.url }}"></audio>
-
-  <form id="entry" method="post" action="{{ game.get_absolute_url }}" enctype="multipart/form-data">
-    {% csrf_token %}
-
-    {{ form.message.as_hidden }}
-    {{ form.audio.as_hidden }}
-
-    <input type="submit" value="Send" id="submit" class="btn btn-lg btn-primary" disabled="disabled"/>
-  </form>
 {% endblock jumbotron %}
-
-{% block message %}
-  {% if form.content.errors %}
-    {{ form.content.errors.as_text|cut:"* "}}
-  {% endif %}
-{% endblock message %}
 
 {% block javascript %}
     <script type="text/javascript" src="{% static "grunt/js/recorderjs/recorder.js" %}"></script>
-    <script type="text/javascript" src="{% static "grunt/js/audiorecorder.js" %}"></script>
     <script type="text/javascript" src="{% static "grunt/js/ajax.js" %}"></script>
+    <script type="text/javascript" src="{% static "grunt/js/player.js" %}"></script>
     <script>
-window.AudioContext = window.AudioContext || window.webkitAudioContext;
+var config = {},
+    query = {};
 
-var audioRecorder = null,
-    recorderWorkerPath = "{% static 'grunt/js/recorderjs/recorderWorker.js' %}";
+config = {
+  workerPath: "{% static 'grunt/js/recorderjs/recorderWorker.js' %}",
+  callback: sendRecorderMessage
+}
+
+query = {
+  message: {{ message.pk }} // initial message
+};
+
+function sendRecorderMessage(blob) {
+   // create an object url
+   //var url = (window.URL || window.webkitURL).createObjectURL(blob);
+
+   // create a new request and send it via the objectUrl
+  //  var request = new XMLHttpRequest();
+  //  request.open("GET", url, true);
+  //  request.responseType = blob;
+
+  //  request.onload = function () {
+   messageForm = new FormData();
+   messageForm.append("message", query.message);
+   messageForm.append("audio", blob);
+
+   $.ajax({
+     url: "{% url 'respond' %}",
+     type: "POST",
+     data: messageForm,
+     processData: false,
+     contentType: false,
+     success: function (data) {
+
+       if (!data.message) {
+         window.location.href = "{% url 'complete' pk=message.chain.game.pk%}";
+       } else {
+         console.log("Old query.message");
+         console.log(query.message);
+         query.message = data.message;
+         console.log("New query.message");
+         console.log(query.message);
+
+         $("#sound").attr("src", data.src || "");
+         setPlayer();
+       }
+     },
+     error: function (xhr, msg, error) {
+       console.log("error");
+       console.log(error);
+     }
+
+   });
+  //  }
+  //  request.send();
+}
+
+$(function () {
+  var src = "{{ message.parent.audio.url }}" || "";
+  setPlayer(src);
+});
 
     </script>
 {% endblock javascript %}

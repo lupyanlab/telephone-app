@@ -1,13 +1,16 @@
 {% load static %}
 
-<div class="row">
-  <div class="col-md-2 col-sm-1"></div>
-  <div class="col-md-4 col-sm-5 col-xs-6">
-    <img id="phone" src="{% static 'grunt/img/phone.png' %}" class="img-responsive"/>
+<div id="player">
+  <div class="row">
+    <div class="col-md-2 col-sm-1"></div>
+    <div class="col-md-4 col-sm-5 col-xs-6">
+      <img id="phone" src="{% static 'grunt/img/phone.png' %}" class="img-responsive"/>
+    </div>
+    <div class="col-md-4 col-sm-5 col-xs-6">
+      <img id="listen" src="{% static 'grunt/img/listen.png' %}" class="img-responsive unavailable"/>
+      <img id="record" src="{% static 'grunt/img/record.png' %}" class="img-responsive unavailable"/>
+    </div>
+    <div class="col-md-2 col-sm-1"></div>
   </div>
-  <div class="col-md-4 col-sm-5 col-xs-6">
-    <img id="listen" src="{% static 'grunt/img/listen.png' %}" class="img-responsive unavailable"/>
-    <img id="record" src="{% static 'grunt/img/record.png' %}" class="img-responsive unavailable"/>
-  </div>
-  <div class="col-md-2 col-sm-1"></div>
+  <audio id="sound" src=""></audio>
 </div>
