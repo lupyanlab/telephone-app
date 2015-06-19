@@ -1,13 +1,10 @@
 {% extends "base.html" %}
+{% load crispy_forms_tags %}
 
 {% block jumbotron %}
 
     {{ block.super }}
 
-    <form action="{% url 'new_game' %}" method="post">
-      {% csrf_token %}
-      {{ form }}
-      <input id="id_submit" type="submit" value="Create New Game" />
-    </form>
+    {% crispy form form.helper %}
 
 {% endblock jumbotron %}

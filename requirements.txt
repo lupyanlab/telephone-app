@@ -1,5 +1,6 @@
 ansible==1.9.1
 Django==1.7.2
+django-crispy-forms==1.4.0
 ecdsa==0.13
 gunicorn==18.0
 Jinja2==2.7.3

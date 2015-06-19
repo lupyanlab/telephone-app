@@ -30,6 +30,9 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    # Third-party apps
+    'crispy_forms',
+
     # Local apps
     'grunt',
 )
@@ -95,3 +98,5 @@ gen_small_str.required = ['max_length']
 MOMMY_CUSTOM_FIELDS_GEN = {
     'django.db.models.fields.CharField': gen_small_str,
 }
+
+CRISPY_TEMPLATE_PACK = 'bootstrap3'

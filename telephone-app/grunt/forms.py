@@ -2,6 +2,9 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Submit
+
 from .models import Game, Chain, Message
 
 class NewGameForm(forms.ModelForm):
@@ -10,6 +13,13 @@ class NewGameForm(forms.ModelForm):
     class Meta:
         model = Game
         fields = ('name', )
+
+    def __init__(self, *args, **kwargs):
+        super(NewGameForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_method = 'post'
+        self.helper.form_action = 'new_game'
+        self.helper.add_input(Submit('submit', 'Create'))
 
     def save(self, *args, **kwargs):
         game = super(NewGameForm, self).save(*args, **kwargs)
