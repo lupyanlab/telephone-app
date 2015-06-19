@@ -3,7 +3,7 @@ function tree(nodes) {
 
   // Index the nodes by id, in case they come out of order.
   nodes.forEach(function(d) {
-  nodeById[d.pk] = d;
+    nodeById[d.pk] = d;
   });
 
   // Lazily compute children.
@@ -94,6 +94,9 @@ function createChainTree(chain) {
     .attr("width", svgWidth)
     .attr("height", svgHeight);
 
+  console.log("treeChart(nestedMessages)");
+  console.log(treeChart(nestedMessages));
+
   d3.select("#" + chainName)
     .selectAll("g")
     .data(treeChart(nestedMessages))
@@ -152,6 +155,7 @@ function createChainTree(chain) {
 
 function visualize(messageData) {
   messageData = JSON.parse(messageData);
+  rawData = messageData;
 
   messageData.forEach(
     function (chain) {
