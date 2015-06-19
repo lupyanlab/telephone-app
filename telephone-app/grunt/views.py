@@ -52,9 +52,11 @@ class PlayView(View):
         request.session['receipts'] = receipts
 
         try:
-            return self.play(request)
+            rendered_response = self.play(request)
         except Chain.DoesNotExist:
-            return self.complete(request)
+            rendered_response = self.complete(request)
+
+        return rendered_response
 
     def instruct(self, request):
         """ Render the instructions for the telephone game """
@@ -76,12 +78,6 @@ class PlayView(View):
 
         form = ResponseForm(initial = {'message': message.pk})
         context_data['form'] = form
-
-        if request.is_ajax():
-            data = {'message': message.pk}
-            if message.parent and message.parent.audio:
-                data['url'] = message.parent.audio.url
-            return JsonResponse(data)
 
         return render(request, 'grunt/play.html', context_data)
 
@@ -120,18 +116,9 @@ class PlayView(View):
                 'form': form,
             }
 
-            if request.is_ajax():
-                data = {'message': message.pk}
-                if message.parent and message.parent.audio:
-                    data['url'] = message.parent.audio.url
-                return JsonResponse(data)
-
             return render(request, 'grunt/play.html', context_data)
 
     def complete(self, request):
-        if request.is_ajax():
-            return JsonResponse({'complete': self.game.get_absolute_url()})
-
         return render(request, 'grunt/complete.html', {'game': self.game})
 
 class InspectView(DetailView):

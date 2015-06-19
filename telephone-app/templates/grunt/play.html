@@ -45,7 +45,10 @@
     <script type="text/javascript" src="{% static "grunt/js/audiorecorder.js" %}"></script>
     <script type="text/javascript" src="{% static "grunt/js/ajax.js" %}"></script>
     <script>
+window.AudioContext = window.AudioContext || window.webkitAudioContext;
+
 var audioRecorder = null,
     recorderWorkerPath = "{% static 'grunt/js/recorderjs/recorderWorker.js' %}";
+
     </script>
 {% endblock javascript %}
