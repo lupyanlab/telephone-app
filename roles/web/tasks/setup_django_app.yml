@@ -3,18 +3,6 @@
 - name: Install packages required by the Django app inside virtualenv
   pip: virtualenv={{ virtualenv_path }} requirements={{ requirements_file }}
 
-- name: Run the Django syncdb command
-  django_manage:
-    command: syncdb
-    app_path: "{{ application_path }}"
-    virtualenv: "{{ virtualenv_path }}"
-    settings: "{{ django_settings_file }}"
-  environment: django_environment
-  when: run_django_syncdb
-  tags:
-    - django
-    - django_syncdb
-
 - name: Run Django South migrations
   django_manage:
     command: migrate

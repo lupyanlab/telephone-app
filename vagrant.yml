@@ -8,11 +8,9 @@
   vars:
     - setup_git_repo: yes
     - update_apt_cache: yes
-    - django_location: local
-    - django_database: postgres
   vars_files:
     - env_vars/base.yml
-    - env_vars/local.yml
+    - env_vars/vagrant.yml
 
   roles:
     - base

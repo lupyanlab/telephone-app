@@ -34,4 +34,4 @@ exec gunicorn \
     --user $USER --group $GROUP \
     --log-level debug \
     --bind unix:$SOCKFILE \
-    wsgi
+    {{ application_name }}.wsgi
