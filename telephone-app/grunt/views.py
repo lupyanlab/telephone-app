@@ -11,7 +11,7 @@ from django.views.generic import ListView, CreateView, DetailView, UpdateView
 from .models import Game, Chain, Message
 from .forms import NewGameForm, UpdateMessageForm, ResponseForm
 
-class GamesView(ListView):
+class GameListView(ListView):
     template_name = 'grunt/games.html'
     model = Game
 
@@ -31,7 +31,7 @@ class NewGameView(CreateView):
         return super(NewGameView, self).form_valid(form)
 
 @require_GET
-def play(request, pk):
+def play_game(request, pk):
     """ Determine what to do when a user requests the game page.
 
     Outcomes
