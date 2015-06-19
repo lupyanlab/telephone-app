@@ -4,6 +4,17 @@ var audioContext = new AudioContext(),
     audioInput = null,
     audioRecorder = null;
 
+function showAlert(msg, type) {
+  var alert = $("#alert");
+  alert.text(msg);
+  alert.addClass(type);
+
+  setTimeout(function () {
+    alert.text("");
+    alert.removeClass(type);
+  }, 3000);
+}
+
 function connectAudio(callback) {
 
   // Create an audio recorder object
@@ -23,20 +34,21 @@ function connectAudio(callback) {
       setPlayer();
     },
     function (error) {
-      console.log(error);
-      updateMessage("There was a problem sharing your mic.");
+      showAlert("There was a problem sharing your mic.", "alert-danger");
     }
   );
 }
 
-function setPlayer(src) {
-  if (src) {
-    $("#sound").attr("src", src);
-    $("#listen").removeClass("unavailable");
+function setPlayer() {
+  if ($("#sound").attr("src")) {
+
+    if (audioRecorder) {
+      $("#listen").removeClass("unavailable");
+    }
+
     $("#listen").removeClass("played");
     $("#record").addClass("unavailable");
   } else {
-    $("#sound").attr("src", "");
     $("#listen").addClass("unavailable");
     $("#listen").addClass("played");
 
@@ -44,10 +56,6 @@ function setPlayer(src) {
       $("#record").removeClass("unavailable");
     }
   }
-}
-
-function updateMessage(msg) {
-  $("#message").text(msg);
 }
 
 function shareMic() {
@@ -61,11 +69,11 @@ function shareMic() {
 
 function listenToMessage() {
   if (!$("#sound").attr("src")) {
-    updateMessage("There is nothing to listen to.");
+    showAlert("No messages to listen to.", "alert-info");
     return;
   } else {
     if ($(this).hasClass("unavailable")) {
-      updateMessage("Share your microphone to play.");
+      showAlert("Share your microphone to play.", "alert-danger");
       return;
     } else {
       $(this).toggleClass("button-on");
@@ -81,11 +89,11 @@ function listenToMessage() {
 
 function toggleRecording() {
   if ($(this).hasClass("unavailable")) {
-    updateMessage("Share your microphone to play.");
+    showAlert("Share your microphone to play.", "alert-danger");
     return;
   } else {
     if (!$("#listen").hasClass("played")) {
-      updateMessage("Listen to the message before making your recording.");
+      showAlert("You have to listen to the message before you can make your recording.", "alert-danger");
       return;
     } else {
       $(this).toggleClass("button-on");

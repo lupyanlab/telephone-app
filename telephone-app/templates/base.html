@@ -24,12 +24,10 @@
 
         <div class="container">
 
-            <nav class="nav nav-pills">
-              <ul class="nav nav-pills">
+            <ul class="nav nav-pills">
               {% block navbar %}
               {% endblock navbar %}
-              </ul>
-            </nav>
+            </ul>
 
             {% block body %}
             <div class="jumbotron">
@@ -39,8 +37,7 @@
             </div>
             {% endblock body %}
 
-            <p id="message" class="bg-danger">{% block message %}{% endblock %}</p>
-
+            <div id="alert" class="alert" role="alert"></div>
         </div>
 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>

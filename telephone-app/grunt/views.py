@@ -59,6 +59,10 @@ def play_game(request, pk):
         # something weird happened
         raise Http404("No empty messages were found in the chain")
 
+    print message
+    print message.parent
+    print message.parent.audio
+    print message.parent.audio.url
     return render(request, 'grunt/play.html', {'game': game, 'message': message})
 
 @require_POST
