@@ -114,7 +114,9 @@ class Chain(models.Model):
         """ Serialize this chain and it's messages """
         chain_dict = {}
         chain_dict['pk'] = self.pk
-        chain_dict['messages'] = [m.to_dict() for m in self.message_set.all()]
+        # seed messages must be given first to ensure proper d3 nesting
+        ordered_message_set = self.message_set.order_by('generation')
+        chain_dict['messages'] = [m.to_dict() for m in ordered_message_set]
         return chain_dict
 
     def dirname(self):

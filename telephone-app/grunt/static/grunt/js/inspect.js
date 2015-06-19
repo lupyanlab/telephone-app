@@ -14,18 +14,25 @@ function tree(nodes) {
 
   // Lazily compute children.
   nodes.forEach(function(d) {
-  console.log("node:")
-  console.log(d);
-  if (d.parent) {
-    console.log("node has parent");
-    var parent = nodeById[d.parent];
-    console.log("parent:");
-    console.log(parent)
-    if (parent.children) parent.children.push(d);
-    else parent.children = [d];
-  }
+    console.log("node:")
+    console.log(d);
+    if (d.parent) {
+      console.log("node has parent");
+      var parent = nodeById[d.parent];
+      console.log("parent:");
+      console.log(parent)
+      if (parent.children) {
+        console.log("parent already has child");
+        parent.children.push(d);
+      } else {
+        console.log("first child");
+        parent.children = [d];
+      }
+    }
   });
 
+  console.log("done making tree");
+  console.log(nodes);
   return nodes[0];
 }
 
