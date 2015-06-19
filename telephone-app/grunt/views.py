@@ -52,17 +52,13 @@ def play_game(request, pk):
         chain = game.pick_next_chain(request.session['receipts'])
         message = chain.select_empty_message()
     except Chain.DoesNotExist:
-        # something weird happened
-        # Player returned to the game?
+        # It's likely that this player has already played the game
+        # and returned to play it again without refreshing the session.
         return redirect('complete', pk = game.pk)
     except Message.DoesNotExist:
         # something weird happened
         raise Http404("No empty messages were found in the chain")
 
-    print message
-    print message.parent
-    print message.parent.audio
-    print message.parent.audio.url
     return render(request, 'grunt/play.html', {'game': game, 'message': message})
 
 @require_POST
@@ -107,10 +103,12 @@ def respond(request):
         if next_message.parent and next_message.parent.audio:
             data['src'] = next_message.parent.audio.url
     except Message.DoesNotExist:
-        # something weird happened
+        # Something weird happened.
         data = {}
     except Chain.DoesNotExist:
-        # player is done
+        # There are no more chains for this player to respond to.
+        # Returning an empty response will redirect the player
+        # to the completion page.
         data = {}
 
     return JsonResponse(data)
