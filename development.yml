@@ -10,9 +10,7 @@
     - update_apt_cache: yes
   vars_files:
     - env_vars/base.yml
-    - env_vars/dev.yml
-    - env_vars/secrets.yml
-
+    - env_vars/prod.yml
   roles:
     - base
     - db
