@@ -1,4 +1,7 @@
 function tree(nodes) {
+  console.log("nodes");
+  console.log(nodes);
+
   var nodeById = {};
 
   // Index the nodes by id, in case they come out of order.
