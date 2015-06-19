@@ -1,3 +1,5 @@
+from os import environ
+
 from .base import *
 
 DEBUG = True
@@ -6,13 +8,11 @@ ALLOWED_HOSTS = []
 
 DATABASES = {
     'default': {
-        'postgres': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'telephone',
-            'USER': 'telephone',
-            'PASSWORD': 'telephonepass',
-            'HOST': environ.get('POSTGRESQL_HOST', 'localhost'),
-            'PORT': '',
-        }
-    }
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'telephone',
+        'USER': 'telephone',
+        'PASSWORD': 'telephonepass',
+        'HOST': environ.get('POSTGRESQL_HOST', 'localhost'),
+        'PORT': '',
+    },
 }
