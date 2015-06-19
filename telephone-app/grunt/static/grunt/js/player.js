@@ -88,25 +88,20 @@ function listenToMessage() {
 }
 
 function toggleRecording() {
-  if ($(this).hasClass("unavailable")) {
-    showAlert("Share your microphone to play.", "alert-danger");
+  if (!$("#listen").hasClass("played")) {
+    showAlert("You have to listen to the message to know what to imitate.", "alert-danger");
     return;
   } else {
-    if (!$("#listen").hasClass("played")) {
-      showAlert("You have to listen to the message before you can make your recording.", "alert-danger");
-      return;
+    $("#record").toggleClass("button-on");
+
+    if ($("#record").hasClass("button-on")) {
+      audioRecorder.clear();
+      audioRecorder.record();
     } else {
-      $(this).toggleClass("button-on");
-
-      if ($(this).hasClass("button-on")) {
-        audioRecorder.clear();
-        audioRecorder.record();
-      } else {
-        audioRecorder.stop();
-        audioRecorder.exportWAV();
-      }
-
-      return;
+      audioRecorder.stop();
+      audioRecorder.exportWAV();
     }
+
+    return;
   }
 }

@@ -49,7 +49,7 @@ function sendRecorderMessage(blob) {
        if (!data.message) {
          window.location.href = "{% url 'complete' pk=message.chain.game.pk%}";
        } else {
-         showAlert("Your message was received!", "alert-success");
+         showAlert("Your message was received! A new message was loaded.", "alert-success");
 
          currentMessage = data.message;
          var src = data.src || "";
