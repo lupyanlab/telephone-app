@@ -37,6 +37,20 @@ class UploadMessageView(UpdateView):
         form.helper.form_action = reverse('upload', kwargs = {'pk': form.instance.pk})
         return form
 
+class CompletionView(DetailView):
+    template_name = 'grunt/complete.html'
+    model = Game
+
+    def get_context_data(self, **kwargs):
+        context_data = super(CompletionView, self).get_context_data(**kwargs)
+        game = context_data['game']
+        receipts = self.request.session.get('receipts', list())
+        receipt_code = '-'.join(map(str, receipts))
+        completion_code = 'G{pk}-{receipts}'.format(pk = game.pk,
+                                                    receipts = receipt_code)
+        context_data['completion_code'] = completion_code
+        return context_data
+
 @require_GET
 def play_game(request, pk):
     """ Determine what to do when a user requests the game page.
@@ -119,10 +133,6 @@ def respond(request):
         data = {}
 
     return JsonResponse(data)
-
-class CompletionView(DetailView):
-    template_name = 'grunt/complete.html'
-    model = Game
 
 class InspectView(DetailView):
     template_name = 'grunt/inspect.html'

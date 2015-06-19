@@ -1,22 +1,15 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block header %}
-    <h3 id="game" class="text-muted">{{ game }}</h3>
-{% endblock header %}
+{% block navbar %}
+  <li class="navbar-brand navbar-left">{{ game }}</li>
+{% endblock navbar %}
 
 {% block jumbotron %}
 
-    {{ block.super }}
+    <h1>Game Complete!</h1>
 
-    {% if game.completion_code %}
-        <p class="lead">
-            Your completion code is:
-            <code id="code">{{ game.completion_code }}</code>
-        </p>
-    {% else %}
-        <p class="lead">Keep gruntin'!</p>
-    {% endif %}
+    <p class="lead">Your completion code is: <code>{{ completion_code }}</code></p>
 
     <form method="post" action="{% url 'clear' pk=game.pk %}">
       {% csrf_token %}
