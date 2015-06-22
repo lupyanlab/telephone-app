@@ -3,6 +3,12 @@
 
 {% block navbar %}
   <li class="navbar-brand navbar-left">{{ game }}</li>
+  <li class="pull-right">
+    <form method="post" action="{% url 'clear' pk=game.pk %}">
+      {% csrf_token %}
+      <input type="submit" value="Clear Session" id="return" class="btn btn-lg"/>
+    </form>
+  </li>
 {% endblock navbar %}
 
 {% block jumbotron %}
@@ -11,9 +17,5 @@
 
     <p class="lead">Your completion code is: <code>{{ completion_code }}</code></p>
 
-    <form method="post" action="{% url 'clear' pk=game.pk %}">
-      {% csrf_token %}
-      <input type="submit" value="Play again" id="return" class="btn btn-lg btn-primary"/>
-    </form>
 
 {% endblock jumbotron %}

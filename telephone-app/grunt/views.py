@@ -90,9 +90,11 @@ def accept(request, pk):
 
 @require_POST
 def clear(request, pk):
+    request.session['instructed'] = False
     request.session['receipts'] = list()
     request.session['messages'] = list()
-    return redirect('play', pk = pk)
+    return redirect('complete', pk = pk)
+
 
 @require_POST
 def respond(request):
