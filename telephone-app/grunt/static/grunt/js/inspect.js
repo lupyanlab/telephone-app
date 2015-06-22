@@ -94,7 +94,7 @@ function createChainTree(chain) {
     .attr("class", "jumbotron")
     .append("svg")
     .attr("id", chainName)
-    .attr("width", svgWidth)
+    .attr("width", svgWidth + bumpTextsRight)
     .attr("height", svgHeight);
 
   d3.select("#" + chainName)
