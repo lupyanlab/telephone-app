@@ -9,8 +9,6 @@
 }
 
 .alert {
-  position: absolute;
-  top: 30%;
-  left: 30%;
-  right: 30%;
+  position: relative;
+  top: -200px;
 }
