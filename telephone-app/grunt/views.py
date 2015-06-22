@@ -44,8 +44,8 @@ class CompletionView(DetailView):
     def get_context_data(self, **kwargs):
         context_data = super(CompletionView, self).get_context_data(**kwargs)
         game = context_data['game']
-        receipts = self.request.session.get('receipts', list())
-        receipt_code = '-'.join(map(str, receipts))
+        message_receipts = self.request.session.get('messages', list())
+        receipt_code = '-'.join(map(str, message_receipts))
         completion_code = 'G{pk}-{receipts}'.format(pk = game.pk,
                                                     receipts = receipt_code)
         context_data['completion_code'] = completion_code
@@ -69,6 +69,7 @@ def play_game(request, pk):
         return render(request, 'grunt/instruct.html', {'game': game})
 
     request.session['receipts'] = request.session.get('receipts', list())
+    request.session['messages'] = request.session.get('messages', list())
     try:
         chain = game.pick_next_chain(request.session['receipts'])
         message = chain.select_empty_message()
@@ -90,6 +91,7 @@ def accept(request, pk):
 @require_POST
 def clear(request, pk):
     request.session['receipts'] = list()
+    request.session['messages'] = list()
     return redirect('play', pk = pk)
 
 @require_POST
@@ -114,6 +116,11 @@ def respond(request):
         receipts = request.session.get('receipts', list())
         receipts.append(message.chain.pk)
         request.session['receipts'] = receipts
+
+        # Add the message to the message receipts
+        message_receipts = request.session.get('messages', list())
+        message_receipts.append(message.pk)
+        request.session['messages'] = message_receipts
 
         # Search for the next message
         game = message.chain.game
