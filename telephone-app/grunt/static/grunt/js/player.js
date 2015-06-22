@@ -105,17 +105,22 @@ function toggleRecording() {
       showAlert("You can't record the original message.", "alert-danger");
       return;
     } else {
-      $("#record").toggleClass("button-on");
-
-      if ($("#record").hasClass("button-on")) {
-        audioRecorder.clear();
-        audioRecorder.record();
+      if ($("#record").hasClass("unavailable")) {
+        showAlert("Share your microphone to play.", "alert-danger");
+        return;
       } else {
-        audioRecorder.stop();
-        audioRecorder.exportWAV();
-      }
+        $("#record").toggleClass("button-on");
 
-      return;
+        if ($("#record").hasClass("button-on")) {
+          audioRecorder.clear();
+          audioRecorder.record();
+        } else {
+          audioRecorder.stop();
+          audioRecorder.exportWAV();
+        }
+
+        return;
+      }
     }
   }
 }
