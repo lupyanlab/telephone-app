@@ -1,6 +1,4 @@
 function tree(nodes) {
-  console.log("nodes");
-  console.log(nodes);
 
   var nodeById = {};
 
@@ -9,35 +7,22 @@ function tree(nodes) {
     nodeById[d.pk] = d;
   });
 
-  console.log("nodeById");
-  console.log(nodeById);
-
   // Lazily compute children.
   nodes.forEach(function(d) {
-    console.log("node:")
-    console.log(d);
     if (d.parent) {
-      console.log("node has parent");
       var parent = nodeById[d.parent];
-      console.log("parent:");
-      console.log(parent)
       if (parent.children) {
-        console.log("parent already has child");
         parent.children.push(d);
       } else {
-        console.log("first child");
         parent.children = [d];
       }
     }
   });
 
-  console.log("done making tree");
-  console.log(nodes);
   return nodes[0];
 }
 
 function playMessage(message) {
-  console.log(message);
   $("audio").attr("src", message.audio);
   $("audio").trigger("play");
 }
@@ -63,9 +48,6 @@ function deleteBranch(message) {
 function createChainTree(chain) {
   var chainName = "chain-" + chain.pk.toString();
   var nestedMessages = tree(chain.messages);
-
-  console.log("tree(chain.message)");
-  console.log(nestedMessages);
 
   var maxDepth = d3.max(chain.messages, function (el) { return el.generation; }) + 1,
       heightPerGeneration = 200;
@@ -97,7 +79,7 @@ function createChainTree(chain) {
     .projection(function (d) {return [d.x, d.y+bumpDown]})
 
 
-  var bumpTextsRight = 18,
+  var bumpTextsRight = 26,
       bumpTextsDown = -5,
       buttonGutter = 20;
 
@@ -115,9 +97,6 @@ function createChainTree(chain) {
     .attr("width", svgWidth)
     .attr("height", svgHeight);
 
-  console.log("treeChart(nestedMessages)");
-  console.log(treeChart(nestedMessages));
-
   d3.select("#" + chainName)
     .selectAll("g")
     .data(treeChart(nestedMessages))
@@ -131,10 +110,21 @@ function createChainTree(chain) {
       return "translate(" +d.x+","+(d.y+bumpDown)+")"
     });
 
-  d3.selectAll("g.message")
-    .append("circle")
-    .attr("r", 10);
+  var nodes = d3.selectAll("g.message")
+    .append("g")
 
+  nodes
+    .append("circle")
+    .attr("r", 20)
+
+  nodes
+    .append("text")
+    .text(function (msg) { return msg.pk; })
+    .attr("text-anchor", "middle")
+    .attr("dy", ".35em")
+    .style("fill", function (msg) {
+      return msg.audio ? "white" : "black";
+    });
 
   d3.selectAll("g.message")
     .append("g")
