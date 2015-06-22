@@ -7,3 +7,10 @@
      background: -moz-radial-gradient(40px, #FF0000, #EEE 100%, #EEE 100%, #FFFFFF);
      background: radial-gradient(40px, #FF0000, #EEE     100%, #EEE 100%, #FFFFFF);
 }
+
+.alert {
+  position: absolute;
+  top: 42%;
+  left: 30%;
+  right: 30%;
+}
