@@ -76,12 +76,21 @@ function listenToMessage() {
       showAlert("Share your microphone to play.", "alert-danger");
       return;
     } else {
-      $(this).toggleClass("button-on");
-
-      if ($(this).hasClass("button-on")) {
-        $("#sound").trigger("play");
+      if ($("#record").hasClass("button-on")) {
+        showAlert("You can't record the original message. Recording stopped.", "alert-danger");
+        $("#record").removeClass("button-on");
+        audioRecorder.stop();
+        return;
       } else {
-        $("#sound").trigger("pause");
+        $("#listen").toggleClass("button-on");
+
+        if ($("#listen").hasClass("button-on")) {
+          $("#sound").trigger("play");
+        } else {
+          $("#sound").trigger("pause");
+        }
+
+        return;
       }
     }
   }
@@ -92,16 +101,21 @@ function toggleRecording() {
     showAlert("You have to listen to the message to know what to imitate.", "alert-danger");
     return;
   } else {
-    $("#record").toggleClass("button-on");
-
-    if ($("#record").hasClass("button-on")) {
-      audioRecorder.clear();
-      audioRecorder.record();
+    if ($("#listen").hasClass("button-on")) {
+      showAlert("You can't record the original message.", "alert-danger");
+      return;
     } else {
-      audioRecorder.stop();
-      audioRecorder.exportWAV();
-    }
+      $("#record").toggleClass("button-on");
 
-    return;
+      if ($("#record").hasClass("button-on")) {
+        audioRecorder.clear();
+        audioRecorder.record();
+      } else {
+        audioRecorder.stop();
+        audioRecorder.exportWAV();
+      }
+
+      return;
+    }
   }
 }
