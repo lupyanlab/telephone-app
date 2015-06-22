@@ -176,7 +176,6 @@ function createChainTree(chain) {
 
 function visualize(messageData) {
   messageData = JSON.parse(messageData);
-  rawData = messageData;
 
   messageData.forEach(
     function (chain) {
