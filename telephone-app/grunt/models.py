@@ -113,8 +113,11 @@ class Chain(models.Model):
 
     def nest(self):
         """ Serialize this chain's messages into the correct structure """
+        data = {}
+        data['pk'] = self.pk
         seed = self.message_set.get(generation = 0)
-        return {'messages': seed.nest()}
+        data['messages'] = seed.nest()
+        return data
 
     def dirname(self):
         """ The name of the directory to hold all of this chain's messages """

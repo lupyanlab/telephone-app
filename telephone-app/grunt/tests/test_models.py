@@ -137,6 +137,7 @@ class ChainTest(ModelTest):
 
         expected = \
             {
+                'pk': chain.pk,
                 'messages': {
                     'pk': seed.pk,
                     'audio': seed.audio.url,
