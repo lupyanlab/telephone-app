@@ -25,8 +25,8 @@ class ViewTest(TestCase):
     def make_session(self, game, instructed = False, receipts = list()):
         self.client.get(game.get_absolute_url())
         session = self.client.session
-        session['receipts'] = receipts
         session['instructed'] = instructed
+        session['receipts'] = receipts
         session.save()
 
 
@@ -76,6 +76,25 @@ class PlayViewTest(ViewTest):
         self.chain = mommy.make(Chain, game = self.game)
         self.message = mommy.make(Message, chain = self.chain)
 
+    def test_instructions_page(self):
+        """ First visit should render instructions template """
+        response = self.client.get(self.game.get_absolute_url())
+        self.assertTemplateUsed(response, 'grunt/instruct.html')
+
+    def test_get_game_play_page(self):
+        """ Instructed users should get the play template """
+        self.make_session(self.game, instructed = True)
+        response = self.client.get(self.game.get_absolute_url())
+        self.assertTemplateUsed(response, 'grunt/play.html')
+
+
+class RespondViewTest(ViewTest):
+    def setUp(self):
+        super(PlayViewTest, self).setUp()
+        self.game = mommy.make(Game)
+        self.chain = mommy.make(Chain, game = self.game)
+        self.message = mommy.make(Message, chain = self.chain)
+
     def post_response(self):
         with open(self.audio_path, 'rb') as audio_handle:
             audio_file = File(audio_handle)
@@ -83,11 +102,6 @@ class PlayViewTest(ViewTest):
             post_data = {'message': self.message.pk, 'audio': audio_file}
             response = self.client.post(post_url, post_data)
         return response
-
-    def test_instructions_page(self):
-        """ First visit should render instructions template """
-        response = self.client.get(self.game.get_absolute_url())
-        self.assertTemplateUsed(response, 'grunt/instruct.html')
 
     def test_response_form(self):
         """ Should return a ResponseForm """

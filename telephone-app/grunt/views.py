@@ -75,11 +75,11 @@ def play_game(request, pk):
         message = chain.select_empty_message()
     except Chain.DoesNotExist:
         # It's likely that this player has already played the game
-        # and returned to play it again without refreshing the session.
+        # and returned to play it again without clearing the session.
         return redirect('complete', pk = game.pk)
     except Message.DoesNotExist:
         # something weird happened
-        raise Http404("No empty messages were found in the chain")
+        raise Http404("The game is not configured properly.")
 
     return render(request, 'grunt/play.html', {'game': game, 'message': message})
 
