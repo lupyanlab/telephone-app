@@ -22,11 +22,13 @@ class ViewTest(TestCase):
     def tearDown(self):
         TEST_MEDIA_ROOT.rmtree()
 
-    def make_session(self, game, instructed = False, receipts = list()):
+    def make_session(self, game, instructed = False, receipts = list(),
+                     messages = list()):
         self.client.get(game.get_absolute_url())
         session = self.client.session
         session['instructed'] = instructed
         session['receipts'] = receipts
+        session['messages'] = messages
         session.save()
 
 
@@ -34,7 +36,7 @@ class GamesViewTest(ViewTest):
     """ Show all available games """
     games_list_url = reverse('games_list')
 
-    def test_game_list_view_renderes_game_list_template(self):
+    def test_game_list_view_renders_game_list_template(self):
         response = self.client.get(self.games_list_url)
         self.assertTemplateUsed(response, 'grunt/games.html')
 
@@ -173,6 +175,27 @@ class RespondViewTest(ViewTest):
 
         response = self.post_response()
         self.assertIsInstance(response.context['form'], ResponseForm)
+
+
+class CompletionViewTest(ViewTest):
+    def setUp(self):
+        super(CompletionViewTest, self).setUp()
+        self.game = mommy.make(Game)
+        self.chain = mommy.make(Chain, game = self.game)
+        self.message = mommy.make(Message, chain = self.chain)
+        self.complete_url = reverse('complete', kwargs = {'pk': self.game.pk})
+
+    def test_completion_view_renders_complete_template(self):
+        response = self.client.get(self.complete_url)
+        self.assertTemplateUsed(response, 'grunt/complete.html')
+
+    def test_completion_code_contains_message_receipts(self):
+        simulated_messages = [1,2,3]
+        self.make_session(self.game, messages = simulated_messages)
+        response = self.client.get(self.complete_url)
+        completion_code = response.context['completion_code']
+        for msg in simulated_messages:
+            self.assertIn(str(msg), completion_code)
 
 
 class InspectViewTest(ViewTest):
