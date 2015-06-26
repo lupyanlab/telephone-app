@@ -7,7 +7,7 @@ from django.test import TestCase, override_settings
 from unipath import Path
 from model_mommy import mommy
 
-from grunt.forms import NewGameForm, ResponseForm
+from grunt.forms import NewGameForm
 from grunt.models import Game, Chain, Message
 
 TEST_MEDIA_ROOT = Path(settings.MEDIA_ROOT + '-test')
@@ -32,28 +32,30 @@ class ViewTest(TestCase):
 
 class GamesViewTest(ViewTest):
     """ Show all available games """
+    games_list_url = reverse('games_list')
+
     def test_game_list_view_renderes_game_list_template(self):
-        response = self.client.get(reverse('games'))
+        response = self.client.get(self.games_list_url)
         self.assertTemplateUsed(response, 'grunt/games.html')
 
     def test_games_show_up_on_home_page(self):
         """ Games should be listed on the home page """
         num_games = 10
         expected_games = mommy.make(Game, _quantity = num_games)
-        response = self.client.get(reverse('games'))
+        response = self.client.get(self.games_list_url)
         visible_games = response.context['game_list']
         self.assertEqual(len(visible_games), num_games)
 
     def test_inactive_games_not_shown(self):
         """ Games can be active or inactive """
         inactive_games = mommy.make(Game, status = "INACT", _quantity = 10)
-        response = self.client.get(reverse('games'))
+        response = self.client.get(self.games_list_url)
         self.assertEqual(len(response.context['game_list']), 0)
 
     def test_most_recent_games_shown_first(self):
         """ The newest games should be shown at the top """
         _, newer_game = mommy.make(Game, _quantity = 2)
-        response = self.client.get(reverse('games'))
+        response = self.client.get(self.games_list_url)
         top_game = response.context['game_list'][0]
         self.assertEquals(top_game, newer_game)
 
