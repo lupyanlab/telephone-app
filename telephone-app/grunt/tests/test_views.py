@@ -107,8 +107,10 @@ class PlayViewTest(ViewTest):
         self.assertRedirects(response, complete_url)
 
 class RespondViewTest(ViewTest):
+    post_url = reverse('respond')
+
     def setUp(self):
-        super(PlayViewTest, self).setUp()
+        super(RespondViewTest, self).setUp()
         self.game = mommy.make(Game)
         self.chain = mommy.make(Chain, game = self.game)
         self.message = mommy.make(Message, chain = self.chain)
@@ -116,9 +118,8 @@ class RespondViewTest(ViewTest):
     def post_response(self):
         with open(self.audio_path, 'rb') as audio_handle:
             audio_file = File(audio_handle)
-            post_url = self.game.get_absolute_url()
             post_data = {'message': self.message.pk, 'audio': audio_file}
-            response = self.client.post(post_url, post_data)
+            response = self.client.post(self.post_url, post_data)
         return response
 
     def test_post_a_message(self):
