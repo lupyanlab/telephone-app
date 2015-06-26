@@ -153,10 +153,11 @@ class InspectView(DetailView):
 @require_GET
 def message_data(request, pk):
     game = Game.objects.get(pk = pk)
-    chain_set = game.chain_set.all()
-    chain_set_dicts = [chain.nest() for chain in chain_set]
-    chain_set_json = json.dumps(chain_set_dicts)
-    return JsonResponse(chain_set_json, safe = False)
+    ordered_chain_set = game.chain_set.all().order_by('pk')
+    requested_chain_ix = int(request.GET['chain'])
+    requested_chain = ordered_chain_set[requested_chain_ix]
+    message_data = requested_chain.nest()
+    return JsonResponse(json.dumps(message_data), safe = False)
 
 @require_POST
 def sprout(request, pk):

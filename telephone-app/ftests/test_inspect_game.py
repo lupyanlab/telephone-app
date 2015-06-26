@@ -42,7 +42,7 @@ class InspectGameTest(FunctionalTest):
 
     def test_split_chain(self):
         """ Upload a seed and split the chain into two branches """
-        game_name = 'Two Chain Game'
+        game_name = 'Two Branch Game'
 
         # A game with a seed was already created
         self.create_game(game_name, with_seed = True)
@@ -118,3 +118,23 @@ class InspectGameTest(FunctionalTest):
 
         for msg in messages:
             self.assert_empty_message(msg)
+
+    def test_page_through_chains(self):
+        """ See one chain at a time, and page to the other chains """
+        game_name = 'Two Chain Game'
+        self.create_game(game_name, nchains = 2)
+
+        self.nav_to_games_list()
+        self.inspect_game(game_name)
+
+        # Pierce sees the first chain in the game
+        chain_name = self.browser.find_element_by_id('id_chain_name').text
+        self.assertEquals(chain_name, 'chain-1')
+
+        # He navigates to the second page
+        self.browser.find_element_by_id('id_next_chain').click()
+        self.wait_for(tag = 'body')
+
+        # He sees the second chain in the game
+        chain_name = self.browser.find_element_by_id('id_chain_name').text
+        self.assertEquals(chain_name, 'chain-2')        

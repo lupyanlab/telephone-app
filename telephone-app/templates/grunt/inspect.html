@@ -5,9 +5,9 @@
   <link href="{% static 'grunt/css/inspect.css' %}" rel="stylesheet">
 {% endblock styling %}
 
-{% block header %}
-  <h1>{{ game }}</h1>
-{% endblock header %}
+{% block navbar %}
+  <li class="navbar-brand navbar-left">{{ game }}</li>
+{% endblock navbar %}
 
 {% block body %}
 <div class="chains">
@@ -22,9 +22,16 @@
   <script src="{% static 'grunt/js/ajax.js' %}" type="text/javascript"></script>
   <script src="{% static 'grunt/js/inspect.js' %}" type="text/JavaScript"></script>
   <script>
-var csrf_token = "{{ csrf_token }}";
+var csrf_token = "{{ csrf_token }}",
+    message_data = "{% url 'message_data' pk=game.pk %}"
 
-// give the D3 function the only thing it needs from Django
-d3.json("{% url 'message_data' pk=game.pk %}", visualize);
+function getMessageData(chain) {
+  var urlWithQuery = message_data + "?chain=" + chain;
+  d3.json(urlWithQuery, visualize);
+}
+
+$(function () {
+  getMessageData(0);
+});
   </script>
 {% endblock javascript %}

@@ -1,26 +1,3 @@
-function tree(nodes) {
-
-  var nodeById = {};
-
-  // Index the nodes by id, in case they come out of order.
-  nodes.forEach(function(d) {
-    nodeById[d.pk] = d;
-  });
-
-  // Lazily compute children.
-  nodes.forEach(function(d) {
-    if (d.parent) {
-      var parent = nodeById[d.parent];
-      if (parent.children) {
-        parent.children.push(d);
-      } else {
-        parent.children = [d];
-      }
-    }
-  });
-
-  return nodes[0];
-}
 
 function playMessage(message) {
   $("audio").attr("src", message.audio);
@@ -45,10 +22,11 @@ function deleteBranch(message) {
   );
 }
 
-function createChainTree(chain) {
+function visualize(chain) {
+  chain = JSON.parse(chain);
+
   var chainName = "chain-" + chain.pk.toString();
   var nestedMessages = chain.messages;
-
 
   var maxWidth = 5,
       widthPerChain = 120,
@@ -151,16 +129,4 @@ function createChainTree(chain) {
     .style("fill", "none")
     .style("stroke", "black")
     .style("stroke-width", "2px");
-}
-
-function visualize(messageData) {
-  messageData = JSON.parse(messageData);
-  console.log(messageData);
-
-  messageData.forEach(
-    function (chain) {
-      createChainTree(chain);
-    }
-  );
-
 }
