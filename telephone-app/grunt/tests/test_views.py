@@ -120,6 +120,7 @@ class PlayViewTest(ViewTest):
         complete_url = reverse('complete', kwargs = {'pk': self.game.pk})
         self.assertRedirects(response, complete_url)
 
+
 class RespondViewTest(ViewTest):
     post_url = reverse('respond')
 
@@ -172,6 +173,7 @@ class RespondViewTest(ViewTest):
         response_json = json.loads(response._container[0])
         new_message_pk = response_json['message']
         self.assertEquals(new_message_pk, second_message.pk)
+
 
 class CompletionViewTest(ViewTest):
     def setUp(self):

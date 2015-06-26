@@ -1,8 +1,7 @@
 import json
 
-from django.core import serializers
-from django.core.exceptions import ValidationError
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.http import JsonResponse, HttpResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
