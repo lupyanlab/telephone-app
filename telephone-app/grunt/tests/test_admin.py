@@ -16,8 +16,6 @@ class ModelAdminTests(TestCase):
         admin_fields = list(admin_form.base_fields)
         expected_game_fields = [
             'name',
-            'type',
-            'completion_code',
             'chain_order',
             'status',
         ]

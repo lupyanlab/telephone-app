@@ -24,9 +24,7 @@ class NewGameForm(forms.ModelForm):
     def save(self, *args, **kwargs):
         game = super(NewGameForm, self).save(*args, **kwargs)
 
-        print self.cleaned_data['num_chains']
         for i in range(self.cleaned_data['num_chains']):
-            print i
             chain = game.chain_set.create()
             message = chain.message_set.create()
 
