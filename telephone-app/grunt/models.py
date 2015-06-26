@@ -102,17 +102,8 @@ class Chain(models.Model):
 
         return messages[0]
 
-    def to_dict(self):
-        """ Serialize this chain and it's messages """
-        chain_dict = {}
-        chain_dict['pk'] = self.pk
-        # seed messages must be given first to ensure proper d3 nesting
-        ordered_message_set = self.message_set.order_by('generation')
-        chain_dict['messages'] = [m.to_dict() for m in ordered_message_set]
-        return chain_dict
-
     def nest(self):
-        """ Serialize this chain's messages into the correct structure """
+        """ Serialize this chain's messages in the correct structure """
         data = {}
         data['pk'] = self.pk
         seed = self.message_set.get(generation = 0)
@@ -144,23 +135,8 @@ class Message(models.Model):
             self.generation = self.parent.generation + 1
         super(Message, self).full_clean(*args, **kwargs)
 
-    def to_dict(self):
-        message_dict = {}
-        message_dict['pk'] = self.pk
-        message_dict['generation'] = self.generation
-        message_dict['audio'] = self.audio.url if self.audio else None
-        message_dict['parent'] = self.parent.id if self.parent else None
-
-        # add post URLs to the objects
-        message_dict['sprout_url'] = reverse('sprout', kwargs = {'pk': self.pk})
-        if not self.audio:
-            message_dict['close_url'] = reverse('close', kwargs = {'pk': self.pk})
-
-            message_dict['upload_url'] = reverse('upload', kwargs = {'pk': self.pk})
-
-        return message_dict
-
     def nest(self):
+        """ Serialize this message and recursively serialize its children """
         data = {}
         data['pk'] = self.pk
         data['audio'] = self.audio.url if self.audio else None
@@ -172,7 +148,7 @@ class Message(models.Model):
             data['close_url'] = reverse('close', kwargs = {'pk': self.pk})
             data['upload_url'] = reverse('upload', kwargs = {'pk': self.pk})
 
-        # recurse through children
+        # recurse children
         data['children'] = [child.nest() for child in self.message_set.all()]
         return data
 
