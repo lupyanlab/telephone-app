@@ -17,7 +17,7 @@ class MakeGameTest(FunctionalTest):
         # Marcus fills out the new game form
         new_game_name = 'My New Game'
         self.browser.find_element_by_id('id_name').send_keys(new_game_name)
-        self.browser.find_element_by_id('id_submit').click()
+        self.browser.find_element_by_id('submit-id-submit').click()
 
         # He sees his new game on the game list page
         games_list = self.browser.find_element_by_id('id_game_list')
@@ -40,7 +40,7 @@ class MakeGameTest(FunctionalTest):
         self.browser.execute_script(
             'document.getElementById("id_num_chains").setAttribute("value", {});'.format(num_chains)
         )
-        self.browser.find_element_by_id('id_submit').click()
+        self.browser.find_element_by_id('submit-id-submit').click()
 
         # He sees his new game on the game list page
         games_list = self.browser.find_element_by_id('id_game_list')
