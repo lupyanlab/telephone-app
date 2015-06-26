@@ -1,3 +1,4 @@
+import json
 
 from django.conf import settings
 from django.core.files import File
@@ -161,13 +162,13 @@ class RespondViewTest(ViewTest):
     def test_post_leads_to_next_cluster(self):
         """ Posting a message should redirect to another message """
         second_chain = mommy.make(Chain, game = self.game)
-        mommy.make(Message, chain = second_chain)
+        second_message = mommy.make(Message, chain = second_chain)
 
         self.make_session(self.game, instructed = True)
 
         response = self.post_response()
-        self.assertIsInstance(response.context['form'], ResponseForm)
-
+        new_message_pk = json.loads(response._container[0])['message']
+        self.assertEquals(new_message_pk, second_message.pk)
 
 class CompletionViewTest(ViewTest):
     def setUp(self):
