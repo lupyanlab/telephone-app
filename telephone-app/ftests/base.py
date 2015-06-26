@@ -58,6 +58,7 @@ class FunctionalTest(LiveServerTestCase):
         self.browser.get(self.live_server_url)
 
     def select_game_items(self):
+        """ Simply return the list elements corresponding to available games """
         game_list = self.browser.find_element_by_id('id_game_list')
         return game_list.find_elements_by_tag_name('li')
 
@@ -84,8 +85,7 @@ class FunctionalTest(LiveServerTestCase):
         self.browser.execute_script("""
             audioRecorder = true;
             $( "#share" ).addClass("active");
-            $( "#record" ).removeClass("unavailable");
-            updateMessage("");
+            setPlayer();
         """)
 
     def path_to_test_audio(self):
@@ -113,6 +113,10 @@ class FunctionalTest(LiveServerTestCase):
     def assert_status(self, expected):
         status = self.browser.find_element_by_id('status').text
         self.assertEquals(status, expected)
+
+    def assert_alert_message(self, expected):
+        alert_message = self.browser.find_element_by_id('alert').text
+        self.assertEquals(alert_message, expected)
 
     def assert_error_message(self, expected):
         error_message = self.browser.find_element_by_id('message').text

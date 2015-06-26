@@ -22,7 +22,7 @@ class SingleUserTest(FunctionalTest):
 
         # He tries clicking the recorder but an error message comes up
         recorder.click()
-        self.assert_error_message("Share your microphone to play.")
+        self.assert_alert_message("Share your microphone to play.")
 
         # He shares his microphone
         self.simulate_sharing_mic()
@@ -83,7 +83,7 @@ class SingleUserTest(FunctionalTest):
         self.simulate_sharing_mic()
         recorder.click()
 
-        self.assert_error_message("You have to listen to the sound first.")
+        self.assert_alert_message("You have to listen to the sound first.")
 
         # She plays the sound
         self.browser.find_element_by_id('listen').click()
