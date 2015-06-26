@@ -7,6 +7,13 @@
 
 {% block navbar %}
   <li class="navbar-brand navbar-left">{{ game }}</li>
+
+  <button id="previous" type="button" class="btn btn-default">
+    <span class="glyphicon glyphicon-chevron-left"></span> Previous
+  </button>
+  <button id="next" type="button" class="btn btn-default">
+    Next <span class="glyphicon glyphicon-chevron-right"></span>
+  </button>
 {% endblock navbar %}
 
 {% block body %}
@@ -23,7 +30,8 @@
   <script src="{% static 'grunt/js/inspect.js' %}" type="text/JavaScript"></script>
   <script>
 var csrf_token = "{{ csrf_token }}",
-    message_data = "{% url 'message_data' pk=game.pk %}"
+    message_data = "{% url 'message_data' pk=game.pk %}",
+    current = 0;
 
 function getMessageData(chain) {
   var urlWithQuery = message_data + "?chain=" + chain;
@@ -31,7 +39,17 @@ function getMessageData(chain) {
 }
 
 $(function () {
-  getMessageData(0);
+  $("#next").click(function () {
+    current = current + 1;
+    getMessageData(current);
+  });
+
+  $("#previous").click(function () {
+    current = current - 1;
+    getMessageData(current);
+  });
+
+  getMessageData(current);
 });
   </script>
 {% endblock javascript %}
