@@ -47,24 +47,13 @@ function deleteBranch(message) {
 
 function createChainTree(chain) {
   var chainName = "chain-" + chain.pk.toString();
-  var nestedMessages = tree(chain.messages);
+  var nestedMessages = chain.messages;
 
-  var maxDepth = d3.max(chain.messages, function (el) { return el.generation; }) + 1,
+
+  var maxWidth = 5,
+      widthPerChain = 120,
+      maxDepth = 4,
       heightPerGeneration = 200;
-
-  var maxWidth = 0,
-      sumMessagesByGeneration = {},
-      widthPerChain = 120;
-
-  chain.messages.forEach(function (el) {
-    if (sumMessagesByGeneration[el.generation]) {
-      sumMessagesByGeneration[el.generation] = sumMessagesByGeneration[el.generation] + 1;
-    } else {
-      sumMessagesByGeneration[el.generation] = 1;
-    }
-
-    maxWidth = sumMessagesByGeneration[el.generation] > maxWidth ? sumMessagesByGeneration[el.generation] : maxWidth;
-  })
 
   var svgWidth = maxWidth * widthPerChain,
       svgHeight = maxDepth * heightPerGeneration;
@@ -166,6 +155,7 @@ function createChainTree(chain) {
 
 function visualize(messageData) {
   messageData = JSON.parse(messageData);
+  console.log(messageData);
 
   messageData.forEach(
     function (chain) {

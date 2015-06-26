@@ -165,6 +165,14 @@ class Message(models.Model):
         data['pk'] = self.pk
         data['audio'] = self.audio.url if self.audio else None
         data['generation'] = self.generation
+
+        # add post URLs to the object
+        data['sprout_url'] = reverse('sprout', kwargs = {'pk': self.pk})
+        if not self.audio:
+            data['close_url'] = reverse('close', kwargs = {'pk': self.pk})
+            data['upload_url'] = reverse('upload', kwargs = {'pk': self.pk})
+
+        # recurse through children
         data['children'] = [child.nest() for child in self.message_set.all()]
         return data
 

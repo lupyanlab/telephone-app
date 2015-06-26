@@ -154,7 +154,7 @@ class InspectView(DetailView):
 def message_data(request, pk):
     game = Game.objects.get(pk = pk)
     chain_set = game.chain_set.all()
-    chain_set_dicts = [chain.to_dict() for chain in chain_set]
+    chain_set_dicts = [chain.nest() for chain in chain_set]
     chain_set_json = json.dumps(chain_set_dicts)
     return JsonResponse(chain_set_json, safe = False)
 
