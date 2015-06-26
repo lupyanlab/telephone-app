@@ -97,6 +97,19 @@ class PlayViewTest(ViewTest):
         initial_message = response.context['message']
         self.assertEquals(initial_message, self.message)
 
+    def test_exclude_chains_in_session(self):
+        """ If there are receipts in the session, get the correct chain """
+        second_chain = mommy.make(Chain, game = self.game)
+        mommy.make(Message, chain = second_chain)
+
+        self.make_session(self.game, instructed = True,
+                receipts = [self.chain.pk, ])
+
+        response = self.client.get(self.game.get_absolute_url())
+
+        selected_message = response.context['message']
+        self.assertIn(selected_message, second_chain.message_set.all())
+
     def test_redirect_to_completion_page_on_return_visit(self):
         """ Completed players should get the completion page """
         self.make_session(self.game, instructed = True,
@@ -144,19 +157,6 @@ class RespondViewTest(ViewTest):
         invalid_post = {'message': self.message.pk}
         response = self.client.post(self.post_url, invalid_post)
         self.assertEquals(response.status_code, 404)
-
-    def test_exclude_chains_in_session(self):
-        """ If there are receipts in the session, get the correct chain """
-        second_chain = mommy.make(Chain, game = self.game)
-        mommy.make(Message, chain = second_chain)
-
-        self.make_session(self.game, instructed = True,
-                receipts = [self.chain.pk, ])
-
-        response = self.client.get(self.game.get_absolute_url())
-
-        selected_message = response.context['message']
-        self.assertIn(selected_message, second_chain.message_set.all())
 
     def test_post_leads_to_next_cluster(self):
         """ Posting a message should redirect to another message """
