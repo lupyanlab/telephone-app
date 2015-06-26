@@ -146,17 +146,17 @@ class RespondViewTest(ViewTest):
         self.post_response()
         self.assertIn(self.chain.pk, self.client.session['receipts'])
 
-    def test_post_redirects_to_complete(self):
-        """ Posting an entry should redirect to the completion page """
-        self.make_session(self.game, instructed = True)
-        response = self.post_response()
-        self.assertTemplateUsed(response, 'grunt/complete.html')
-
     def test_invalid_post(self):
         """ Post an entry without a recording """
         invalid_post = {'message': self.message.pk}
         response = self.client.post(self.post_url, invalid_post)
         self.assertEquals(response.status_code, 404)
+
+    def test_posting_with_no_more_entries_returns_empty_json(self):
+        """ Posting an entry should redirect to the completion page """
+        self.make_session(self.game, instructed = True)
+        response = self.post_response()
+        self.assertEquals(response._container[0], '{}')
 
     def test_post_leads_to_next_cluster(self):
         """ Posting a message should redirect to another message """
