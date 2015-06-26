@@ -142,11 +142,8 @@ class RespondViewTest(ViewTest):
     def test_invalid_post(self):
         """ Post an entry without a recording """
         invalid_post = {'message': self.message.pk}
-        response = self.client.post(self.game.get_absolute_url(), invalid_post)
-        form = response.context['form']
-
-        errors = form.errors['audio']
-        self.assertEquals(errors[0], "This field is required.")
+        response = self.client.post(self.post_url, invalid_post)
+        self.assertEquals(response.status_code, 404)
 
     def test_exclude_chains_in_session(self):
         """ If there are receipts in the session, get the correct chain """

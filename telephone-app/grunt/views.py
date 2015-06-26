@@ -1,6 +1,7 @@
 import json
 
 from django.core import serializers
+from django.core.exceptions import ValidationError
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.http import JsonResponse, HttpResponse, Http404
@@ -110,7 +111,10 @@ def respond(request):
             message = parent.replicate()
 
         # Update the message with the newly recorded audio
-        message.audio = request.FILES['audio']
+        message.audio = request.FILES.get('audio', None)
+        if not message.audio:
+            raise Http404('No message attached to post')
+
         message.save()
         message.replicate()
 
