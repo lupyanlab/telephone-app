@@ -157,7 +157,9 @@ class RespondViewTest(ViewTest):
         """ Posting an entry should redirect to the completion page """
         self.make_session(self.game, instructed = True)
         response = self.post_response()
-        self.assertEquals(response._container[0], '{}')
+
+        response_json = json.loads(response._container[0])
+        self.assertEquals(response_json, dict())
 
     def test_post_leads_to_next_cluster(self):
         """ Posting a message should redirect to another message """
@@ -165,9 +167,10 @@ class RespondViewTest(ViewTest):
         second_message = mommy.make(Message, chain = second_chain)
 
         self.make_session(self.game, instructed = True)
-
         response = self.post_response()
-        new_message_pk = json.loads(response._container[0])['message']
+
+        response_json = json.loads(response._container[0])
+        new_message_pk = response_json['message']
         self.assertEquals(new_message_pk, second_message.pk)
 
 class CompletionViewTest(ViewTest):
