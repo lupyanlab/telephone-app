@@ -32,13 +32,12 @@ class SingleUserTest(FunctionalTest):
 
         # He creates a recording
         self.upload_file()
-        self.browser.find_element_by_id('submit').click()  ## non-ajax POST
         self.wait_for(tag = 'body')
 
         # His submission was successful,
         # and he lands on the completion page
-        message = self.browser.find_element_by_tag_name('p').text
-        self.assertEquals(message, "Keep gruntin'!")
+        completion_code = self.browser.find_element_by_tag_name('code').text
+        self.assertEquals(completion_code, 'G1-1')
 
         # He checks to see if his entry made it into the game
         self.nav_to_games_list()

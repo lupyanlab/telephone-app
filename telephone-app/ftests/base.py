@@ -92,12 +92,21 @@ class FunctionalTest(LiveServerTestCase):
         return Path(settings.APP_DIR, 'grunt/tests/media/test-audio.wav')
 
     def upload_file(self):
-        # Unhide the file input and give it the path to a file
-        self.browser.execute_script('$( "#id_audio" ).attr("type", "file");')
-        fpath = self.path_to_test_audio()
-        content = self.browser.find_element_by_id('id_audio').send_keys(fpath)
-        self.browser.execute_script('$( "#submit" ).prop("disabled", false);')
-        self.browser.execute_script('audioRecorder = false;')
+        # Load a file blob to post via AJAX (hack!!)
+        create_input_element = ('$( "<input>", {id: "tmpInput", type: "file"})'
+                                '.appendTo("body");')
+        self.browser.execute_script(create_input_element)
+
+        # Give the file input a real file
+        fpath = Path(settings.APP_DIR, 'grunt/tests/media/test-audio.wav')
+        self.browser.find_element_by_id('tmpInput').send_keys(fpath)
+
+        # Take the file from the file input and post it
+        self.browser.execute_script('''
+            blob = document.getElementById("tmpInput").files[0];
+            $( "#tmpInput ").remove();
+            sendRecorderMessage(blob);
+        ''')
 
     def wait_for(self, tag = None, id = None, text = None, timeout = 10):
         locator = (By.TAG_NAME, tag) if tag else (By.ID, id)
