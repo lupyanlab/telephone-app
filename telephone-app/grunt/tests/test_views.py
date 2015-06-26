@@ -157,7 +157,7 @@ class InspectViewTest(ViewTest):
     def test_game_inspect_url(self):
         """ Games should return a url for viewing the clusters """
         game = mommy.make(Game)
-        expected_url = '/games/1/inspect/'
+        expected_url = reverse('inspect', kwargs = {'pk': game.pk})
         self.assertEquals(expected_url, game.get_inspect_url())
 
     def test_inspect_template(self):
