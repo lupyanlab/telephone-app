@@ -111,6 +111,11 @@ class Chain(models.Model):
         chain_dict['messages'] = [m.to_dict() for m in ordered_message_set]
         return chain_dict
 
+    def nest(self):
+        """ Serialize this chain's messages into the correct structure """
+        seed = self.message_set.get(generation = 0)
+        return {'messages': seed.nest()}
+
     def dirname(self):
         """ The name of the directory to hold all of this chain's messages """
         return 'chain-{pk}'.format(pk = self.pk)
@@ -151,6 +156,14 @@ class Message(models.Model):
             message_dict['upload_url'] = reverse('upload', kwargs = {'pk': self.pk})
 
         return message_dict
+
+    def nest(self):
+        data = {}
+        data['pk'] = self.pk
+        data['audio'] = self.audio.url if self.audio else None
+        data['generation'] = self.generation
+        data['children'] = [child.nest() for child in self.message_set.all()]
+        return data
 
     def get_absolute_url(self):
         return reverse('inspect', kwargs = {'pk': self.chain.game.pk})

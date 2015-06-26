@@ -130,6 +130,31 @@ class ChainTest(ModelTest):
         with self.assertRaises(Message.DoesNotExist):
             chain.select_empty_message()
 
+    def test_nest_messages(self):
+        chain = mommy.make(Chain)
+        seed = mommy.make(Message, chain = chain, _fill_optional = ['audio', ])
+        child = mommy.make(Message, parent = seed, chain = chain, generation = 1)
+
+        expected = \
+            {
+                'messages': {
+                    'pk': seed.pk,
+                    'audio': seed.audio.url,
+                    'generation': seed.generation,
+                    'children': [
+                        {
+                            'pk': child.pk,
+                            'audio': None,
+                            'generation': child.generation,
+                            'children': [],
+                        },
+                    ],
+                },
+            }
+
+        nested = chain.nest()
+        self.assertEquals(nested, expected)
+
 class MessageTest(ModelTest):
     def setUp(self):
         super(MessageTest, self).setUp()
