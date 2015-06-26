@@ -131,6 +131,10 @@ class FunctionalTest(LiveServerTestCase):
         error_message = self.browser.find_element_by_id('message').text
         self.assertEquals(error_message, expected)
 
+    def assert_completion_page(self):
+        """ Assert the user made it to the completion page """
+        self.assertRegexpMatches(self.browser.current_url, 'complete')
+
     def assert_completion_code(self, expected):
         code = self.browser.find_element_by_tag_name('code').text
         self.assertEquals(code, expected)
@@ -138,10 +142,6 @@ class FunctionalTest(LiveServerTestCase):
     def assert_audio_src(self, expected):
         audio_src = self.browser.find_element_by_id('sound').get_attribute('src')
         self.assertRegexpMatches(audio_src, expected)
-
-    def assert_completion_page(self):
-        message = self.browser.find_element_by_tag_name('p').text
-        self.assertEquals(message, "Keep gruntin'!")
 
     def inspect_game(self, name):
         game_list_item = self.select_game_item_by_game_name(name)

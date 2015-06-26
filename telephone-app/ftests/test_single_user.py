@@ -36,8 +36,7 @@ class SingleUserTest(FunctionalTest):
 
         # His submission was successful,
         # and he lands on the completion page
-        completion_code = self.browser.find_element_by_tag_name('code').text
-        self.assertEquals(completion_code, 'G1-1')
+        self.assert_completion_page()
 
         # He checks to see if his entry made it into the game
         self.nav_to_games_list()
@@ -76,13 +75,17 @@ class SingleUserTest(FunctionalTest):
         recorder = self.browser.find_element_by_id('record')
         self.assertIn('unavailable', recorder.get_attribute('class'))
         recorder.click()
-        self.assert_error_message("Share your microphone to play.")
+        self.assert_alert_message("You have to listen to the message to know what to imitate.")
 
-        # She shares her microphone but she still can't play the sound.
+        # She tries to play the sound, but she has to share her microphone
+        # first.
+        self.browser.find_element_by_id('listen').click()
+        self.assert_alert_message("Share your microphone to play.")
+
+        # She shares her microphone but she still can't record a sound.
         self.simulate_sharing_mic()
         recorder.click()
-
-        self.assert_alert_message("You have to listen to the sound first.")
+        self.assert_alert_message("You have to listen to the message to know what to imitate.")
 
         # She plays the sound
         self.browser.find_element_by_id('listen').click()
@@ -94,27 +97,15 @@ class SingleUserTest(FunctionalTest):
         #speaker_img = self.browser.find_element_by_id('listen')
         #self.assertIn('active', speaker_img.get_attribute('class'))
 
-        # She hasn't made a recording yet so she can't submit
-        submit = self.browser.find_element_by_id('submit')
-        self.assertIn('true', submit.get_attribute('disabled'))
-
-        # She uploads an audio file she already has on her computer
+        # She records an entry
         self.upload_file()
-        self.assertIsNone(submit.get_attribute('disabled'))
-        self.browser.find_element_by_id('submit').click()  ## non-ajax POST
         self.wait_for(tag = 'body')
 
         # She sees that her entry was successful:
         # 1. Her status is updated
         # 2. She was taken to the completion page
         # 3. She sees her completion code
-        #self.assert_status("You've made 1 of 1 entries")
-        message = self.browser.find_element_by_tag_name('p').text
-        self.assertEquals(message, "Keep gruntin'!")
-
-        # She sees the name of the game on the status bar
-        game_txt = self.browser.find_element_by_id('game').text
-        self.assertEquals(game_txt, game_name)
+        self.assert_completion_page()
 
     def test_multi_entries(self):
         """ Simulate a player making two entries to two chains """
@@ -133,7 +124,6 @@ class SingleUserTest(FunctionalTest):
 
         # She uploads her first entry
         self.upload_file()
-        self.browser.find_element_by_id('submit').click()  ## non-ajax POST
         self.wait_for(tag = 'body')
 
         # Now she listens to a new entry
@@ -141,9 +131,7 @@ class SingleUserTest(FunctionalTest):
 
         # She makes her second entry
         self.upload_file()
-        self.browser.find_element_by_id('submit').click()  ## non-ajax POST
         self.wait_for(tag = 'body')
 
         # Her entry was successful
-        message = self.browser.find_element_by_tag_name('p').text
-        self.assertEquals(message, "Keep gruntin'!")
+        self.assert_completion_page()
