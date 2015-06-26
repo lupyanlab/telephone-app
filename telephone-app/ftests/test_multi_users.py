@@ -4,7 +4,6 @@ class MultiUserTest(FunctionalTest):
 
     def submit_entry(self):
         self.upload_file()
-        self.browser.find_element_by_id('submit').click()
         self.wait_for(tag = 'body')
 
     def simulate_listening_to_sound(self):
@@ -31,9 +30,7 @@ class MultiUserTest(FunctionalTest):
         self.assert_audio_src('0.wav')
         self.simulate_listening_to_sound()
         self.submit_entry()
-        message = self.browser.find_element_by_tag_name('p').text
-        self.assertEquals(message, "Keep gruntin'!")
-
+        self.assert_completion_page()
 
         # Lynn comes along and plays the same game
         self.new_user()
@@ -95,13 +92,11 @@ class MultiUserTest(FunctionalTest):
         self.assert_audio_src('0.wav')
         self.simulate_listening_to_sound()
         self.submit_entry()
-        self.wait_for(tag = 'body')
 
         # He hears another seed sound and makes another response
         self.assert_audio_src('0.wav')
         self.simulate_listening_to_sound()
         self.submit_entry()
-        self.wait_for(tag = 'body')
 
         # He gets taken to the completion page
         self.assert_completion_page()
@@ -121,13 +116,11 @@ class MultiUserTest(FunctionalTest):
         # She makes her response
         self.simulate_listening_to_sound()
         self.submit_entry()
-        self.wait_for(tag = 'body')
 
         # She hears another seed sound and makes another response
         self.assert_audio_src('0.wav')
         self.simulate_listening_to_sound()
         self.submit_entry()
-        self.wait_for(tag = 'body')
 
         # She's taken to the completion page
         self.assert_completion_page()
