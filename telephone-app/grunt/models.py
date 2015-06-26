@@ -20,7 +20,7 @@ class Game(models.Model):
     # When playing a game, how should the next call be determined?
     chain_order_choices  = [('SEQ', 'sequential'), ('RND', 'random')]
     chain_order = models.CharField(choices = chain_order_choices,
-            default = 'SEQ', max_length = 3)
+                                   default = 'SEQ', max_length = 3)
 
     # Active games are visible
     status_choices = [('ACTIV', 'active'), ('INACT', 'inactive')]
@@ -149,7 +149,8 @@ class Message(models.Model):
             data['upload_url'] = reverse('upload', kwargs = {'pk': self.pk})
 
         # recurse children
-        data['children'] = [child.nest() for child in self.message_set.all()]
+        ordered_message_set = self.message_set.all().order_by('pk')
+        data['children'] = [child.nest() for child in ordered_message_set]
         return data
 
     def get_absolute_url(self):
