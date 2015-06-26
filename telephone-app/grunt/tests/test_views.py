@@ -87,6 +87,14 @@ class PlayViewTest(ViewTest):
         response = self.client.get(self.game.get_absolute_url())
         self.assertTemplateUsed(response, 'grunt/play.html')
 
+    def test_redirect_to_completion_page_on_return_visit(self):
+        """ Completed players should get the completion page """
+        self.make_session(self.game, instructed = True,
+                          receipts = [self.chain.pk, ])
+        response = self.client.get(self.game.get_absolute_url())
+
+        complete_url = reverse('complete', kwargs = {'pk': self.game.pk})
+        self.assertRedirects(response, complete_url)
 
 class RespondViewTest(ViewTest):
     def setUp(self):
