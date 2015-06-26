@@ -53,12 +53,9 @@ class FunctionalTest(LiveServerTestCase):
         self.browser = webdriver.Firefox()
         self.browser.implicitly_wait(5)
 
-    def click_on_telephone_game(self):
-        self.browser.find_element_by_id('phone').click()
-
     def nav_to_games_list(self):
+        """ The games list is the home page """
         self.browser.get(self.live_server_url)
-        self.click_on_telephone_game()
 
     def select_game_items(self):
         game_list = self.browser.find_element_by_id('id_game_list')
