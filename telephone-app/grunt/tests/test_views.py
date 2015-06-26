@@ -89,6 +89,14 @@ class PlayViewTest(ViewTest):
         response = self.client.get(self.game.get_absolute_url())
         self.assertTemplateUsed(response, 'grunt/play.html')
 
+    def test_initial_message_data(self):
+        """ The template should be populated with the correct message obj """
+        self.make_session(self.game, instructed = True)
+        response = self.client.get(self.game.get_absolute_url())
+
+        initial_message = response.context['message']
+        self.assertEquals(initial_message, self.message)
+
     def test_redirect_to_completion_page_on_return_visit(self):
         """ Completed players should get the completion page """
         self.make_session(self.game, instructed = True,
@@ -112,20 +120,6 @@ class RespondViewTest(ViewTest):
             post_data = {'message': self.message.pk, 'audio': audio_file}
             response = self.client.post(post_url, post_data)
         return response
-
-    def test_response_form(self):
-        """ Should return a ResponseForm """
-        self.make_session(self.game, instructed = True)
-        response = self.client.get(self.game.get_absolute_url())
-        self.assertIsInstance(response.context['form'], ResponseForm)
-
-    def test_initial_form_data(self):
-        """ EntryForms should be attached to a next entry instance """
-        self.make_session(self.game, instructed = True)
-        response = self.client.get(self.game.get_absolute_url())
-
-        initial = response.context['form'].initial
-        self.assertEquals(initial['message'], self.message.pk)
 
     def test_post_a_message(self):
         """ Post a message """
