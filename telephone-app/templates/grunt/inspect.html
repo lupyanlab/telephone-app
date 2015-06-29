@@ -7,14 +7,17 @@
 
 {% block navbar %}
   <li class="navbar-brand navbar-left">{{ game }}</li>
+{% endblock navbar %}
 
-  <button id="previous" type="button" class="btn btn-default">
+{% block header %}
+  <button id="id_previous_chain" type="button" class="btn btn-default">
     <span class="glyphicon glyphicon-chevron-left"></span> Previous
   </button>
-  <button id="next" type="button" class="btn btn-default">
+  <span id="id_chain_name"></span>
+  <button id="id_next_chain" type="button" class="btn btn-default">
     Next <span class="glyphicon glyphicon-chevron-right"></span>
   </button>
-{% endblock navbar %}
+{% endblock header %}
 
 {% block body %}
 <div class="chains">
@@ -35,16 +38,17 @@ var csrf_token = "{{ csrf_token }}",
 
 function getMessageData(chain) {
   var urlWithQuery = message_data + "?chain=" + chain;
+  $("#id_chain_name").text("Chain " + chain);
   d3.json(urlWithQuery, visualize);
 }
 
 $(function () {
-  $("#next").click(function () {
+  $("#id_next_chain").click(function () {
     current = current + 1;
     getMessageData(current);
   });
 
-  $("#previous").click(function () {
+  $("#id_previous_chain").click(function () {
     current = current - 1;
     getMessageData(current);
   });

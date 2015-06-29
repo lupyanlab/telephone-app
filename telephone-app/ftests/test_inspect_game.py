@@ -129,7 +129,7 @@ class InspectGameTest(FunctionalTest):
 
         # Pierce sees the first chain in the game
         chain_name = self.browser.find_element_by_id('id_chain_name').text
-        self.assertEquals(chain_name, 'chain-1')
+        self.assertEquals(chain_name, 'Chain 0')
 
         # He navigates to the second page
         self.browser.find_element_by_id('id_next_chain').click()
@@ -137,4 +137,4 @@ class InspectGameTest(FunctionalTest):
 
         # He sees the second chain in the game
         chain_name = self.browser.find_element_by_id('id_chain_name').text
-        self.assertEquals(chain_name, 'chain-2')        
+        self.assertEquals(chain_name, 'Chain 1')
