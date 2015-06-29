@@ -2,6 +2,10 @@ from .base import FunctionalTest
 
 class InspectGameTest(FunctionalTest):
 
+    def assert_chain_name(self, expected):
+        chain_name = self.browser.find_element_by_id('id_chain_name').text
+        self.assertEquals(chain_name, expected)
+
     def test_upload_seed(self):
         """ Simulate uploading a seed to an empty game via the inspect view """
         game_name = 'Empty Game'
@@ -128,13 +132,21 @@ class InspectGameTest(FunctionalTest):
         self.inspect_game(game_name)
 
         # Pierce sees the first chain in the game
-        chain_name = self.browser.find_element_by_id('id_chain_name').text
-        self.assertEquals(chain_name, 'Chain 0')
+        self.assert_chain_name('Chain 0')
 
         # He navigates to the second page
         self.browser.find_element_by_id('id_next_chain').click()
         self.wait_for(tag = 'body')
 
         # He sees the second chain in the game
-        chain_name = self.browser.find_element_by_id('id_chain_name').text
-        self.assertEquals(chain_name, 'Chain 1')
+        self.assert_chain_name('Chain 1')
+
+        # He can go backwards to see the previous chain
+        self.browser.find_element_by_id('id_previous_chain').click()
+        self.wait_for(tag = 'body')
+        self.assert_chain_name('Chain 0')
+
+        # If he goes backwards still he wraps around to the last chain
+        self.browser.find_element_by_id('id_previous_chain').click()
+        self.wait_for(tag = 'body')
+        self.assert_chain_name('Chain 1')
