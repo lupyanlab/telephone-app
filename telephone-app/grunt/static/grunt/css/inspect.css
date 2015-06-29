@@ -3,6 +3,10 @@ circle {
     stroke-width: 2px;
 }
 
+circle:hover {
+  fill: black;
+}
+
 .filled {
     fill: blue;
 }
@@ -12,6 +16,10 @@ circle {
 
 text {
   fill: gray;
+}
+
+text:hover {
+  fill: black;
 }
 
 .active {

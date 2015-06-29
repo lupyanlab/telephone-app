@@ -1,17 +1,3 @@
-function splitChain(message) {
-  $.post(message.sprout_url,
-    {csrfmiddlewaretoken: csrf_token},
-    function (data) { visualize(data); }
-  );
-}
-
-function deleteBranch(message) {
-  $.post(message.close_url,
-    {csrfmiddlewaretoken: csrf_token},
-    function (data) { visualize(data); }
-  );
-}
-
 function visualize(chain) {
   chain = JSON.parse(chain);
 
@@ -35,7 +21,7 @@ function visualize(chain) {
   var linkGenerator = d3.svg.diagonal()
     .projection(function (d) {return [d.x, d.y+bumpDown]})
 
-  var bumpTextsRight = 26,
+  var bumpTextsRight = 30,
       bumpTextsDown = -5,
       buttonGutter = 20;
 
@@ -74,23 +60,6 @@ function visualize(chain) {
       return "translate(0," + circleSize + ")";
     });
 
-  var messages = svg.selectAll("g.message");
-
-  // Create a circle for each message
-  messages
-    .append("circle")
-    .attr("r", 20)
-    .attr("cx", function (message) { return message.x; })
-    .attr("cy", function (message) { return message.y; })
-    .on("dblclick", function (message) {
-      if (message.audio) {
-        $("audio").attr("src", message.audio);
-        $("audio").trigger("play");
-      } else {
-        window.location.href = message.upload_url
-      }
-    });
-
   // Add the links
   svg
     .selectAll("path")
@@ -100,6 +69,15 @@ function visualize(chain) {
     .style("fill", "none")
     .style("stroke", "black")
     .style("stroke-width", "2px");
+
+  var messages = svg.selectAll("g.message");
+
+  // Create a circle for each message
+  messages
+    .append("circle")
+    .attr("r", 20)
+    .attr("cx", function (message) { return message.x; })
+    .attr("cy", function (message) { return message.y; })
 
   // Label each circle
   messages
@@ -113,31 +91,63 @@ function visualize(chain) {
       return message.audio ? "white" : "black";
     });
 
-  messages
-    .append("g")
-    .attr("transform", function(d) {
-      return "translate(" + bumpTextsRight + "," + bumpTextsDown + ")";
-    })
-    .append("text")
-    .text(function(el) { return el.audio ? "play" : "upload"; })
-    .attr("class", function(el) { return el.audio ? "play" : "upload"; })
-    .on("click", function(el) { return el.audio ? playMessage(el) : navToUploadPage(el); })
+  var filled = svg.selectAll("g.filled")
 
-  messages
-    .append("g")
-    .attr("transform", function(d) {
-      return "translate(" + bumpTextsRight + "," + (bumpTextsDown + buttonGutter) + ")";
-    })
+  // Add play button
+  filled
     .append("text")
-    .text(function(el) { return el.audio ? "split" : "close"; })
-    .attr("class", function(el) { return el.audio ? "split" : "delete"; })
-    .on("click", function(el) { return el.audio ? splitChain(el) : deleteBranch(el); })
-
-  d3.selectAll("text")
-    .on("mouseover", function () {
-      d3.select(this).classed("active", true);
-    })
-    .on("mouseout", function () {
-      d3.select(this).classed("active", false);
+    .attr("x", function (message) { return message.x + bumpTextsRight; })
+    .attr("y", function (message) { return message.y + bumpTextsDown; })
+    .text("play")
+    .on("click", function (message) {
+      $("audio").attr("src", message.audio);
+      $("audio").trigger("play");
     });
+
+  // Add split button
+  filled
+    .append("text")
+    .attr("x", function (message) { return message.x + bumpTextsRight; })
+    .attr("y", function (message) { return message.y + bumpTextsDown + buttonGutter; })
+    .text("split")
+    .on("click", function (message) {
+      $.post(message.sprout_url,
+        {csrfmiddlewaretoken: csrf_token},
+        function (data) { visualize(data); }
+      );
+    });
+
+  var empty = svg.selectAll("g.empty");
+
+  // Add upload button
+  empty
+    .append("text")
+    .attr("x", function (message) { return message.x + bumpTextsRight; })
+    .attr("y", function (message) { return message.y + bumpTextsDown; })
+    .text("upload")
+    .on("click", function (message) {
+      window.location.href = message.upload_url;
+    })
+
+  // Add close button
+  empty
+    .append("text")
+    .attr("x", function (message) { return message.x + bumpTextsRight; })
+    .attr("y", function (message) { return message.y + bumpTextsDown + buttonGutter; })
+    .text("close")
+    .on("click", function (message) {
+      $.post(message.close_url,
+        {csrfmiddlewaretoken: csrf_token},
+        function (data) { visualize(data); }
+      );
+    })
+
+  var nodes = messages.selectAll("circle");
+
+  nodes
+    .on("click", function (message) {
+      var circle = d3.select(this);
+      circle.classed("active", !circle.classed("active"));
+    });
+
 }
