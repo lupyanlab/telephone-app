@@ -25,7 +25,6 @@ function deleteBranch(message) {
 function visualize(chain) {
   chain = JSON.parse(chain);
 
-  var chainName = "chain-" + chain.pk.toString();
   var nestedMessages = chain.messages;
 
   var maxWidth = 5,
@@ -37,6 +36,7 @@ function visualize(chain) {
       svgHeight = maxDepth * heightPerGeneration;
 
   var bumpDown = 40;
+  var circleSize = 40;
 
   treeChart = d3.layout.tree();
   treeChart.size([svgWidth, svgHeight-(2*bumpDown)])
@@ -44,7 +44,6 @@ function visualize(chain) {
 
   var linkGenerator = d3.svg.diagonal()
     .projection(function (d) {return [d.x, d.y+bumpDown]})
-
 
   var bumpTextsRight = 26,
       bumpTextsDown = -5,
@@ -55,49 +54,68 @@ function visualize(chain) {
     d3.select("div.container").style("max-width", (svgWidth + 2*bumpDown + bumpTextsRight) + "px");
   }
 
+  var svg = d3.select("svg");
+
   // Clear the previous chain
-  d3.select("svg")
+  svg
     .selectAll("g")
     .remove();
 
-  d3.select("svg")
+  svg
     .selectAll("path")
     .remove();
 
-  // Make an svg element for each chain
-  d3.select("svg")
-    .attr("id", chainName)
+  // Adjust the size of the svg element
+  svg
     .attr("width", svgWidth + bumpTextsRight)
     .attr("height", svgHeight)
-    .selectAll("g")
+
+  // Bind the message data into g elements
+  svg
+    .selectAll("g.message")
     .data(treeChart(nestedMessages))
     .enter()
     .append("g")
-    .attr("class", function(d) {
-      var type = d.audio ? "filled" : "empty";
+    .attr("class", function (message) {
+      var type = message.audio ? "filled" : "empty";
       return "message " + type;
     })
-    .attr("transform", function(d) {
-      return "translate(" +d.x+","+(d.y+bumpDown)+")"
+    .attr("transform", function (message) {
+      return "translate(0," + circleSize + ")";
     });
 
-  var nodes = d3.selectAll("g.message")
-    .append("g")
+  var messages = svg.selectAll("g.message");
 
-  nodes
+  // Create a circle for each message
+  messages
     .append("circle")
     .attr("r", 20)
+    .attr("cx", function (message) { return message.x; })
+    .attr("cy", function (message) { return message.y; })
 
-  nodes
+  // Add the links
+  svg
+    .selectAll("path")
+    .data(treeChart.links(treeChart(nestedMessages)))
+    .enter().insert("path","g")
+    .attr("d", linkGenerator)
+    .style("fill", "none")
+    .style("stroke", "black")
+    .style("stroke-width", "2px");
+
+  // Label each circle
+  messages
     .append("text")
-    .text(function (msg) { return msg.pk; })
+    .text(function (message) { return message.pk; })
+    .attr("x", function (message) { return message.x; })
+    .attr("y", function (message) { return message.y; })
     .attr("text-anchor", "middle")
     .attr("dy", ".35em")
-    .style("fill", function (msg) {
-      return msg.audio ? "white" : "black";
+    .style("fill", function (message) {
+      return message.audio ? "white" : "black";
     });
 
-  d3.selectAll("g.message")
+  messages
     .append("g")
     .attr("transform", function(d) {
       return "translate(" + bumpTextsRight + "," + bumpTextsDown + ")";
@@ -107,7 +125,7 @@ function visualize(chain) {
     .attr("class", function(el) { return el.audio ? "play" : "upload"; })
     .on("click", function(el) { return el.audio ? playMessage(el) : navToUploadPage(el); })
 
-  d3.selectAll("g.message")
+  messages
     .append("g")
     .attr("transform", function(d) {
       return "translate(" + bumpTextsRight + "," + (bumpTextsDown + buttonGutter) + ")";
@@ -124,13 +142,4 @@ function visualize(chain) {
     .on("mouseout", function () {
       d3.select(this).classed("active", false);
     });
-
-  d3.select("svg")
-    .selectAll("path")
-    .data(treeChart.links(treeChart(nestedMessages)))
-    .enter().insert("path","g")
-    .attr("d", linkGenerator)
-    .style("fill", "none")
-    .style("stroke", "black")
-    .style("stroke-width", "2px");
 }

@@ -17,3 +17,7 @@ text {
 .active {
   fill: black;
 }
+
+svg {
+  background-color: #F0F0F0;
+}
