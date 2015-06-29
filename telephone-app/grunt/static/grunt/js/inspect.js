@@ -1,13 +1,3 @@
-
-function playMessage(message) {
-  $("audio").attr("src", message.audio);
-  $("audio").trigger("play");
-}
-
-function navToUploadPage(message) {
-  window.location.href = message.upload_url
-}
-
 function splitChain(message) {
   $.post(message.sprout_url,
     {csrfmiddlewaretoken: csrf_token},
@@ -92,6 +82,14 @@ function visualize(chain) {
     .attr("r", 20)
     .attr("cx", function (message) { return message.x; })
     .attr("cy", function (message) { return message.y; })
+    .on("dblclick", function (message) {
+      if (message.audio) {
+        $("audio").attr("src", message.audio);
+        $("audio").trigger("play");
+      } else {
+        window.location.href = message.upload_url
+      }
+    });
 
   // Add the links
   svg
