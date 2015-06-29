@@ -55,16 +55,20 @@ function visualize(chain) {
     d3.select("div.container").style("max-width", (svgWidth + 2*bumpDown + bumpTextsRight) + "px");
   }
 
+  // Clear the previous chain
+  d3.select("svg")
+    .selectAll("g")
+    .remove();
+
+  d3.select("svg")
+    .selectAll("path")
+    .remove();
+
   // Make an svg element for each chain
-  d3.select("div.chains")
-    .append("div")
-    .attr("class", "jumbotron")
-    .append("svg")
+  d3.select("svg")
     .attr("id", chainName)
     .attr("width", svgWidth + bumpTextsRight)
-    .attr("height", svgHeight);
-
-  d3.select("#" + chainName)
+    .attr("height", svgHeight)
     .selectAll("g")
     .data(treeChart(nestedMessages))
     .enter()
@@ -121,7 +125,7 @@ function visualize(chain) {
       d3.select(this).classed("active", false);
     });
 
-  d3.select("#" + chainName)
+  d3.select("svg")
     .selectAll("path")
     .data(treeChart.links(treeChart(nestedMessages)))
     .enter().insert("path","g")

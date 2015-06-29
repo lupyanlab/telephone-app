@@ -134,12 +134,20 @@ class InspectGameTest(FunctionalTest):
         # Pierce sees the first chain in the game
         self.assert_chain_name('Chain 0')
 
+        # There is a single svg element on the page
+        svgs = self.browser.find_elements_by_tag_name('svg')
+        self.assertEquals(len(svgs), 1)
+
         # He navigates to the second page
         self.browser.find_element_by_id('id_next_chain').click()
         self.wait_for(tag = 'body')
 
         # He sees the second chain in the game
         self.assert_chain_name('Chain 1')
+
+        # There is a single svg element on the page
+        svgs = self.browser.find_elements_by_tag_name('svg')
+        self.assertEquals(len(svgs), 1)
 
         # He can go backwards to see the previous chain
         self.browser.find_element_by_id('id_previous_chain').click()
