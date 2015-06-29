@@ -11,14 +11,14 @@ function navToUploadPage(message) {
 function splitChain(message) {
   $.post(message.sprout_url,
     {csrfmiddlewaretoken: csrf_token},
-    function() { window.location.reload(); }
+    function (data) { visualize(data); }
   );
 }
 
 function deleteBranch(message) {
   $.post(message.close_url,
     {csrfmiddlewaretoken: csrf_token},
-    function() { window.location.reload(); }
+    function (data) { visualize(data); }
   );
 }
 

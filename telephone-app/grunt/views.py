@@ -164,13 +164,14 @@ def sprout(request, pk):
     message = get_object_or_404(Message, pk = pk)
     message.replicate()
 
-    game_url = message.chain.game.get_inspect_url()
-    return redirect(game_url)
+    message_data = message.chain.nest()
+    return JsonResponse(json.dumps(message_data), safe = False)
 
 @require_POST
 def close(request, pk):
     message = get_object_or_404(Message, pk = pk)
+    chain = message.chain
     message.delete()
 
-    game_url = message.chain.game.get_inspect_url()
-    return redirect(game_url)
+    message_data = chain.nest()
+    return JsonResponse(json.dumps(message_data), safe = False)
