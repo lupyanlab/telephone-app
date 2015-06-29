@@ -13,7 +13,7 @@
   <button id="id_previous_chain" type="button" class="btn btn-default">
     <span class="glyphicon glyphicon-chevron-left"></span> Previous
   </button>
-  <span id="id_chain_name"></span>
+  <span class="h4" id="id_chain_name"></span>
   <button id="id_next_chain" type="button" class="btn btn-default">
     Next <span class="glyphicon glyphicon-chevron-right"></span>
   </button>
@@ -39,7 +39,7 @@ var csrf_token = "{{ csrf_token }}",
 
 function getMessageData(chain) {
   var urlWithQuery = message_data + "?chain=" + chain;
-  $("#id_chain_name").text("Chain " + chain);
+  $("#id_chain_name").text(" Chain " + chain + " ");
   d3.json(urlWithQuery, visualize);
 }
 
