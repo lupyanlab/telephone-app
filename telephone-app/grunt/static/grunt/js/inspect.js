@@ -22,7 +22,7 @@ function visualize(chain) {
     .projection(function (d) {return [d.x, d.y+bumpDown]})
 
   var bumpTextsRight = 30,
-      bumpTextsDown = -5,
+      bumpTextsDown = -15,
       buttonGutter = 20;
 
   var containerWidth = parseFloat(d3.select("div.container").style("max-width"));
@@ -117,6 +117,20 @@ function visualize(chain) {
         {csrfmiddlewaretoken: csrf_token},
         function (data) { visualize(data); }
       );
+    });
+
+  // Add download button
+  filled
+    .append("text")
+    .attr("class", "split")
+    .attr("x", function (message) { return message.x + bumpTextsRight; })
+    .attr("y", function (message) { return message.y + bumpTextsDown + 2 * buttonGutter; })
+    .text("download")
+    .on("click", function (message) {
+      var link = document.createElement("a");
+      link.download = message.audio;
+      link.href = message.audio;
+      link.click();
     });
 
   var empty = svg.selectAll("g.empty");
