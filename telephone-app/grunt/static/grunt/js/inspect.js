@@ -87,6 +87,7 @@ function visualize(chain) {
     .attr("y", function (message) { return message.y; })
     .attr("text-anchor", "middle")
     .attr("dy", ".35em")
+    .style("pointer-events", "none")
     .style("fill", function (message) {
       return message.audio ? "white" : "black";
     });
