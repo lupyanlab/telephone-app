@@ -161,6 +161,7 @@ function visualize(chain) {
 
   var nodes = messages.selectAll("circle");
 
+  // Make clicking the nodes toggle their "active" class
   nodes
     .on("click", function (message) {
       var circle = d3.select(this);

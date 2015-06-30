@@ -1,4 +1,6 @@
 import json
+import StringIO
+import zipfile
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -175,3 +177,22 @@ def close(request, pk):
 
     message_data = chain.nest()
     return JsonResponse(json.dumps(message_data), safe = False)
+
+def download(request):
+    selection_query = request.POST['selection']
+    selection_str = selection_query.split(',')
+    selection = map(int, selection_str)
+    messages = Message.objects.filter(id__in = selection)
+
+    s = StringIO.StringIO()
+    zf = zipfile.ZipFile(s, "w")
+
+    for msg in messages:
+        audio_path = msg.audio.path
+        zf.write(audio_path)
+
+    zf.close()
+
+    response = HttpResponse(s.getvalue(), content_type = 'application/x-zip-compressed')
+    response['Content-Disposition'] = 'attachment; filename="messages.zip"'
+    return response

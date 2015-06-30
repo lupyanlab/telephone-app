@@ -23,6 +23,7 @@ urlpatterns = patterns('',
     url(r'^messages/(?P<pk>\d+)/sprout$', views.sprout, name = 'sprout'),
     url(r'^messages/(?P<pk>\d+)/close$', views.close, name = 'close'),
     url(r'^messages/(?P<pk>\d+)/upload/$', views.UploadMessageView.as_view(), name = 'upload'),
+    url(r'^messages/download/$', views.download, name = 'download'),
 
     # admin site
     url(r'^admin/', include(admin.site.urls)),

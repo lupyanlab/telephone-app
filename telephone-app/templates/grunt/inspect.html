@@ -24,6 +24,11 @@
   <svg>
   </svg>
   <audio src=""></audio>
+  <form action="{% url 'download' %}" method="POST">
+    {% csrf_token %}
+    <input class="textinput textInput form-control" id="id_selection" name="selection" type="text">
+    <input type="submit" value="Download Selected">
+  </form>
 {% endblock body %}
 
 {% block javascript %}
@@ -58,6 +63,18 @@ $(function () {
       current = num_chains;
     }
     getMessageData(current);
+  });
+
+  $("form").submit(function (event) {
+    var selection = [];
+    d3.selectAll(".active")
+      .data()
+      .forEach(function (message, i) {
+        selection.push(message.pk);
+      });
+
+    $("#id_selection").val(selection.toString());
+    return true;
   });
 
   getMessageData(current);
