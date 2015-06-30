@@ -96,6 +96,7 @@ function visualize(chain) {
   // Add play button
   filled
     .append("text")
+    .attr("class", "play")
     .attr("x", function (message) { return message.x + bumpTextsRight; })
     .attr("y", function (message) { return message.y + bumpTextsDown; })
     .text("play")
@@ -107,6 +108,7 @@ function visualize(chain) {
   // Add split button
   filled
     .append("text")
+    .attr("class", "split")
     .attr("x", function (message) { return message.x + bumpTextsRight; })
     .attr("y", function (message) { return message.y + bumpTextsDown + buttonGutter; })
     .text("split")
@@ -122,6 +124,7 @@ function visualize(chain) {
   // Add upload button
   empty
     .append("text")
+    .attr("class", "upload")
     .attr("x", function (message) { return message.x + bumpTextsRight; })
     .attr("y", function (message) { return message.y + bumpTextsDown; })
     .text("upload")
@@ -129,12 +132,13 @@ function visualize(chain) {
       window.location.href = message.upload_url;
     })
 
-  // Add close button
+  // Add delete button
   empty
     .append("text")
+    .attr("class", "delete")
     .attr("x", function (message) { return message.x + bumpTextsRight; })
     .attr("y", function (message) { return message.y + bumpTextsDown + buttonGutter; })
-    .text("close")
+    .text("delete")
     .on("click", function (message) {
       $.post(message.close_url,
         {csrfmiddlewaretoken: csrf_token},
