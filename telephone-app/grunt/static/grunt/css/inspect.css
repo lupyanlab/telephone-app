@@ -3,15 +3,19 @@ circle {
     stroke-width: 2px;
 }
 
-circle:hover {
+g.filled > circle {
+    fill: blue;
+}
+g.empty > circle {
+    fill: white;
+}
+
+g.filled > circle.active {
   fill: black;
 }
 
-.filled {
-    fill: blue;
-}
-.empty {
-    fill: white;
+g.filled > circle:hover {
+  fill: black;
 }
 
 text {
@@ -22,9 +26,14 @@ text:hover {
   fill: black;
 }
 
-.active {
+g.filled > text.label {
+  fill: white;
+}
+
+g.empty > text.label {
   fill: black;
 }
+
 
 svg {
   background-color: #F0F0F0;

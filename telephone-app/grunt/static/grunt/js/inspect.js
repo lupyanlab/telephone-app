@@ -82,15 +82,13 @@ function visualize(chain) {
   // Label each circle
   messages
     .append("text")
+    .attr("class", "label")
     .text(function (message) { return message.pk; })
     .attr("x", function (message) { return message.x; })
     .attr("y", function (message) { return message.y; })
     .attr("text-anchor", "middle")
     .attr("dy", ".35em")
     .style("pointer-events", "none")
-    .style("fill", function (message) {
-      return message.audio ? "white" : "black";
-    });
 
   var filled = svg.selectAll("g.filled")
 
