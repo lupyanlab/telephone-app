@@ -9,29 +9,32 @@
 
 {% block navbar %}
   <li class="navbar-brand navbar-left">{{ game }}</li>
+  <li>
+    <button id="id_previous_chain" type="button" class="btn btn-default">
+      <span class="glyphicon glyphicon-chevron-left"></span> Previous
+    </button>
+  </li>
+  <li class="navbar-brand" id="id_chain_name"></li>
+  <li>
+    <button id="id_next_chain" type="button" class="btn btn-default">
+      Next <span class="glyphicon glyphicon-chevron-right"></span>
+    </button>
+  </li>
+  <li class="navbar-right">
+    <form action="{% url 'download' %}" method="POST">
+      {% csrf_token %}
+      <input class="textinput textInput form-control" id="id_selection" name="selection" type="hidden">
+      <input type="submit" class="btn btn-default" value="Download Selected">
+    </form>
+  </li>
+
 {% endblock navbar %}
-
-
-{% block header %}
-  <button id="id_previous_chain" type="button" class="btn btn-default">
-    <span class="glyphicon glyphicon-chevron-left"></span> Previous
-  </button>
-  <span class="h4" id="id_chain_name"></span>
-  <button id="id_next_chain" type="button" class="btn btn-default">
-    Next <span class="glyphicon glyphicon-chevron-right"></span>
-  </button>
-{% endblock header %}
 
 
 {% block body %}
   <svg>
   </svg>
   <audio src=""></audio>
-  <form action="{% url 'download' %}" method="POST">
-    {% csrf_token %}
-    <input class="textinput textInput form-control" id="id_selection" name="selection" type="hidden">
-    <input type="submit" value="Download Selected">
-  </form>
 {% endblock body %}
 
 
