@@ -1,4 +1,5 @@
 import json
+from unipath import Path
 import StringIO
 import zipfile
 
@@ -187,9 +188,26 @@ def download(request):
     s = StringIO.StringIO()
     zf = zipfile.ZipFile(s, "w")
 
+    # Name the root directory in the zip based on the game name
+    root_dirname = messages[0].chain.game.dirname()
+
     for msg in messages:
         audio_path = msg.audio.path
-        zf.write(audio_path)
+
+        msg_name_format = "{generation}-{parent}-{message}.wav"
+        msg_name_kwargs = {}
+        msg_name_kwargs['generation'] = 'gen' + str(msg.generation)
+        msg_name_kwargs['message'] = 'message' + str(msg.id)
+
+        if not msg.parent:
+            msg_name_kwargs['parent'] = 'seed'
+        else:
+            msg_name_kwargs['parent'] = 'parent' + str(msg.parent.id)
+
+        msg_name = msg_name_format.format(**msg_name_kwargs)
+        msg_path = Path(root_dirname, msg_name)
+
+        zf.write(audio_path, msg_path)
 
     zf.close()
 
