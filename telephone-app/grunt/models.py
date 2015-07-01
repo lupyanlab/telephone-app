@@ -108,6 +108,18 @@ class Chain(models.Model):
         data['pk'] = self.pk
         seed = self.message_set.get(generation = 0)
         data['messages'] = seed.nest()
+
+        # Calculate chain depth
+        generations = self.message_set.values_list('generation', flat = True)
+        data['generations'] = max(generations) + 1
+
+        # Calculate chain width
+        branches = 0
+        for gen in generations:
+            num_branches = self.message_set.filter(generation = gen).count()
+            branches = num_branches if num_branches > branches else branches
+
+        data['branches'] = branches
         return data
 
     def dirname(self):

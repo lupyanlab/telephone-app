@@ -130,6 +130,20 @@ class ChainTest(ModelTest):
         with self.assertRaises(Message.DoesNotExist):
             chain.select_empty_message()
 
+    def test_nesting_calculates_tree_size(self):
+        chain = mommy.make(Chain)
+        seed = mommy.make(Message, chain = chain, generation = 0,
+                          _fill_optional = ['audio', ])
+        mommy.make(Message, chain = chain, parent = seed, generation = 1,
+                   _fill_optional = ['audio'], _quantity = 2)
+        nested = chain.nest()
+
+        self.assertIn('generations', nested.keys())
+        self.assertEquals(nested['generations'], 2)
+
+        self.assertIn('branches', nested.keys())
+        self.assertEquals(nested['branches'], 2)
+
 
 class MessageTest(ModelTest):
     def setUp(self):

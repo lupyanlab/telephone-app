@@ -49,6 +49,8 @@ var csrf_token = "{{ csrf_token }}",
     num_chains = {{ game.chain_set.count }} - 1,
     current = 0;
 
+var globalVars = {};
+
 function getMessageData(chain) {
   var urlWithQuery = message_data + "?chain=" + chain;
   $("#id_chain_name").text(" Chain " + chain + " ");

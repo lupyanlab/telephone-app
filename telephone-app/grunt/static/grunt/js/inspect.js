@@ -1,34 +1,34 @@
 function visualize(chain) {
-  chain = JSON.parse(chain);
+  chain = JSON.parse(chain); // shouldn't have to do this!
+  globalVars.chain = chain;
+  globalVars.messages = messages;
 
-  var nestedMessages = chain.messages;
+  var messages = chain.messages,
+      numBranches = chain.branches,
+      numGenerations = chain.generations;
 
-  var maxWidth = 5,
-      widthPerChain = 120,
-      maxDepth = 4,
-      heightPerGeneration = 200;
+  var widthPerBranch = 160,
+      heightPerGeneration = 120;
 
-  var svgWidth = maxWidth * widthPerChain,
-      svgHeight = maxDepth * heightPerGeneration;
-
-  var bumpDown = 40;
   var circleSize = 40;
 
-  treeChart = d3.layout.tree();
-  treeChart.size([svgWidth, svgHeight-(2*bumpDown)])
-    .children(function(d) { return d.children });
+  var maxTextWidth = 20,     // how far will the text stick out on the right side of the nodes?
+      textHorizontal = 25,   // text x relative to node x
+      textVertical = -10,    // text y relative to node y
+      textBuffer = 15;       // text y relative to other text ys
 
-  var linkGenerator = d3.svg.diagonal()
-    .projection(function (d) {return [d.x, d.y+bumpDown]})
+  // Layout
+  var tree = d3.layout.tree(),  // for laying out the nodes on the page
+      link = d3.svg.diagonal(); // for connecting the nodes on the page
 
-  var bumpTextsRight = 30,
-      bumpTextsDown = -15,
-      buttonGutter = 20;
+  var treeSize = [numBranches * widthPerBranch, numGenerations * heightPerGeneration];
 
-  var containerWidth = parseFloat(d3.select("div.container").style("max-width"));
-  if (containerWidth < svgWidth) {
-    d3.select("div.container").style("max-width", (svgWidth + 2*bumpDown + bumpTextsRight) + "px");
-  }
+  tree
+    .size(treeSize)
+    .children(function (message) { return message.children; });
+
+  link
+    .projection(function (message) { return [message.x, message.y + circleSize]; })
 
   var svg = d3.select("svg");
 
@@ -42,14 +42,16 @@ function visualize(chain) {
     .remove();
 
   // Adjust the size of the svg element
+  var svgWidth = treeSize[0] + maxTextWidth,
+      svgHeight = treeSize[1] + circleSize * 2;
   svg
-    .attr("width", svgWidth + bumpTextsRight)
+    .attr("width", svgWidth)
     .attr("height", svgHeight)
 
   // Bind the message data into g elements
   svg
     .selectAll("g.message")
-    .data(treeChart(nestedMessages))
+    .data(tree(messages))
     .enter()
     .append("g")
     .attr("class", function (message) {
@@ -63,9 +65,9 @@ function visualize(chain) {
   // Add the links
   svg
     .selectAll("path")
-    .data(treeChart.links(treeChart(nestedMessages)))
+    .data(tree.links(tree(messages)))
     .enter().insert("path","g")
-    .attr("d", linkGenerator)
+    .attr("d", link)
     .style("fill", "none")
     .style("stroke", "black")
     .style("stroke-width", "2px");
@@ -96,8 +98,8 @@ function visualize(chain) {
   filled
     .append("text")
     .attr("class", "play")
-    .attr("x", function (message) { return message.x + bumpTextsRight; })
-    .attr("y", function (message) { return message.y + bumpTextsDown; })
+    .attr("x", function (message) { return message.x + textHorizontal; })
+    .attr("y", function (message) { return message.y + textVertical; })
     .text("play")
     .on("click", function (message) {
       $("audio").attr("src", message.audio);
@@ -108,8 +110,8 @@ function visualize(chain) {
   filled
     .append("text")
     .attr("class", "split")
-    .attr("x", function (message) { return message.x + bumpTextsRight; })
-    .attr("y", function (message) { return message.y + bumpTextsDown + buttonGutter; })
+    .attr("x", function (message) { return message.x + textHorizontal; })
+    .attr("y", function (message) { return message.y + textVertical + textBuffer; })
     .text("split")
     .on("click", function (message) {
       $.post(message.sprout_url,
@@ -122,8 +124,8 @@ function visualize(chain) {
   filled
     .append("text")
     .attr("class", "split")
-    .attr("x", function (message) { return message.x + bumpTextsRight; })
-    .attr("y", function (message) { return message.y + bumpTextsDown + 2 * buttonGutter; })
+    .attr("x", function (message) { return message.x + textHorizontal; })
+    .attr("y", function (message) { return message.y + textVertical + 2 * textBuffer; })
     .text("download")
     .on("click", function (message) {
       var link = document.createElement("a");
@@ -138,8 +140,8 @@ function visualize(chain) {
   empty
     .append("text")
     .attr("class", "upload")
-    .attr("x", function (message) { return message.x + bumpTextsRight; })
-    .attr("y", function (message) { return message.y + bumpTextsDown; })
+    .attr("x", function (message) { return message.x + textHorizontal; })
+    .attr("y", function (message) { return message.y + textVertical; })
     .text("upload")
     .on("click", function (message) {
       window.location.href = message.upload_url;
@@ -149,8 +151,8 @@ function visualize(chain) {
   empty
     .append("text")
     .attr("class", "delete")
-    .attr("x", function (message) { return message.x + bumpTextsRight; })
-    .attr("y", function (message) { return message.y + bumpTextsDown + buttonGutter; })
+    .attr("x", function (message) { return message.x + textHorizontal; })
+    .attr("y", function (message) { return message.y + textVertical + textBuffer; })
     .text("delete")
     .on("click", function (message) {
       $.post(message.close_url,
