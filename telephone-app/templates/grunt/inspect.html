@@ -1,13 +1,16 @@
 {% extends "base.html" %}
 {% load static %}
 
+
 {% block styling %}
   <link href="{% static 'grunt/css/inspect.css' %}" rel="stylesheet">
 {% endblock styling %}
 
+
 {% block navbar %}
   <li class="navbar-brand navbar-left">{{ game }}</li>
 {% endblock navbar %}
+
 
 {% block header %}
   <button id="id_previous_chain" type="button" class="btn btn-default">
@@ -26,10 +29,11 @@
   <audio src=""></audio>
   <form action="{% url 'download' %}" method="POST">
     {% csrf_token %}
-    <input class="textinput textInput form-control" id="id_selection" name="selection" type="text">
+    <input class="textinput textInput form-control" id="id_selection" name="selection" type="hidden">
     <input type="submit" value="Download Selected">
   </form>
 {% endblock body %}
+
 
 {% block javascript %}
   <script src="{% static 'd3/d3.v3.min.js' %}" type="text/JavaScript"></script>
