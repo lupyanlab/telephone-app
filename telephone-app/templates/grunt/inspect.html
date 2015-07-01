@@ -75,12 +75,17 @@ $(function () {
   });
 
   $("form").submit(function (event) {
-    var selection = [];
-    d3.selectAll(".active")
+    var active = d3.selectAll(".active"),
+        selection = [];
+
+    active
       .data()
       .forEach(function (message, i) {
         selection.push(message.pk);
       });
+
+    active
+      .classed("active", false);
 
     $("#id_selection").val(selection.toString());
     return true;
