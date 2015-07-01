@@ -156,3 +156,13 @@ class FunctionalTest(LiveServerTestCase):
 
     def assert_empty_message(self, message_group):
         self.assertEquals(message_group.get_attribute('class'), 'message empty')
+
+    def assert_chain_name(self, expected):
+        """ Assert that a chain of the expected name is on the page
+
+        On the inspect view, chains are shown one at a time. In order
+        to tell which chain you are looking at, they are given a name
+        at the top. This method asserts the name of that chain.
+        """
+        chain_name = self.browser.find_element_by_id('id_chain_name').text
+        self.assertEquals(chain_name, expected)

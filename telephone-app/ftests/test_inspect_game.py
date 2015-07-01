@@ -2,10 +2,6 @@ from .base import FunctionalTest
 
 class InspectGameTest(FunctionalTest):
 
-    def assert_chain_name(self, expected):
-        chain_name = self.browser.find_element_by_id('id_chain_name').text
-        self.assertEquals(chain_name, expected)
-
     def test_upload_seed(self):
         """ Simulate uploading a seed to an empty game via the inspect view """
         game_name = 'Empty Game'

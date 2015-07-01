@@ -50,8 +50,15 @@ class MakeGameTest(FunctionalTest):
         my_new_game_name = my_new_game.find_element_by_tag_name('h2').text
         self.assertEquals(my_new_game_name, new_game_name)
 
-        # He inspects the game and sees the two chains
+        # He inspects the game and sees the first chain
         self.inspect_game(new_game_name)
+        self.assert_chain_name('Chain 0')
 
-        svg_elements = self.browser.find_elements_by_tag_name('svg')
-        self.assertEquals(len(svg_elements), num_chains)
+        # He clicks next to see the next chain
+        self.browser.find_element_by_id('id_next_chain').click()
+        self.wait_for(tag = 'body')
+
+        self.assert_chain_name('Chain 1')
+
+        # Clicking "next" again wraps around to first chain. This
+        # feature is tested in test_inspect_game.

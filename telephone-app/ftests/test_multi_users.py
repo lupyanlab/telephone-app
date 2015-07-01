@@ -68,16 +68,21 @@ class MultiUserTest(FunctionalTest):
         self.nav_to_games_list()
         self.inspect_game(game_name)
 
-        # He sees two chains
-        svgs = self.browser.find_elements_by_tag_name('svg')
-        self.assertEquals(len(svgs), 2)
+        # He sees the first chain
+        self.assert_chain_name('Chain 0')
 
         # He splits the seed message
-        svgs = self.browser.find_elements_by_tag_name('svg')
-        self.split_seed_message(svgs[0])
+        svg = self.browser.find_element_by_tag_name('svg')
+        self.split_seed_message(svg)
 
-        svgs = self.browser.find_elements_by_tag_name('svg')
-        self.split_seed_message(svgs[1])
+        # He navigates to view the second chain
+        self.browser.find_element_by_id('id_next_chain').click()
+        self.wait_for(tag = 'body')
+
+        # He splits the seed message for the second chain as well
+        self.assert_chain_name('Chain 1')
+        svg = self.browser.find_element_by_tag_name('svg')
+        self.split_seed_message(svg)
 
         # Marcus comes along to play the game
         self.new_user()
