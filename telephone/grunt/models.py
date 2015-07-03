@@ -140,7 +140,8 @@ class Message(models.Model):
     name = models.CharField(blank = True, max_length = 30)
     parent = models.ForeignKey('self', blank = True, null = True)
     generation = models.IntegerField(default = 0, editable = False)
-    audio = models.FileField(upload_to = message_path, blank = True)
+    audio = models.FileField(upload_to = message_path, blank = True,
+                             max_length = 200)
 
     def full_clean(self, *args, **kwargs):
         if self.parent:
