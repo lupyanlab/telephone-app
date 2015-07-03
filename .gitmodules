@@ -1,0 +1,3 @@
+[submodule "telephone"]
+	path = telephone
+	url = git@github.com:pedmiston/telephone
