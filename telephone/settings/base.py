@@ -15,8 +15,8 @@ from unipath import Path
 SECRET_KEY = 'v**w_+36aa+cd%#8%07a59b3&x#k9b%0id+ffr7e3c#8h24%mr'
 
 # Application definition
-BASE_DIR = Path(__file__).ancestor(3)
-APP_DIR = Path(BASE_DIR, 'telephone-app')
+APP_DIR = Path(__file__).ancestor(2)
+PROJ_DIR = APP_DIR.parent
 
 TEMPLATE_DIRS = (
     Path(APP_DIR, 'templates'),
@@ -70,7 +70,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-STATIC_ROOT = Path(BASE_DIR, 'static')
+STATIC_ROOT = Path(PROJ_DIR, 'static')
 
 STATICFILES_DIRS = (
     Path(APP_DIR, 'telephone/static'),
@@ -79,7 +79,7 @@ STATICFILES_DIRS = (
 
 MEDIA_URL = '/media/'
 
-MEDIA_ROOT = Path(BASE_DIR, 'media')
+MEDIA_ROOT = Path(PROJ_DIR, 'media')
 
 
 # Testing
