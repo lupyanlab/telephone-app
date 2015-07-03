@@ -1,7 +1,7 @@
 ---
 
 - name: Provision a {{ application_name }} server
-  hosts: all
+  hosts: telephone
   sudo: yes
   sudo_user: root
   remote_user: root
