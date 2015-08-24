@@ -1,40 +1,24 @@
-Telephone
+Telephone App
 =========
 
-Simulate the iterative process of evolution.
+Deploy the Telephone Django app to an app server. This project uses ansible for deployment. Ansible can deploy the project to a virtual server using Vagrant. Ansible also deploys the Django app to a production server.
 
-* telephone: A game of telephone is played by passing a message from person
-  to person <http://en.wikipedia.org/wiki/Chinese_whispers>.
+Deploy the app on a virtual server using Vagrant
+------
 
+1. Install ansible and vagrant.
 
-Installing locally
-------------------
+2. Clone the repository.
 
-1. Clone the repository.
+    .. code::
 
-.. code::
+        git clone http://github.com/lupyanlab/telephone-app.git
 
-    git clone http://github.com/pedmiston/telephone.git
+3. Provision a Telephone App virtual server with vagrant.
 
-2. Install a virtualenv and the required packages.
+   .. code::
+        
+        vagrant up
 
-First make a directory to hold the virtualenv packages.
-
-.. code::
-
-    mkdir ~/.venvs
-    virtualenv --python=python2.7 ~/.venvs/telephone
-
-Then activate the virtualenv and install the required packages.
-
-.. code::
-
-    ~/.venvs/telephone/bin/activate
-    pip install -r requirements.txt
-
-3. Run the django test server.
-
-.. code::
-
-    python manage.py runserver
-
+   Now you can point your browser to 192.168.33.18 and play around with the
+   app.
