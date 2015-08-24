@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block navbar %}
+    <li class="btn btn-default pull-right" role="presentation">
+      <a id="id_new_game" href="{% url 'new_game' %}">
+        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+        New
+      </a>
+    </li>
+{% endblock navbar %}
+
+{% block jumbotron %}
+
+    {{ block.super }}
+
+    <ul id="id_game_list" class="list-group" style="text-align: center;">
+
+        {% for game in game_list %}
+        <li class="list-group-item">
+
+            <h2> {{ game }} </h2>
+
+            <a class="btn btn-default play" aria-label="Left Align" href="{{ game.get_absolute_url }}">
+                <span class="glyphicon glyphicon-play" aria-hidden="true"></span> Play
+            </a>
+
+            <a class="btn btn-default inspect" aria-label="Left Align" href="{{ game.get_inspect_url }}">
+                <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> View
+            </a>
+
+        </li>
+        {% endfor %}
+    </ul>
+
+{% endblock jumbotron %}
