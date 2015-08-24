@@ -15,9 +15,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     vb.customize ["modifyvm", :id, "--name", "grunt", "--memory", "512"]
   end
 
-  # Shared folder from the host machine to the guest machine. Uncomment the line
-  # below to enable it.
-  #config.vm.synced_folder "../../evo-apps", "/webapps/telephoneapp/telephone-app"
+  config.vm.synced_folder "telephone", "/webapps/telephone/telephone-app/"
 
   # Ansible provisioner.
   config.vm.provision "ansible" do |ansible|

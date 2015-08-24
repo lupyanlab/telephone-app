@@ -6,7 +6,7 @@
 - name: Run Django South migrations
   django_manage:
     command: migrate
-    app_path: "{{ application_path }}"
+    app_path: "{{ project_path }}"
     virtualenv: "{{ virtualenv_path }}"
     settings: "{{ django_settings_file }}"
   environment: django_environment
@@ -18,7 +18,7 @@
 - name: Run Django collectstatic
   django_manage:
     command: collectstatic
-    app_path: "{{ application_path }}"
+    app_path: "{{ project_path }}"
     virtualenv: "{{ virtualenv_path }}"
     settings: "{{ django_settings_file }}"
   environment: django_environment
