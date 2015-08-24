@@ -1,3 +1,16 @@
-.vagrant/
-secrets/
-env_vars/secrets.yml
+*.pyc
+
+*.sqlite3
+
+.DS_Store
+
+# The following directories should only
+# contain reproducible content
+/media/
+/static/
+
+.vagrant
+vagrant_ansible_inventory_default
+ansible/env_vars/secrets.yml
+
+*.swp
