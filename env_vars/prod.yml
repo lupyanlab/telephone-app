@@ -4,3 +4,7 @@
 
 # Django app settings
 django_settings_file: settings.prod
+
+requirements_file: "{{ project_path }}/requirements/prod.txt"
+
+nginx_server_name: "{{ inventory_hostname }}"

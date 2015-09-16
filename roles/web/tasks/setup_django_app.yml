@@ -15,6 +15,23 @@
     - django
     - django_migrate
 
+- name: Install web assets
+  apt: name={{ item }} update_cache={{ update_apt_cache }} state=installed
+  with_items:
+    - node
+    - npm
+
+- name: Install bower
+  npm: name=bower global=yes state=present
+
+- name: Run Django bower
+  django_manage:
+    command: bower_install
+    app_path: "{{ project_path }}"
+    virtualenv: "{{ virtualenv_path }}"
+    settings: "{{ django_settings_file }}"
+  environment: django_environment
+
 - name: Run Django collectstatic
   django_manage:
     command: collectstatic

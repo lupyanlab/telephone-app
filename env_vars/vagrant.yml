@@ -7,6 +7,8 @@ db_password: telephonepass
 django_settings_file: settings.vagrant
 django_secret_key: akr2icmg1n8%z^3fe3c+)5d0(t^cy-2_25rrl35a7@!scna^1#
 
+requirements_file: "{{ project_path }}/requirements/dev.txt"
+
 # Nginx
 nginx_server_name: 192.168.33.18  # set in the Vagrantfile
 

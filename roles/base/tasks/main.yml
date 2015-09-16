@@ -20,6 +20,8 @@
     - python-pip
     - python-pycurl
     - supervisor
+    - libncurses5-dev
+    - libav-tools
   tags: packages
 
 - name: Install virtualenv
