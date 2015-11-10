@@ -8,6 +8,10 @@ project_path: "{{ virtualenv_path }}/{{ project_name }}"
 application_log_dir: "{{ virtualenv_path }}/logs"
 application_log_file: "{{ application_log_dir }}/gunicorn_supervisor.log"
 
+# Node.js related settings, see https://github.com/nodesource/distributions#debinstall for possible values
+distro: trusty
+node_js_version: node_5.x
+
 git_repo: https://github.com/lupyanlab/telephone.git
 
 # Postgres DB
