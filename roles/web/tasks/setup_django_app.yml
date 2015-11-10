@@ -27,6 +27,9 @@
 - name: Install bower
   npm: name=bower global=yes state=present
 
+- name: Install jspm
+  npm: name=jspm global=yes state=present
+
 - name: Run Django bower
   django_manage:
     command: bower_install
@@ -34,6 +37,9 @@
     virtualenv: "{{ virtualenv_path }}"
     settings: "{{ django_settings_file }}"
   environment: django_environment
+
+- name: Run jspm
+  command: jspm install chdir={{ project_path }}
 
 - name: Run Django collectstatic
   django_manage:
