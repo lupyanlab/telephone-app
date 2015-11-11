@@ -15,14 +15,20 @@
     - django
     - django_migrate
 
-- name: Install web assets
-  apt: name={{ item }} update_cache={{ update_apt_cache }} state=installed
-  with_items:
-    - node
-    - npm
+- name: Add key for nodejs repo
+  apt_key: url=https://deb.nodesource.com/gpgkey/nodesource.gpg.key state=present
+
+- name: Add nodejs repo
+  apt_repository: repo='deb https://deb.nodesource.com/{{ node_js_version}} {{ distro }} main' state=present
+
+- name: Install nodejs and npm
+  apt: name=nodejs update_cache=yes state=installed
 
 - name: Install bower
   npm: name=bower global=yes state=present
+
+- name: Install jspm
+  npm: name=jspm global=yes state=present
 
 - name: Run Django bower
   django_manage:
@@ -31,6 +37,9 @@
     virtualenv: "{{ virtualenv_path }}"
     settings: "{{ django_settings_file }}"
   environment: django_environment
+
+- name: Run jspm
+  command: jspm install chdir={{ project_path }}
 
 - name: Run Django collectstatic
   django_manage:
