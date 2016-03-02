@@ -5,5 +5,9 @@
         recurse=yes
         owner={{ gunicorn_user }}
         group={{ gunicorn_group }}
+        # mode=0664  # should make the second task unnecessary
         state=directory
   notify: restart application
+
+- name: Really ensure that application file permissions are set properly
+  shell: chown -R {{ gunicorn_user }}:{{ gunicorn_group }} {{ virtualenv_path }}
