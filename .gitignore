@@ -14,3 +14,5 @@ vagrant_ansible_inventory_default
 ansible/env_vars/secrets.yml
 
 *.swp
+.vault_pass
+hosts
