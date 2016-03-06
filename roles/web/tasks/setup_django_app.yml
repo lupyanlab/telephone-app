@@ -9,7 +9,7 @@
     app_path: "{{ project_path }}"
     virtualenv: "{{ virtualenv_path }}"
     settings: "{{ django_settings_file }}"
-  environment: django_environment
+  environment: "{{ django_environment }}"
   when: run_django_south_migration
   tags:
     - django
@@ -36,7 +36,7 @@
     app_path: "{{ project_path }}"
     virtualenv: "{{ virtualenv_path }}"
     settings: "{{ django_settings_file }}"
-  environment: django_environment
+  environment: "{{ django_environment }}"
 
 - name: Run jspm
   command: jspm install chdir={{ project_path }}
@@ -47,7 +47,7 @@
     app_path: "{{ project_path }}"
     virtualenv: "{{ virtualenv_path }}"
     settings: "{{ django_settings_file }}"
-  environment: django_environment
+  environment: "{{ django_environment }}"
   when: run_django_collectstatic
   tags:
     - django
