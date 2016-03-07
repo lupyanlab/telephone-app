@@ -1,0 +1,49 @@
+---
+# Required facts:
+# - snapshot_dir
+
+- hosts: telephone
+  user: root
+  vars_files:
+    - env_vars/base.yml
+    - env_vars/prod.yml
+    - env_vars/aws_secrets.yml
+  vars:
+    dump_file: /tmp/telephone-app.json
+    zip_file: /tmp/telephone-app.zip
+    aws_environment:
+      AWS_ACCESS_KEY: "{{ aws_access_key }}"
+      AWS_SECRET_KEY: "{{ aws_secret_key }}"
+      AWS_REGION: us-west-1
+  tasks:
+    - name: Run django manage dumpdata command
+      django_manage:
+        command: "dumpdata --output {{ dump_file }}"
+        app_path: "{{ project_path }}"
+        virtualenv: "{{ virtualenv_path }}"
+        settings: "{{ django_settings_file }}"
+      environment: "{{ django_environment }}"
+
+    - name: Copy the database dump back from the server
+      fetch:
+        src: "{{ dump_file }}"
+        dest: "{{ snapshot_dir }}/{{ dump_file | basename }}"
+        flat: true
+
+    - name: Zip up the media directory
+      command: zip -r {{ zip_file }} {{ nginx_media_dir }}
+
+    - name: Fetch the zipped sound files
+      fetch:
+        src: /tmp/telephone-app.zip
+        dest: "{{ snapshot_dir }}/{{ zip_file | basename }}"
+
+    # - name: Push database to S3 bucket
+    #   s3:
+    #     bucket: "{{ bucket }}"
+    #   environment: "{{ aws_environment }}"
+    #
+    # - name: Push media to S3 bucket
+    #   s3:
+    #     bucket: "{{ bucket }}"
+    #   environment: "{{ aws_environment }}"

@@ -43,3 +43,8 @@ django_environment:
   DJANGO_SECRET_KEY: "{{ django_secret_key }}"
   DATABASE_USER: "{{ db_user }}"
   DATABASE_PASSWORD: "{{ db_password }}"
+
+aws_environment:
+  AWS_ACCESS_KEY: "{{ aws_access_key }}"
+  AWS_SECRET_KEY: "{{ aws_secret_key }}"
+  AWS_REGION: us-west-1
