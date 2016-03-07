@@ -1,0 +1,10 @@
+---
+
+- hosts: localhost
+  vars_files:
+    - env_vars/aws_secrets.yml
+  tasks:
+    - name: Create boto.cfg from template.
+      template:
+        src: templates/boto_cfg.j2
+        dest: "{{ lookup('env', 'BOTO_CONFIG') }}"

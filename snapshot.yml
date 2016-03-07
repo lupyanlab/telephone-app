@@ -1,21 +1,22 @@
 ---
 # Required facts:
-# - snapshot_dir
+# - snapshot_name
 
-- hosts: telephone
+- name: Pull the data from the server
+  hosts: telephone
   user: root
   vars_files:
     - env_vars/base.yml
     - env_vars/prod.yml
-    - env_vars/aws_secrets.yml
   vars:
-    dump_file: /tmp/telephone-app.json
-    zip_file: /tmp/telephone-app.zip
-    aws_environment:
-      AWS_ACCESS_KEY: "{{ aws_access_key }}"
-      AWS_SECRET_KEY: "{{ aws_secret_key }}"
-      AWS_REGION: us-west-1
+    dump_dir: /tmp/
+    dump_file: "{{ dump_dir }}/{{ snapshot_name }}.json"
+    media_zip: "{{ dump_dir }}/{{ snapshot_name }}.zip"
   tasks:
+    - name: Get info about the dump file
+      stat: path={{ dump_file }}
+      register: dump_st
+
     - name: Run django manage dumpdata command
       django_manage:
         command: "dumpdata --output {{ dump_file }}"
@@ -23,27 +24,19 @@
         virtualenv: "{{ virtualenv_path }}"
         settings: "{{ django_settings_file }}"
       environment: "{{ django_environment }}"
+      when: force is defined or not dump_st.stat.exists
 
-    - name: Copy the database dump back from the server
-      fetch:
-        src: "{{ dump_file }}"
-        dest: "{{ snapshot_dir }}/{{ dump_file | basename }}"
-        flat: true
+    - name: Get info about zip file
+      stat: path={{ media_zip }}
+      register: zip_st
 
     - name: Zip up the media directory
-      command: zip -r {{ zip_file }} {{ nginx_media_dir }}
+      command: zip -r {{ media_zip }} {{ nginx_media_dir }}
+      when: force is defined or not zip_st.stat.exists
 
     - name: Fetch the zipped sound files
       fetch:
-        src: /tmp/telephone-app.zip
-        dest: "{{ snapshot_dir }}/{{ zip_file | basename }}"
-
-    # - name: Push database to S3 bucket
-    #   s3:
-    #     bucket: "{{ bucket }}"
-    #   environment: "{{ aws_environment }}"
-    #
-    # - name: Push media to S3 bucket
-    #   s3:
-    #     bucket: "{{ bucket }}"
-    #   environment: "{{ aws_environment }}"
+        src: "{{ media_zip }}"
+        dest: "{{ snapshot_name }}/{{ media_zip | basename }}"
+        flat: true
+      when: force is defined or not zip_st.stat.exists
