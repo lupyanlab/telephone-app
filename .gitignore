@@ -16,3 +16,4 @@ ansible/env_vars/secrets.yml
 *.swp
 .vault_pass
 hosts
+inventory

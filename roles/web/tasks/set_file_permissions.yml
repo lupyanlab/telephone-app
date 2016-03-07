@@ -5,7 +5,6 @@
         recurse=yes
         owner={{ gunicorn_user }}
         group={{ gunicorn_group }}
-        # mode=0664  # should make the second task unnecessary
         state=directory
   notify: restart application
 
