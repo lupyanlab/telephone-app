@@ -9,14 +9,10 @@
     - env_vars/base.yml
     - env_vars/prod.yml
   vars:
-    dump_dir: /tmp/
+    dump_dir: /tmp
     dump_file: "{{ dump_dir }}/{{ snapshot_name }}.json"
     media_zip: "{{ dump_dir }}/{{ snapshot_name }}.zip"
   tasks:
-    - name: Get info about the dump file
-      stat: path={{ dump_file }}
-      register: dump_st
-
     - name: Run django manage dumpdata command
       django_manage:
         command: "dumpdata --output {{ dump_file }}"
@@ -24,19 +20,15 @@
         virtualenv: "{{ virtualenv_path }}"
         settings: "{{ django_settings_file }}"
       environment: "{{ django_environment }}"
-      when: force is defined or not dump_st.stat.exists
-
-    - name: Get info about zip file
-      stat: path={{ media_zip }}
-      register: zip_st
 
     - name: Zip up the media directory
       command: zip -r {{ media_zip }} {{ nginx_media_dir }}
-      when: force is defined or not zip_st.stat.exists
 
-    - name: Fetch the zipped sound files
+    - name: Fetch the data files
       fetch:
-        src: "{{ media_zip }}"
-        dest: "{{ snapshot_name }}/{{ media_zip | basename }}"
+        src: "{{ item }}"
+        dest: "{{ snapshot_name }}/{{ item | basename }}"
         flat: true
-      when: force is defined or not zip_st.stat.exists
+      with_items:
+        - "{{ dump_file }}"
+        - "{{ media_zip }}"

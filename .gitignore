@@ -19,3 +19,4 @@ hosts
 inventory
 boto.cfg
 *.retry
+words-in-transition/
