@@ -44,6 +44,7 @@ def load():
     """Load a snapshot in the telephone submodule."""
     run('cd telephone && rm -f telephone.sqlite3 && python manage.py migrate')
     run('cd telephone && python manage.py loaddata ../words-in-transition/words-in-transition.json')
+    run('rm -rf media')
     run('cd words-in-transition && unzip words-in-transition.zip && mv webapps/telephone/media ../')
     run('rm -rf words-in-transition/webapps/')
 
