@@ -6,32 +6,16 @@ from unipath import Path
 import pandas as pd
 
 
+EXPERIMENT = 'words-in-transition'
+
+
 @task
 def download():
     """Take a snapshot of the data on the server and store it locally."""
     cmd = 'ansible-playbook snapshot.yml -e snapshot_name={}'
-    run(cmd.format('words-in-transition'))
-
-@task
-def push(bucket_name='telephone-app'):
-    """Push a snapshot to S3."""
-    s3 = boto3.resource('s3')
-    bucket = s3.Bucket(bucket_name)
-    # download db and media files
-    for key in Path('words-in-transition').listdir():
-        with open(key, 'rb') as f:
-            bucket.put_object(Body=f, Key=key)
-
-@task
-def load():
-    """Load a snapshot in the telephone submodule."""
-    run('cd telephone && rm -f telephone.sqlite3 && python manage.py migrate')
-    run('cd telephone && python manage.py loaddata ../words-in-transition/words-in-transition.json')
-    run('cd words-in-transition && unzip words-in-transition.zip && mv webapps/telephone/media ../')
-    run('rm -rf words-in-transition/webapps/')
+    run(cmd.format(EXPERIMENT))
 
 
-# MTurk
 @task
 def mturk():
     """Downloads the assignments from MTurk.
@@ -42,7 +26,26 @@ def mturk():
     mturk = MTurk()
     survey_hit_title = "Listen to a sound and pick the sound it's closest to."
     survey_results = mturk.get_hit_results(survey_hit_title)
-    survey_results.to_csv('mturk_survey_results.csv', index=False)
+    survey_results.to_csv(Path(EXPERIMENT, 'mturk_survey_results.csv'), index=False)
+
+
+@task
+def push(bucket_name='words-in-transition'):
+    """Push a snapshot to S3."""
+    s3 = boto3.resource('s3')
+    bucket = s3.Bucket(bucket_name)
+    for key in Path(EXPERIMENT).listdir():
+        with open(key, 'rb') as f:
+            bucket.put_object(Body=f, Key=key)
+
+
+@task
+def load():
+    """Load a snapshot in the telephone submodule."""
+    run('cd telephone && rm -f telephone.sqlite3 && python manage.py migrate')
+    run('cd telephone && python manage.py loaddata ../words-in-transition/words-in-transition.json')
+    run('cd words-in-transition && unzip words-in-transition.zip && mv webapps/telephone/media ../')
+    run('rm -rf words-in-transition/webapps/')
 
 
 class MTurk:
