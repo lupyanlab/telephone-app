@@ -8,3 +8,8 @@
       template:
         src: templates/boto_cfg.j2
         dest: "{{ lookup('env', 'BOTO_CONFIG') }}"
+
+    - name: Create environment script.
+      template:
+        src: templates/bash_env.j2
+        dest: ./environment

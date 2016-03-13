@@ -1,3 +1,0 @@
-#!/usr/bin/bash
-export ANSIBLE_VAULT_PASSWORD_FILE=./.vault_pass
-export BOTO_CONFIG=./boto.cfg
