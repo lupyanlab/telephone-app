@@ -1,0 +1,37 @@
+---
+
+- name: Create surveys on the server
+  hosts: telephone
+  user: root
+  vars_files:
+    - env_vars/base.yml
+    - env_vars/prod.yml
+  vars:
+    game_id: 2
+    generation: 1
+  tasks:
+    - name: Create betweeen surveys
+      django_manage:
+        command: "new_survey {{ item.name }} -g {{ game_id }} -n {{ generation }} -i {{ item.include }} -c {{ item.include }} -e {{ item.include }}"
+        app_path: "{{ project_path }}"
+        virtualenv: "{{ virtualenv_path }}"
+        settings: "{{ django_settings_file }}"
+      environment: "{{ django_environment }}"
+      with_items:
+        - { name: between-1, include: "42 38 46 34" }
+        - { name: between-2, include: "43 39 47 35" }
+        - { name: between-3, include: "44 40 48 36" }
+        - { name: between-4, include: "45 41 49 37" }
+
+    - name: Create same surveys
+      django_manage:
+        command: "new_survey {{ item.name }} -g {{ game_id }} -n {{ generation }} -x {{ item.include }} -c {{ item.include }} -e {{ item.include }}"
+        app_path: "{{ project_path }}"
+        virtualenv: "{{ virtualenv_path }}"
+        settings: "{{ django_settings_file }}"
+      environment: "{{ django_environment }}"
+      with_items:
+        - { name: same-1, include: "42 38 46 34" }
+        - { name: same-2, include: "43 39 47 35" }
+        - { name: same-3, include: "44 40 48 36" }
+        - { name: same-4, include: "45 41 49 37" }

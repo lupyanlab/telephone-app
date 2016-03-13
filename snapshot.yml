@@ -9,10 +9,21 @@
     - env_vars/base.yml
     - env_vars/prod.yml
   vars:
-    dump_dir: /tmp
+    dump_dir: /snapshots/{{ snapshot_name }}
     dump_file: "{{ dump_dir }}/{{ snapshot_name }}.json"
     media_zip: "{{ dump_dir }}/{{ snapshot_name }}.zip"
+    app_models:
+      - grunt.Message
+      - ratings.Survey
+      - ratings.Question
+      - ratings.Response
   tasks:
+    - name: Ensure the dump dir exists
+      file: path={{ dump_dir }} state=directory
+
+    - name: Ensure zip is installed
+      apt: name=zip state=present
+
     - name: Run django manage dumpdata command
       django_manage:
         command: "dumpdata --output {{ dump_file }}"
@@ -24,7 +35,7 @@
     - name: Zip up the media directory
       command: zip -r {{ media_zip }} {{ nginx_media_dir }}
 
-    - name: Fetch the data files
+    - name: Fetch the dump files
       fetch:
         src: "{{ item }}"
         dest: "{{ snapshot_name }}/{{ item | basename }}"
@@ -32,3 +43,19 @@
       with_items:
         - "{{ dump_file }}"
         - "{{ media_zip }}"
+
+    - name: Dump individual tables
+      django_manage:
+        command: "dumpdata {{ item }} --output {{ dump_dir }}/{{ item }}.json"
+        app_path: "{{ project_path }}"
+        virtualenv: "{{ virtualenv_path }}"
+        settings: "{{ django_settings_file }}"
+      environment: "{{ django_environment }}"
+      with_items: "{{ app_models }}"
+
+    - name: Fetch individual tables
+      fetch:
+        src: "{{ dump_dir }}/{{ item }}.json"
+        dest: "{{ snapshot_name }}/{{ item }}.json"
+        flat: true
+      with_items: "{{ app_models }}"
