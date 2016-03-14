@@ -20,10 +20,10 @@
         settings: "{{ django_settings_file }}"
       environment: "{{ django_environment }}"
       with_items:
-        - { name: within-glass, include: "34 35 36 37" }
-        - { name: within-tear, include: "38 39 40 41" }
-        - { name: within-water, include: "42 43 44 45" }
-        - { name: within-zipper, include: "46 47 48 49" }
+        - { name: within-category-glass, include: "34 35 36 37" }
+        - { name: within-category-tear, include: "38 39 40 41" }
+        - { name: within-category-water, include: "42 43 44 45" }
+        - { name: within-category-zipper, include: "46 47 48 49" }
         - { name: between-1, include: "42 38 46 34" }
         - { name: between-2, include: "43 39 47 35" }
         - { name: between-3, include: "44 40 48 36" }
