@@ -56,7 +56,7 @@ class MTurk:
     def get_hit_info(self, title):
         results = []
         for hit in self._mturk.get_all_hits():
-            num_responses = int(hit.NumberOfAssignmentsCompleted)
+            num_responses = int(hit.NumberOfAssignmentsCompleted) + int(hit.NumberOfAssignmentsPending)
             if hit.Title == title and num_responses > 0:
                 info = (hit.HITId, num_responses)
                 results.append(info)
@@ -66,6 +66,7 @@ class MTurk:
         hit_info = self.get_hit_info(title)
         hit_results = []
         for hit_id, num_responses in hit_info:
+            print hit_id
             assignments = self._mturk.get_assignments(hit_id, page_size=num_responses)
             assert len(assignments) == num_responses
             hit_results.append(assignments_to_frame(assignments))
