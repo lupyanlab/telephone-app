@@ -66,7 +66,6 @@ class MTurk:
         hit_info = self.get_hit_info(title)
         hit_results = []
         for hit_id, num_responses in hit_info:
-            print hit_id
             assignments = self._mturk.get_assignments(hit_id, page_size=num_responses)
             assert len(assignments) == num_responses
             hit_results.append(assignments_to_frame(assignments))
