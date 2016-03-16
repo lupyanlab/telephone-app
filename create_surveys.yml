@@ -10,7 +10,7 @@
     - env_vars/prod.yml
   vars:
     game_id: 2
-    generation: 2
+    generation: 3
   tasks:
     - name: Create betweeen and within category surveys
       django_manage:
