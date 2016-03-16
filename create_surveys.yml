@@ -10,7 +10,7 @@
     - env_vars/prod.yml
   vars:
     game_id: 2
-    generation: 1
+    generation: 2
   tasks:
     - name: Create betweeen and within category surveys
       django_manage:
@@ -20,14 +20,14 @@
         settings: "{{ django_settings_file }}"
       environment: "{{ django_environment }}"
       with_items:
-        - { name: within-category-glass, include: "34 35 36 37" }
-        - { name: within-category-tear, include: "38 39 40 41" }
-        - { name: within-category-water, include: "42 43 44 45" }
-        - { name: within-category-zipper, include: "46 47 48 49" }
-        - { name: between-1, include: "42 38 46 34" }
-        - { name: between-2, include: "43 39 47 35" }
-        - { name: between-3, include: "44 40 48 36" }
-        - { name: between-4, include: "45 41 49 37" }
+        - { name: "within-glass-g{{ generation }}", include: "34 35 36 37" }
+        - { name: "within-tear-g{{ generation }}", include: "38 39 40 41" }
+        - { name: "within-water-g{{ generation }}", include: "42 43 44 45" }
+        - { name: "within-zipper-g{{ generation }}", include: "46 47 48 49" }
+        - { name: "between-1-g{{ generation }}", include: "42 38 46 34" }
+        - { name: "between-2-g{{ generation }}", include: "43 39 47 35" }
+        - { name: "between-3-g{{ generation }}", include: "44 40 48 36" }
+        - { name: "between-4-g{{ generation }}", include: "45 41 49 37" }
 
     - name: Create same category surveys
       django_manage:
@@ -37,7 +37,7 @@
         settings: "{{ django_settings_file }}"
       environment: "{{ django_environment }}"
       with_items:
-        - { name: same-1, exclude: "42 38 46 34" }
-        - { name: same-2, exclude: "43 39 47 35" }
-        - { name: same-3, exclude: "44 40 48 36" }
-        - { name: same-4, exclude: "45 41 49 37" }
+        - { name: "same-1-g{{ generation }}", exclude: "42 38 46 34" }
+        - { name: "same-2-g{{ generation }}", exclude: "43 39 47 35" }
+        - { name: "same-3-g{{ generation }}", exclude: "44 40 48 36" }
+        - { name: "same-4-g{{ generation }}", exclude: "45 41 49 37" }
