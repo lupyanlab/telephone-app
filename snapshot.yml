@@ -17,6 +17,9 @@
       - ratings.Survey
       - ratings.Question
       - ratings.Response
+      - transcribe.TranscriptionSurvey
+      - transcribe.MessageToTranscribe
+      - transcribe.Transcription
   tasks:
     - name: Ensure the dump dir exists
       file: path={{ dump_dir }} state=directory
