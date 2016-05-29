@@ -3,13 +3,20 @@
 - hosts: localhost
   vars_files:
     - env_vars/aws_secrets.yml
+  vars:
+    telephone_server_address: telephone.evoapps.xyz
   tasks:
     - name: Create boto.cfg from template.
       template:
         src: templates/boto_cfg.j2
-        dest: "{{ lookup('env', 'BOTO_CONFIG') }}"
+        dest: ./boto.cfg
 
     - name: Create environment script.
       template:
         src: templates/bash_env.j2
         dest: ./environment
+
+    - name: Create hosts file.
+      template:
+        src: templates/hosts.j2
+        dest: ./hosts
