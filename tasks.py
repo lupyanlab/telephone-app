@@ -23,10 +23,22 @@ def mturk():
     Data contains completion codes and MTurk user ids that can be used to
     label the subj_id data.
     """
+    hit_titles = [
+        "Listen to sounds and pick the odd one out.",
+        "Play the childhood game of telephone on the web.",
+        "Listen to a sound and pick the sound it's closest to.",
+        "Transcribe a sound effect into a new English word.",
+        "Match words to sound effects.",
+    ]
     mturk = MTurk()
-    survey_hit_title = "Listen to a sound and pick the sound it's closest to."
-    survey_results = mturk.get_hit_results(survey_hit_title)
-    survey_results.to_csv(Path(EXPERIMENT, 'mturk_survey_results.csv'), index=False)
+    survey_results = mturk.get_all_hit_results(hit_titles)
+
+    survey_results['comments'] = survey_results.comments.str.encode('utf-8')
+
+    survey_results.to_csv(
+        Path(EXPERIMENT, 'mturk_survey_results.csv'),
+        index=False,
+    )
 
 
 @task
@@ -71,6 +83,10 @@ class MTurk:
             hit_results.append(assignments_to_frame(assignments))
         results = pd.concat(hit_results)
         return results
+
+    def get_all_hit_results(self, titles):
+        hit_results = [self.get_hit_results(t) for t in titles]
+        return pd.concat(hit_results)
 
 
 def assignments_to_frame(assignments):
