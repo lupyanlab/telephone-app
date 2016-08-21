@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+import math
+
 from invoke import run, task
 import boto3
 from boto.mturk.connection import MTurkConnection, MTurkRequestError
@@ -7,6 +9,10 @@ import pandas as pd
 
 
 EXPERIMENT = 'words-in-transition'
+MTURK_ASSIGNMENTS = Path(EXPERIMENT, 'mturk_assignments')
+
+if not MTURK_ASSIGNMENTS.exists():
+    MTURK_ASSIGNMENTS.mkdir()
 
 
 @task
@@ -17,28 +23,30 @@ def download():
 
 
 @task
-def mturk():
+def mturk(experiment, hit_title):
     """Downloads the assignments from MTurk.
 
     Data contains completion codes and MTurk user ids that can be used to
     label the subj_id data.
-    """
-    hit_titles = [
-        "Listen to sounds and pick the odd one out.",
-        "Play the childhood game of telephone on the web.",
-        "Listen to a sound and pick the sound it's closest to.",
-        "Transcribe a sound effect into a new English word.",
-        "Match words to sound effects.",
-    ]
-    mturk = MTurk()
-    survey_results = mturk.get_all_hit_results(hit_titles)
 
+        hit_info_records = [
+            ("norm_seed", "Listen to sounds and pick the odd one out."),
+            ("imitations", "Play the childhood game of telephone on the web."),
+            ("imitation_matches", "Listen to a sound and pick the sound it's closest to."),
+            ("transcriptions", "Transcribe a sound effect into a new English word."),
+            ("transcription_matches", "Match words to sound effects."),
+        ]
+
+    """
+    mturk = MTurk()
+    survey_results = mturk.get_hit_results(hit_title)
+    survey_results['experiment'] = experiment
     survey_results['comments'] = survey_results.comments.str.encode('utf-8')
 
-    survey_results.to_csv(
-        Path(EXPERIMENT, 'mturk_survey_results.csv'),
-        index=False,
-    )
+    hit_dir = Path(MTURK_ASSIGNMENTS, experiment)
+    if not hit_dir.exists():
+        hit_dir.mkdir()
+    survey_results.to_csv(Path(hit_dir, 'mturk_assignments.csv'), index=False)
 
 
 @task
@@ -62,26 +70,36 @@ def load():
 
 
 class MTurk:
+    ASSIGNMENTS_PER_PAGE = 100
+
     def __init__(self):
         self._mturk = MTurkConnection()
+        self._hits = None
+
+    @property
+    def hits(self):
+        if not self._hits:
+            self._hits = list(self._mturk.get_all_hits())
+        return self._hits
 
     def get_hit_info(self, title):
-        results = []
-        for hit in self._mturk.get_all_hits():
-            num_responses = int(hit.NumberOfAssignmentsCompleted) + int(hit.NumberOfAssignmentsPending)
-            if hit.Title == title and num_responses > 0:
-                info = (hit.HITId, num_responses)
-                results.append(info)
-        return results
+        return [(hit.HITId, int(hit.MaxAssignments)) for hit in self.hits
+                                                     if hit.Title == title]
 
     def get_hit_results(self, title):
         hit_info = self.get_hit_info(title)
         hit_results = []
         for hit_id, num_responses in hit_info:
-            assignments = self._mturk.get_assignments(hit_id, page_size=num_responses)
-            assert len(assignments) == num_responses
-            hit_results.append(assignments_to_frame(assignments))
+            pages = int(num_responses/self.ASSIGNMENTS_PER_PAGE) + 1
+            for page_number in range(1, pages+1):
+                assignments = self._mturk.get_assignments(
+                    hit_id,
+                    page_size=self.ASSIGNMENTS_PER_PAGE,
+                    page_number=page_number,
+                )
+                hit_results.append(assignments_to_frame(assignments))
         results = pd.concat(hit_results)
+        results['hit_title'] = title
         return results
 
     def get_all_hit_results(self, titles):
