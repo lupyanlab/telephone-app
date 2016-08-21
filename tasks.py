@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import math
+from functools import partial
 
 from invoke import run, task
 import boto3
@@ -9,10 +10,6 @@ import pandas as pd
 
 
 EXPERIMENT = 'words-in-transition'
-MTURK_ASSIGNMENTS = Path(EXPERIMENT, 'mturk_assignments')
-
-if not MTURK_ASSIGNMENTS.exists():
-    MTURK_ASSIGNMENTS.mkdir()
 
 
 @task
@@ -23,7 +20,7 @@ def download():
 
 
 @task
-def mturk(experiment, hit_title):
+def mturk(hit_info_csv='mturk_hit_info.csv'):
     """Downloads the assignments from MTurk.
 
     Data contains completion codes and MTurk user ids that can be used to
@@ -38,15 +35,11 @@ def mturk(experiment, hit_title):
         ]
 
     """
+    hit_info = pd.read_csv(hit_info_csv)
     mturk = MTurk()
-    survey_results = mturk.get_hit_results(hit_title)
-    survey_results['experiment'] = experiment
-    survey_results['comments'] = survey_results.comments.str.encode('utf-8')
-
-    hit_dir = Path(MTURK_ASSIGNMENTS, experiment)
-    if not hit_dir.exists():
-        hit_dir.mkdir()
-    survey_results.to_csv(Path(hit_dir, 'mturk_assignments.csv'), index=False)
+    assignments = [mturk.get_assignments(hit_id) for hit_id in hit_info.HITId]
+    all_assignments = pd.merge(hit_info, pd.concat(assignments))
+    all_assignments.to_csv(Path(EXPERIMENT, 'mturk_subjects.csv'), index=False)
 
 
 @task
@@ -74,38 +67,30 @@ class MTurk:
 
     def __init__(self):
         self._mturk = MTurkConnection()
-        self._hits = None
 
-    @property
-    def hits(self):
-        if not self._hits:
-            self._hits = list(self._mturk.get_all_hits())
-        return self._hits
+    def get_hit(self, hit_id):
+        try:
+            hit = self._mturk.get_hit(hit_id)
+        except MTurkRequestError as error:
+            raise LookupError(error.message)
+        else:
+            return hit[0]
 
-    def get_hit_info(self, title):
-        return [(hit.HITId, int(hit.MaxAssignments)) for hit in self.hits
-                                                     if hit.Title == title]
+    def get_assignments(self, hit_id):
+        hit = self.get_hit(hit_id)
+        max_responses = int(hit.MaxAssignments)
+        pages = int(max_responses/self.ASSIGNMENTS_PER_PAGE) + 1
+        assignments = [self.get_assignments_page(hit_id, page_number=n)
+                       for n in range(1, pages+1)]
+        return pd.concat(assignments)
 
-    def get_hit_results(self, title):
-        hit_info = self.get_hit_info(title)
-        hit_results = []
-        for hit_id, num_responses in hit_info:
-            pages = int(num_responses/self.ASSIGNMENTS_PER_PAGE) + 1
-            for page_number in range(1, pages+1):
-                assignments = self._mturk.get_assignments(
-                    hit_id,
-                    page_size=self.ASSIGNMENTS_PER_PAGE,
-                    page_number=page_number,
-                )
-                hit_results.append(assignments_to_frame(assignments))
-        results = pd.concat(hit_results)
-        results['hit_title'] = title
-        return results
-
-    def get_all_hit_results(self, titles):
-        hit_results = [self.get_hit_results(t) for t in titles]
-        return pd.concat(hit_results)
-
+    def get_assignments_page(self, hit_id, page_number):
+        assignments = self._mturk.get_assignments(
+            hit_id=hit_id,
+            page_size=self.ASSIGNMENTS_PER_PAGE,
+            page_number=page_number,
+        )
+        return assignments_to_frame(assignments)
 
 def assignments_to_frame(assignments):
     # Create an iterable copy of each boto.mturk.connection.Assignment
@@ -113,7 +98,11 @@ def assignments_to_frame(assignments):
     results = pd.DataFrame.from_records([a.__dict__ for a in assignments])
 
     def unfold_answers(assignment):
-        answers = assignment.answers[0]  # answers are [[buried]] for some reason
+        try:
+            answers = assignment.answers[0]  # answers are [[buried]] for some reason
+        except IndexError:
+            answers = []
+
         for answer in answers:
             assignment[answer.qid] = answer.fields[0]
         del assignment['answers']
