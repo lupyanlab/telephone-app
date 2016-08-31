@@ -20,6 +20,9 @@
       - transcribe.TranscriptionSurvey
       - transcribe.MessageToTranscribe
       - transcribe.Transcription
+      - words.Survey
+      - words.Question
+      - words.Response
   tasks:
     - name: Ensure the dump dir exists
       file: path={{ dump_dir }} state=directory

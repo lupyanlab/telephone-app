@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+import math
+from functools import partial
+
 from invoke import run, task
 import boto3
 from boto.mturk.connection import MTurkConnection, MTurkRequestError
@@ -17,16 +20,26 @@ def download():
 
 
 @task
-def mturk():
+def mturk(hit_info_csv='mturk_hit_info.csv'):
     """Downloads the assignments from MTurk.
 
     Data contains completion codes and MTurk user ids that can be used to
     label the subj_id data.
+
+        hit_info_records = [
+            ("norm_seed", "Listen to sounds and pick the odd one out."),
+            ("imitations", "Play the childhood game of telephone on the web."),
+            ("imitation_matches", "Listen to a sound and pick the sound it's closest to."),
+            ("transcriptions", "Transcribe a sound effect into a new English word."),
+            ("transcription_matches", "Match words to sound effects."),
+        ]
+
     """
+    hit_info = pd.read_csv(hit_info_csv)
     mturk = MTurk()
-    survey_hit_title = "Listen to a sound and pick the sound it's closest to."
-    survey_results = mturk.get_hit_results(survey_hit_title)
-    survey_results.to_csv(Path(EXPERIMENT, 'mturk_survey_results.csv'), index=False)
+    assignments = [mturk.get_assignments(hit_id) for hit_id in hit_info.HITId]
+    all_assignments = pd.merge(hit_info, pd.concat(assignments))
+    all_assignments.to_csv(Path(EXPERIMENT, 'mturk_subjects.csv'), index=False)
 
 
 @task
@@ -50,28 +63,34 @@ def load():
 
 
 class MTurk:
+    ASSIGNMENTS_PER_PAGE = 100
+
     def __init__(self):
         self._mturk = MTurkConnection()
 
-    def get_hit_info(self, title):
-        results = []
-        for hit in self._mturk.get_all_hits():
-            num_responses = int(hit.NumberOfAssignmentsCompleted) + int(hit.NumberOfAssignmentsPending)
-            if hit.Title == title and num_responses > 0:
-                info = (hit.HITId, num_responses)
-                results.append(info)
-        return results
+    def get_hit(self, hit_id):
+        try:
+            hit = self._mturk.get_hit(hit_id)
+        except MTurkRequestError as error:
+            raise LookupError(error.message)
+        else:
+            return hit[0]
 
-    def get_hit_results(self, title):
-        hit_info = self.get_hit_info(title)
-        hit_results = []
-        for hit_id, num_responses in hit_info:
-            assignments = self._mturk.get_assignments(hit_id, page_size=num_responses)
-            assert len(assignments) == num_responses
-            hit_results.append(assignments_to_frame(assignments))
-        results = pd.concat(hit_results)
-        return results
+    def get_assignments(self, hit_id):
+        hit = self.get_hit(hit_id)
+        max_responses = int(hit.MaxAssignments)
+        pages = int(max_responses/self.ASSIGNMENTS_PER_PAGE) + 1
+        assignments = [self.get_assignments_page(hit_id, page_number=n)
+                       for n in range(1, pages+1)]
+        return pd.concat(assignments)
 
+    def get_assignments_page(self, hit_id, page_number):
+        assignments = self._mturk.get_assignments(
+            hit_id=hit_id,
+            page_size=self.ASSIGNMENTS_PER_PAGE,
+            page_number=page_number,
+        )
+        return assignments_to_frame(assignments)
 
 def assignments_to_frame(assignments):
     # Create an iterable copy of each boto.mturk.connection.Assignment
@@ -79,7 +98,11 @@ def assignments_to_frame(assignments):
     results = pd.DataFrame.from_records([a.__dict__ for a in assignments])
 
     def unfold_answers(assignment):
-        answers = assignment.answers[0]  # answers are [[buried]] for some reason
+        try:
+            answers = assignment.answers[0]  # answers are [[buried]] for some reason
+        except IndexError:
+            answers = []
+
         for answer in answers:
             assignment[answer.qid] = answer.fields[0]
         del assignment['answers']
