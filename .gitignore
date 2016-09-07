@@ -21,3 +21,4 @@ boto.cfg
 *.retry
 words-in-transition/
 environment
+certs/
